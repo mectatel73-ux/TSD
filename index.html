@@ -29,11 +29,34 @@
         }
         .header {
             background: var(--bg-card); border-bottom: 2px solid var(--border);
-            padding: 16px 20px; display: flex; justify-content: space-between;
+            padding: 12px 20px; display: flex; justify-content: space-between;
             align-items: center; position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 8px rgba(61, 53, 32, 0.08);
+            gap: 16px;
+            flex-wrap: wrap;
         }
-        .header h1 { margin: 0; font-size: 20px; color: var(--accent); font-weight: 700; }
+        .header-left {
+            display: flex; align-items: center; gap: 20px;
+        }
+        .header h1 { margin: 0; font-size: 18px; color: var(--accent); font-weight: 700; }
+        .tabs {
+            display: flex; gap: 6px;
+            background: var(--bg); padding: 4px; border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .tab-btn {
+            padding: 8px 18px; border: none; border-radius: 8px;
+            background: transparent; color: var(--text-dim);
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: 0.15s; font-family: inherit;
+            min-height: 38px;
+        }
+        .tab-btn:hover { color: var(--accent); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: #FBF7E8;
+            box-shadow: 0 2px 6px rgba(139, 111, 63, 0.3);
+        }
         .header-status {
             font-size: 12px; font-weight: 600; padding: 6px 12px;
             border-radius: 6px; transition: 0.15s;
@@ -74,6 +97,51 @@
         }
         .tsd-scan-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15); }
         .tsd-scan-hint { font-size: 13px; color: var(--text-dim); margin-top: 10px; text-align: center; font-weight: 600; }
+
+        /* Кнопки выбора действия в ремонте */
+        .repair-actions {
+            display: flex; gap: 12px; margin-top: 16px;
+        }
+        .repair-action-btn {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            min-height: 56px;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .repair-action-btn:active { transform: scale(0.97); }
+        .repair-action-btn.to-repair {
+            background: linear-gradient(135deg, #FF9800, #E65100);
+            color: white;
+            box-shadow: 0 4px 12px rgba(230, 81, 0, 0.3);
+        }
+        .repair-action-btn.to-repair.active {
+            border-color: #3D3520;
+            box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.3);
+        }
+        .repair-action-btn.from-repair {
+            background: linear-gradient(135deg, #8BC34A, #558B2F);
+            color: white;
+            box-shadow: 0 4px 12px rgba(85, 139, 47, 0.3);
+        }
+        .repair-action-btn.from-repair.active {
+            border-color: #3D3520;
+            box-shadow: 0 0 0 4px rgba(139, 195, 74, 0.3);
+        }
+        .repair-action-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
 
         .tsd-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
         .tsd-filter-btn {
@@ -214,6 +282,9 @@
         .tsd-modal-btn-cancel { background: linear-gradient(135deg, #7A6F58, #5A5040); }
         .tsd-modal-btn-ok { background: linear-gradient(135deg, #5C8A4A, #3D5C30); }
 
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
         .install-btn { 
             position: fixed; bottom: 20px; right: 20px; 
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
@@ -225,13 +296,16 @@
         @media (max-width: 900px) { .tsd-summary { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 600px) {
             .container { padding: 12px; }
-            .header { padding: 12px 16px; }
-            .header h1 { font-size: 16px; }
+            .header { padding: 10px 12px; gap: 8px; }
+            .header h1 { font-size: 14px; }
+            .header-left { gap: 10px; }
+            .tab-btn { padding: 6px 10px; font-size: 12px; min-height: 32px; }
             .tsd-summary { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .tsd-summary-item { padding: 12px; }
             .tsd-summary-item .num { font-size: 24px; }
             .tsd-scan-box { padding: 16px; }
             .tsd-scan-input { font-size: 18px; padding: 14px; min-height: 56px; }
+            .repair-action-btn { padding: 12px; font-size: 13px; min-height: 48px; }
             .tsd-filters { gap: 6px; }
             .tsd-filter-btn { padding: 8px 12px; font-size: 12px; }
             .tsd-table th { font-size: 10px; padding: 10px 6px; }
@@ -243,57 +317,113 @@
 <body>
 
 <div class="header">
-    <h1>📟 Учёт ТСД</h1>
+    <div class="header-left">
+        <h1>📟 Учёт ТСД</h1>
+        <div class="tabs">
+            <button class="tab-btn active" id="tabAllBtn" onclick="switchTab('all')">📋 Все ТСД</button>
+            <button class="tab-btn" id="tabRepairBtn" onclick="switchTab('repair')">🔧 Ремонт</button>
+        </div>
+    </div>
     <div class="header-status sync-connecting" id="syncStatus">🔄 Подключение...</div>
 </div>
 
 <div class="container">
 
-    <div class="tsd-summary">
-        <div class="tsd-summary-item total"><div class="num" id="tsdTotal">0</div><div class="lbl">Всего</div></div>
-        <div class="tsd-summary-item issued"><div class="num" id="tsdIssued">0</div><div class="lbl">Выдано</div></div>
-        <div class="tsd-summary-item free"><div class="num" id="tsdFree">0</div><div class="lbl">Свободно</div></div>
-        <div class="tsd-summary-item repair"><div class="num" id="tsdRepair">0</div><div class="lbl">В ремонте</div></div>
-        <div class="tsd-summary-item written"><div class="num" id="tsdWritten">0</div><div class="lbl">Списано</div></div>
+    <!-- ============ ВКЛАДКА: ВСЕ ТСД ============ -->
+    <div class="tab-content active" id="tabAll">
+
+        <div class="tsd-summary">
+            <div class="tsd-summary-item total"><div class="num" id="tsdTotal">0</div><div class="lbl">Всего</div></div>
+            <div class="tsd-summary-item issued"><div class="num" id="tsdIssued">0</div><div class="lbl">Выдано</div></div>
+            <div class="tsd-summary-item free"><div class="num" id="tsdFree">0</div><div class="lbl">Свободно</div></div>
+            <div class="tsd-summary-item repair"><div class="num" id="tsdRepair">0</div><div class="lbl">В ремонте</div></div>
+            <div class="tsd-summary-item written"><div class="num" id="tsdWritten">0</div><div class="lbl">Списано</div></div>
+        </div>
+
+        <div class="tsd-scan-box">
+            <label>📷 Сканируй MAC ТСД или Логин сотрудника:</label>
+            <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="B4293DAD4861 или sckaz-khuziev7" autocomplete="off" autofocus>
+            <div class="tsd-scan-hint">💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.</div>
+        </div>
+
+        <div class="tsd-filters">
+            <button class="tsd-filter-btn active" data-filter="all" onclick="setTsdFilter('all')">Все</button>
+            <button class="tsd-filter-btn" data-filter="issued" onclick="setTsdFilter('issued')">Выданные</button>
+            <button class="tsd-filter-btn" data-filter="free" onclick="setTsdFilter('free')">Свободные</button>
+            <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
+        </div>
+
+        <input type="text" class="tsd-search" id="tsdSearch" placeholder="🔍 Поиск по номеру, MAC или логину..." oninput="renderTable()">
+
+        <div class="tsd-table-wrap">
+            <table class="tsd-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">№</th>
+                        <th style="width: 120px;">Номер</th>
+                        <th>MAC</th>
+                        <th style="width: 130px;">Статус</th>
+                        <th>У кого</th>
+                        <th style="width: 90px;">Выдан</th>
+                        <th style="width: 220px;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="tsdTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="tsd-history">
+            <h3><span>📜 История за сутки</span><button onclick="clearHistory()">Очистить</button></h3>
+            <div id="tsdHistoryList"><div style="color: var(--text-dim); font-size: 13px;">История пуста</div></div>
+        </div>
     </div>
 
-    <div class="tsd-scan-box">
-        <label>📷 Сканируй MAC ТСД или Логин сотрудника:</label>
-        <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="B4293DAD4861 или sckaz-khuziev7" autocomplete="off" autofocus>
-        <div class="tsd-scan-hint">💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.</div>
-    </div>
+    <!-- ============ ВКЛАДКА: РЕМОНТ ============ -->
+    <div class="tab-content" id="tabRepair">
 
-    <div class="tsd-filters">
-        <button class="tsd-filter-btn active" data-filter="all" onclick="setTsdFilter('all')">Все</button>
-        <button class="tsd-filter-btn" data-filter="issued" onclick="setTsdFilter('issued')">Выданные</button>
-        <button class="tsd-filter-btn" data-filter="free" onclick="setTsdFilter('free')">Свободные</button>
-        <button class="tsd-filter-btn" data-filter="repair" onclick="setTsdFilter('repair')">В ремонте</button>
-        <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
-    </div>
+        <div class="tsd-summary">
+            <div class="tsd-summary-item total"><div class="num" id="repairTotal">0</div><div class="lbl">Всего в ремонте</div></div>
+            <div class="tsd-summary-item repair"><div class="num" id="repairOldest">0</div><div class="lbl">Дней (самый старый)</div></div>
+            <div class="tsd-summary-item free"><div class="num" id="repairToday">0</div><div class="lbl">Сегодня ушли</div></div>
+        </div>
 
-    <input type="text" class="tsd-search" id="tsdSearch" placeholder="🔍 Поиск по номеру, MAC или логину..." oninput="renderTable()">
+        <div class="tsd-scan-box">
+            <label>📷 Сканируй MAC ТСД для ремонта:</label>
+            <input type="text" class="tsd-scan-input" id="repairScanInput" placeholder="B4293DAD4861" autocomplete="off">
+            <div class="tsd-scan-hint">💡 Выбери действие ниже, потом сканируй ТСД.</div>
+            
+            <div class="repair-actions">
+                <button class="repair-action-btn to-repair active" id="btnToRepair" onclick="setRepairMode('to')">
+                    🔧 Отправить в ремонт
+                </button>
+                <button class="repair-action-btn from-repair" id="btnFromRepair" onclick="setRepairMode('from')">
+                    ✅ Вернуть из ремонта
+                </button>
+            </div>
+        </div>
 
-    <div class="tsd-table-wrap">
-        <table class="tsd-table">
-            <thead>
-                <tr>
-                    <th style="width: 60px;">№</th>
-                    <th style="width: 120px;">Номер</th>
-                    <th>MAC</th>
-                    <th style="width: 130px;">Статус</th>
-                    <th>У кого</th>
-                    <th style="width: 90px;">Выдан</th>
-                    <th style="width: 100px;">В ремонте</th>
-                    <th style="width: 280px;">Действие</th>
-                </tr>
-            </thead>
-            <tbody id="tsdTableBody"></tbody>
-        </table>
-    </div>
+        <input type="text" class="tsd-search" id="repairSearch" placeholder="🔍 Поиск по номеру или MAC..." oninput="renderRepairTable()">
 
-    <div class="tsd-history">
-        <h3><span>📜 История за сутки</span><button onclick="clearHistory()">Очистить</button></h3>
-        <div id="tsdHistoryList"><div style="color: var(--text-dim); font-size: 13px;">История пуста</div></div>
+        <div class="tsd-table-wrap">
+            <table class="tsd-table">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">№</th>
+                        <th style="width: 120px;">Номер</th>
+                        <th>MAC</th>
+                        <th style="width: 130px;">Статус</th>
+                        <th style="width: 150px;">В ремонте</th>
+                        <th style="width: 220px;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="repairTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="tsd-history">
+            <h3><span>📜 История ремонтов за сутки</span><button onclick="clearHistory()">Очистить</button></h3>
+            <div id="repairHistoryList"><div style="color: var(--text-dim); font-size: 13px;">История пуста</div></div>
+        </div>
     </div>
 </div>
 
@@ -335,16 +465,18 @@
 
 <script>
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
-    const SYNC_INTERVAL = 5000;   // автоподтягивание каждые 5 сек
-    const SAVE_DEBOUNCE = 2000;   // автосохранение через 2 сек
-    const FETCH_TIMEOUT = 10000;  // 10 сек таймаут
-    const RETRY_DELAY = 5000;     // 5 сек между повторными попытками
+    const SYNC_INTERVAL = 5000;
+    const SAVE_DEBOUNCE = 2000;
+    const FETCH_TIMEOUT = 10000;
+    const RETRY_DELAY = 5000;
 
     let TSD_DATA = JSON.parse(localStorage.getItem('warehouseTsd')) || {};
     let TSD_HISTORY = JSON.parse(localStorage.getItem('warehouseTsdHistory')) || [];
     let TSD_FILTER = 'all';
     let currentIssueMac = null;
     let currentAcceptMac = null;
+    let currentTab = 'all';
+    let repairMode = 'to'; // 'to' = отправить в ремонт, 'from' = вернуть
 
     let saveTimer = null;
     let syncTimer = null;
@@ -370,9 +502,9 @@
         return d.toTimeString().slice(0, 5);
     }
 
-    function formatRepairDays(tsd) {
-        if (tsd.status !== 'repair' || !tsd.repairStartedAt) return '—';
-        const diff = Date.now() - tsd.repairStartedAt;
+    function formatRepairDays(ts) {
+        if (!ts) return '—';
+        const diff = Date.now() - ts;
         const days = Math.floor(diff / (24 * 60 * 60 * 1000));
         const hours = Math.floor(diff / (60 * 60 * 1000));
         if (days > 0) return days + ' дн.';
@@ -389,7 +521,7 @@
         return 'ТСД-' + String(max + 1).padStart(3, '0');
     }
 
-    // ============ FETCH С TIMEOUT И RETRY ============
+    // ============ FETCH ============
     async function fetchWithTimeout(url, options = {}, timeout = FETCH_TIMEOUT) {
         return Promise.race([
             fetch(url, options),
@@ -433,7 +565,6 @@
             const serverTime = data?.tsd?.lastModified || 0;
             const localTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
 
-            // Если на сервере новее — берём серверные данные
             if (serverTime > localTime) {
                 if (data?.tsd?.data) {
                     TSD_DATA = data.tsd.data;
@@ -467,20 +598,17 @@
 
         isSaving = true;
         try {
-            // Читаем текущее состояние сервера, чтобы не перезаписать чужие изменения
             let currentData = {};
             try {
                 const response = await fetchWithTimeout(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (response.ok) currentData = await response.json() || {};
             } catch (e) {}
 
-            // Если на сервере уже новее нашего последнего изменения — сначала подтянем
             const serverTsd = currentData?.tsd || {};
             const serverTime = serverTsd.lastModified || 0;
             const localTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
 
             if (serverTime > lastLocalChange && serverTime > localTime) {
-                // На сервере свежее — берём серверное, потом отправим своё
                 if (serverTsd.data) TSD_DATA = serverTsd.data;
                 if (serverTsd.history) TSD_HISTORY = serverTsd.history;
             }
@@ -491,11 +619,7 @@
                 directions: currentData.directions || {},
                 archive: currentData.archive || {},
                 shipment: currentData.shipment || {},
-                tsd: {
-                    data: TSD_DATA,
-                    history: TSD_HISTORY,
-                    lastModified: Date.now()
-                }
+                tsd: { data: TSD_DATA, history: TSD_HISTORY, lastModified: Date.now() }
             };
 
             const response = await fetchWithRetry(BIN_URL, {
@@ -517,7 +641,6 @@
         }
     }
 
-    // Дебаунс-сохранение: изменения уходят на сервер через 2 сек после последнего действия
     function saveDebounced() {
         lastLocalChange = Date.now();
         if (saveTimer) clearTimeout(saveTimer);
@@ -528,26 +651,19 @@
         }, SAVE_DEBOUNCE);
     }
 
-    // ============ АВТОСИНХРОНИЗАЦИЯ КАЖДЫЕ 5 СЕК ============
     function startSyncLoop() {
         if (syncTimer) clearInterval(syncTimer);
         syncTimer = setInterval(() => {
-            // Только если вкладка активна
             if (document.visibilityState !== 'visible') return;
-            // Не синхронизируем, если сохраняем
             if (isSaving || isSyncing) return;
             loadFromServer(true);
         }, SYNC_INTERVAL);
     }
 
-    // При возврате на вкладку — сразу синхронизировать
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            loadFromServer(true);
-        }
+        if (document.visibilityState === 'visible') loadFromServer(true);
     });
 
-    // При возврате интернета — синхронизировать
     window.addEventListener('online', () => {
         serverOnline = true;
         saveToServer();
@@ -559,11 +675,41 @@
         setStatus('offline', '📴 Нет интернета');
     });
 
+    // ============ ВКЛАДКИ ============
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        if (tab === 'all') {
+            document.getElementById('tabAll').classList.add('active');
+            document.getElementById('tabAllBtn').classList.add('active');
+            setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 100);
+        } else if (tab === 'repair') {
+            document.getElementById('tabRepair').classList.add('active');
+            document.getElementById('tabRepairBtn').classList.add('active');
+            renderRepairSummary();
+            renderRepairTable();
+            renderRepairHistory();
+            setTimeout(() => document.getElementById('repairScanInput')?.focus(), 100);
+        }
+    }
+
+    function setRepairMode(mode) {
+        repairMode = mode;
+        document.getElementById('btnToRepair').classList.toggle('active', mode === 'to');
+        document.getElementById('btnFromRepair').classList.toggle('active', mode === 'from');
+        setTimeout(() => document.getElementById('repairScanInput')?.focus(), 100);
+    }
+
     // ============ РЕНДЕР ============
     function renderAll() {
         renderSummary();
         renderTable();
         renderHistory();
+        renderRepairSummary();
+        renderRepairTable();
+        renderRepairHistory();
     }
 
     function renderSummary() {
@@ -573,6 +719,26 @@
         document.getElementById('tsdFree').textContent = all.filter(m => TSD_DATA[m].status === 'free').length;
         document.getElementById('tsdRepair').textContent = all.filter(m => TSD_DATA[m].status === 'repair').length;
         document.getElementById('tsdWritten').textContent = all.filter(m => TSD_DATA[m].status === 'written').length;
+    }
+
+    function renderRepairSummary() {
+        const repairs = Object.values(TSD_DATA).filter(t => t.status === 'repair');
+        document.getElementById('repairTotal').textContent = repairs.length;
+        
+        // Самый старый
+        let oldestDays = 0;
+        repairs.forEach(t => {
+            if (t.repairStartedAt) {
+                const days = Math.floor((Date.now() - t.repairStartedAt) / (24 * 60 * 60 * 1000));
+                if (days > oldestDays) oldestDays = days;
+            }
+        });
+        document.getElementById('repairOldest').textContent = oldestDays;
+
+        // Сегодня ушли
+        const todayStart = new Date().setHours(0, 0, 0, 0);
+        const todayCount = repairs.filter(t => t.repairStartedAt >= todayStart).length;
+        document.getElementById('repairToday').textContent = todayCount;
     }
 
     function setTsdFilter(f) {
@@ -590,6 +756,9 @@
         const search = (document.getElementById('tsdSearch')?.value || '').toLowerCase().trim();
         let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
 
+        // На вкладке "Все ТСД" скрываем тех, кто в ремонте и списан (они на своих вкладках)
+        items = items.filter(it => it.status !== 'repair');
+
         if (TSD_FILTER !== 'all') items = items.filter(it => it.status === TSD_FILTER);
 
         if (search) {
@@ -600,7 +769,7 @@
             );
         }
 
-        const statusOrder = { issued: 0, free: 1, repair: 2, written: 3 };
+        const statusOrder = { issued: 0, free: 1, written: 2 };
         items.sort((a, b) => {
             const s = (statusOrder[a.status] || 9) - (statusOrder[b.status] || 9);
             if (s !== 0) return s;
@@ -608,24 +777,19 @@
         });
 
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
             return;
         }
 
         let html = '';
         items.forEach((it, i) => {
-            const statusText = { issued: 'Выдан', free: 'Свободен', repair: 'В ремонте', written: 'Списан' }[it.status] || '—';
-            const repairDays = formatRepairDays(it);
+            const statusText = { issued: 'Выдан', free: 'Свободен', written: 'Списан' }[it.status] || '—';
 
             let actions = '';
             if (it.status === 'free') {
                 actions = `<button class="tsd-action-btn tsd-action-issue" onclick="openIssueModal('${it.mac}')">📤 Выдать</button>`;
-                actions += `<button class="tsd-action-btn tsd-action-repair" onclick="toRepair('${it.mac}')">🔧 В ремонт</button>`;
             } else if (it.status === 'issued') {
                 actions = `<button class="tsd-action-btn tsd-action-accept" onclick="openAcceptModal('${it.mac}')">📥 Принять</button>`;
-            } else if (it.status === 'repair') {
-                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">✅ Из ремонта</button>`;
-                actions += `<button class="tsd-action-btn tsd-action-writeoff" onclick="writeOff('${it.mac}')">❌ Списать</button>`;
             } else if (it.status === 'written') {
                 actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">↩️ Вернуть</button>`;
             }
@@ -637,8 +801,51 @@
                 <td><span class="tsd-status ${it.status}">${statusText}</span></td>
                 <td class="owner-cell">${it.owner || '—'}</td>
                 <td>${formatTime(it.issuedAt)}</td>
-                <td class="repair-cell" style="color:${it.status === 'repair' ? 'var(--danger)' : 'var(--text-muted)'};">${repairDays}</td>
                 <td class="tsd-actions-cell">${actions}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function renderRepairTable() {
+        const tbody = document.getElementById('repairTableBody');
+        if (!tbody) return;
+
+        const search = (document.getElementById('repairSearch')?.value || '').toLowerCase().trim();
+        let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
+        items = items.filter(it => it.status === 'repair');
+
+        if (search) {
+            items = items.filter(it =>
+                (it.number || '').toLowerCase().includes(search) ||
+                it.mac.toLowerCase().includes(search)
+            );
+        }
+
+        // Сортируем: сначала самые старые в ремонте
+        items.sort((a, b) => (a.repairStartedAt || 0) - (b.repairStartedAt || 0));
+
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:30px;">В ремонте никого нет</td></tr>';
+            return;
+        }
+
+        let html = '';
+        items.forEach((it, i) => {
+            const days = formatRepairDays(it.repairStartedAt);
+            const daysNum = it.repairStartedAt ? Math.floor((Date.now() - it.repairStartedAt) / (24 * 60 * 60 * 1000)) : 0;
+            const daysColor = daysNum >= 7 ? 'var(--danger)' : (daysNum >= 3 ? 'var(--warning)' : 'var(--text-dim)');
+
+            html += `<tr class="tsd-row repair">
+                <td>${i + 1}</td>
+                <td class="num-cell">${it.number || '—'}</td>
+                <td class="mac-cell">${it.mac}</td>
+                <td><span class="tsd-status repair">В ремонте</span></td>
+                <td class="repair-cell" style="color:${daysColor};">${days}</td>
+                <td class="tsd-actions-cell">
+                    <button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">✅ Вернуть</button>
+                    <button class="tsd-action-btn tsd-action-writeoff" onclick="writeOff('${it.mac}')">❌ Списать</button>
+                </td>
             </tr>`;
         });
         tbody.innerHTML = html;
@@ -650,7 +857,6 @@
 
         const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
         TSD_HISTORY = TSD_HISTORY.filter(h => h.time >= dayAgo);
-        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
 
         if (TSD_HISTORY.length === 0) {
             container.innerHTML = '<div style="color: var(--text-dim); font-size: 13px;">История пуста</div>';
@@ -675,28 +881,49 @@
         container.innerHTML = html;
     }
 
+    function renderRepairHistory() {
+        const container = document.getElementById('repairHistoryList');
+        if (!container) return;
+
+        const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        const repairHistory = TSD_HISTORY.filter(h => h.time >= dayAgo && (h.action === 'repair' || h.action === 'restore' || h.action === 'writeoff'));
+
+        if (repairHistory.length === 0) {
+            container.innerHTML = '<div style="color: var(--text-dim); font-size: 13px;">История пуста</div>';
+            return;
+        }
+
+        let html = '';
+        repairHistory.slice(0, 100).forEach(h => {
+            const t = new Date(h.time).toTimeString().slice(0,5);
+            let text = '';
+            if (h.action === 'repair') text = `🔧 ${h.number} → в ремонт`;
+            else if (h.action === 'restore') text = `✅ ${h.number} → из ремонта`;
+            else if (h.action === 'writeoff') text = `❌ ${h.number} списан`;
+            html += `<div class="history-item">
+                <span class="h-time">${t}</span>
+                <span class="h-text">${text}</span>
+            </div>`;
+        });
+        container.innerHTML = html;
+    }
+
     function addHistory(action, number, owner, mac) {
         TSD_HISTORY.unshift({ time: Date.now(), action, number, owner: owner || '', mac: mac || '' });
         if (TSD_HISTORY.length > 500) TSD_HISTORY = TSD_HISTORY.slice(0, 500);
-        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
     }
 
     // ============ СКАНИРОВАНИЕ ============
     function handleScan(code) {
         if (!code) return;
-
-        // Защита от двойного сканирования
         const issueModalOpen = document.getElementById('issueModal').classList.contains('active');
         const acceptModalOpen = document.getElementById('acceptModal').classList.contains('active');
-
         const norm = normalizeCode(code);
 
         if (isMacCode(norm)) {
-            // Если модалка уже открыта — игнорируем MAC
             if (issueModalOpen || acceptModalOpen) return;
             handleMac(norm);
         } else {
-            // Логин
             if (issueModalOpen) {
                 document.getElementById('issueLoginInput').value = norm.toLowerCase();
             } else if (!acceptModalOpen) {
@@ -710,8 +937,8 @@
             TSD_DATA[mac] = {
                 number: getNextTsdNumber(),
                 status: 'free',
-                owner: null,
-                issuedAt: null,
+                owner: null, issuedAt: null,
+                repairStartedAt: null,
                 createdAt: Date.now()
             };
             localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
@@ -727,6 +954,51 @@
             if (confirm(`ТСД ${tsd.number} в ремонте. Вернуть в работу?`)) fromRepair(mac);
         }
         else if (tsd.status === 'written') alert(`ТСД ${tsd.number} списан.`);
+    }
+
+    // ============ СКАНИРОВАНИЕ В РЕМОНТЕ ============
+    function handleRepairScan(code) {
+        if (!code) return;
+        const norm = normalizeCode(code);
+        if (!isMacCode(norm)) {
+            alert('Это не MAC-адрес ТСД');
+            return;
+        }
+
+        const tsd = TSD_DATA[norm];
+        if (!tsd) {
+            alert(`ТСД ${norm} не найден в системе.\n\nСначала добавь его на вкладке "Все ТСД".`);
+            return;
+        }
+
+        if (repairMode === 'to') {
+            // Отправить в ремонт
+            if (tsd.status === 'repair') {
+                alert(`ТСД ${tsd.number} уже в ремонте.`);
+                return;
+            }
+            if (tsd.status === 'issued') {
+                if (!confirm(`ТСД ${tsd.number} выдан ${tsd.owner}. Отправить в ремонт?`)) return;
+            }
+            tsd.status = 'repair';
+            tsd.owner = null;
+            tsd.issuedAt = null;
+            tsd.repairStartedAt = Date.now();
+            addHistory('repair', tsd.number, null, norm);
+        } else {
+            // Вернуть из ремонта
+            if (tsd.status !== 'repair') {
+                alert(`ТСД ${tsd.number} не в ремонте (статус: ${tsd.status}).`);
+                return;
+            }
+            tsd.status = 'free';
+            tsd.repairStartedAt = null;
+            addHistory('restore', tsd.number, null, norm);
+        }
+
+        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+        saveDebounced();
+        renderAll();
     }
 
     // ============ ВЫДАЧА ============
@@ -758,7 +1030,6 @@
         tsd.status = 'issued';
         tsd.owner = login;
         tsd.issuedAt = Date.now();
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
         addHistory('issue', tsd.number, login, currentIssueMac);
         saveDebounced();
 
@@ -793,7 +1064,6 @@
         tsd.status = 'free';
         tsd.owner = null;
         tsd.issuedAt = null;
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
         addHistory('accept', tsd.number, oldOwner, currentAcceptMac);
         saveDebounced();
 
@@ -802,26 +1072,11 @@
     }
 
     // ============ РЕМОНТ ============
-    function toRepair(mac) {
-        const tsd = TSD_DATA[mac];
-        if (!tsd) return;
-        if (!confirm(`Отправить ${tsd.number} в ремонт?`)) return;
-        tsd.status = 'repair';
-        tsd.owner = null;
-        tsd.issuedAt = null;
-        tsd.repairStartedAt = Date.now();
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        addHistory('repair', tsd.number, null, mac);
-        saveDebounced();
-        renderAll();
-    }
-
     function fromRepair(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         tsd.status = 'free';
         tsd.repairStartedAt = null;
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
         addHistory('restore', tsd.number, null, mac);
         saveDebounced();
         renderAll();
@@ -832,7 +1087,7 @@
         if (!tsd) return;
         if (!confirm(`Списать ${tsd.number} навсегда?`)) return;
         tsd.status = 'written';
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+        tsd.repairStartedAt = null;
         addHistory('writeoff', tsd.number, null, mac);
         saveDebounced();
         renderAll();
@@ -843,6 +1098,7 @@
         TSD_HISTORY = [];
         localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
         renderHistory();
+        renderRepairHistory();
         saveDebounced();
     }
 
@@ -865,13 +1121,21 @@
         renderAll();
         setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 200);
 
-        const scanInput = document.getElementById('tsdScanInput');
-        scanInput.addEventListener('keydown', (e) => {
+        document.getElementById('tsdScanInput').addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
-                const code = scanInput.value.trim();
-                scanInput.value = '';
+                const code = e.target.value.trim();
+                e.target.value = '';
                 if (code) handleScan(code);
+            }
+        });
+
+        document.getElementById('repairScanInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const code = e.target.value.trim();
+                e.target.value = '';
+                if (code) handleRepairScan(code);
             }
         });
 
