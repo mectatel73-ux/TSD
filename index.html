@@ -14,21 +14,11 @@
     <style>
         * { box-sizing: border-box; }
         :root {
-            --bg: #F0E8CD;
-            --bg-card: #F8F3E0;
-            --bg-elevated: #FBF7E8;
-            --bg-input: #FFFFFF;
-            --accent: #8B6F3F;
-            --accent-dark: #6B5430;
-            --accent-light: #A88A5A;
-            --text: #3D3520;
-            --text-dim: #6B5F45;
-            --text-muted: #9A8D73;
-            --border: #D4C9A8;
-            --border-light: #E5DCC0;
-            --success: #4D7C3F;
-            --warning: #B8860B;
-            --danger: #A6392D;
+            --bg: #F0E8CD; --bg-card: #F8F3E0; --bg-elevated: #FBF7E8; --bg-input: #FFFFFF;
+            --accent: #8B6F3F; --accent-dark: #6B5430; --accent-light: #A88A5A;
+            --text: #3D3520; --text-dim: #6B5F45; --text-muted: #9A8D73;
+            --border: #D4C9A8; --border-light: #E5DCC0;
+            --success: #4D7C3F; --warning: #B8860B; --danger: #A6392D;
         }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -37,234 +27,106 @@
             -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
             min-height: 100vh;
         }
-
         .header {
-            background: var(--bg-card);
-            border-bottom: 2px solid var(--border);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            background: var(--bg-card); border-bottom: 2px solid var(--border);
+            padding: 16px 20px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 100;
             box-shadow: 0 2px 8px rgba(61, 53, 32, 0.08);
         }
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
-            color: var(--accent);
-            font-weight: 700;
-        }
+        .header h1 { margin: 0; font-size: 20px; color: var(--accent); font-weight: 700; }
         .header-status {
-            font-size: 12px;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.15s;
+            font-size: 12px; font-weight: 600; padding: 6px 12px;
+            border-radius: 6px; transition: 0.15s;
         }
         .sync-online { background: rgba(77, 124, 63, 0.15); color: var(--success); border: 1px solid rgba(77, 124, 63, 0.3); }
         .sync-offline { background: rgba(166, 57, 45, 0.15); color: var(--danger); border: 1px solid rgba(166, 57, 45, 0.3); }
         .sync-connecting { background: rgba(184, 134, 11, 0.15); color: var(--warning); border: 1px solid rgba(184, 134, 11, 0.3); }
-        .sync-unsaved { background: rgba(184, 134, 11, 0.2); color: #8B6914; border: 1px solid rgba(184, 134, 11, 0.4); }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
 
-        /* Сводка */
-        .tsd-summary {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
+        .tsd-summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
         .tsd-summary-item {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            transition: 0.2s;
-            box-shadow: 0 2px 6px rgba(61, 53, 32, 0.06);
+            background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 12px; padding: 16px; text-align: center;
+            transition: 0.2s; box-shadow: 0 2px 6px rgba(61, 53, 32, 0.06);
         }
-        .tsd-summary-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(61, 53, 32, 0.12);
-        }
-        .tsd-summary-item .num {
-            font-size: 32px;
-            font-weight: 800;
-            line-height: 1;
-            margin-bottom: 6px;
-        }
-        .tsd-summary-item .lbl {
-            font-size: 11px;
-            color: var(--text-dim);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .tsd-summary-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(61, 53, 32, 0.12); }
+        .tsd-summary-item .num { font-size: 32px; font-weight: 800; line-height: 1; margin-bottom: 6px; }
+        .tsd-summary-item .lbl { font-size: 11px; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .tsd-summary-item.total .num { color: var(--text); }
         .tsd-summary-item.issued .num { color: var(--warning); }
         .tsd-summary-item.free .num { color: var(--success); }
         .tsd-summary-item.repair .num { color: var(--danger); }
         .tsd-summary-item.written .num { color: var(--text-muted); }
 
-        /* Сканер */
         .tsd-scan-box {
             background: linear-gradient(135deg, rgba(139, 111, 63, 0.12), rgba(168, 138, 90, 0.08));
-            border: 2px solid var(--accent);
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(139, 111, 63, 0.1);
+            border: 2px solid var(--accent); border-radius: 12px; padding: 24px;
+            margin-bottom: 20px; box-shadow: 0 4px 12px rgba(139, 111, 63, 0.1);
         }
-        .tsd-scan-box label {
-            display: block;
-            font-size: 16px;
-            color: var(--accent);
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
+        .tsd-scan-box label { display: block; font-size: 16px; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
         .tsd-scan-input {
-            width: 100%;
-            padding: 20px 22px;
-            font-size: 24px;
-            background: var(--bg-input);
-            color: var(--text);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-family: 'Courier New', monospace;
-            font-weight: 700;
-            letter-spacing: 2px;
-            min-height: 72px;
-            transition: 0.2s;
+            width: 100%; padding: 20px 22px; font-size: 24px;
+            background: var(--bg-input); color: var(--text);
+            border: 2px solid var(--border); border-radius: 12px;
+            font-family: 'Courier New', monospace; font-weight: 700;
+            letter-spacing: 2px; min-height: 72px; transition: 0.2s;
         }
-        .tsd-scan-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15);
-        }
-        .tsd-scan-hint {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-top: 10px;
-            text-align: center;
-            font-weight: 600;
-        }
+        .tsd-scan-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15); }
+        .tsd-scan-hint { font-size: 13px; color: var(--text-dim); margin-top: 10px; text-align: center; font-weight: 600; }
 
-        /* Фильтры */
-        .tsd-filters {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
-        }
+        .tsd-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
         .tsd-filter-btn {
-            padding: 10px 18px;
-            border: 2px solid var(--border);
-            background: var(--bg-card);
-            color: var(--text-dim);
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.15s;
-            font-family: inherit;
+            padding: 10px 18px; border: 2px solid var(--border); background: var(--bg-card);
+            color: var(--text-dim); border-radius: 8px; font-size: 14px; font-weight: 700;
+            cursor: pointer; transition: 0.15s; font-family: inherit;
         }
-        .tsd-filter-btn:hover { 
-            border-color: var(--accent); 
-            color: var(--accent);
-            background: var(--bg-elevated);
-        }
+        .tsd-filter-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-elevated); }
         .tsd-filter-btn.active {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: #FBF7E8;
-            border-color: var(--accent-dark);
+            color: #FBF7E8; border-color: var(--accent-dark);
             box-shadow: 0 4px 12px rgba(139, 111, 63, 0.3);
         }
 
         .tsd-search {
-            width: 100%;
-            padding: 14px 18px;
-            background: var(--bg-input);
-            color: var(--text);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 15px;
-            margin-bottom: 14px;
-            min-height: 50px;
-            font-family: inherit;
-            font-weight: 500;
+            width: 100%; padding: 14px 18px; background: var(--bg-input); color: var(--text);
+            border: 2px solid var(--border); border-radius: 10px; font-size: 15px;
+            margin-bottom: 14px; min-height: 50px; font-family: inherit; font-weight: 500;
         }
-        .tsd-search:focus { 
-            outline: none; 
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(139, 111, 63, 0.12);
-        }
+        .tsd-search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139, 111, 63, 0.12); }
         .tsd-search::placeholder { color: var(--text-muted); }
 
-        /* Таблица */
         .tsd-table-wrap {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            max-height: 600px;
-            overflow-y: auto;
+            background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 12px; overflow: hidden; margin-bottom: 20px;
+            max-height: 600px; overflow-y: auto;
             box-shadow: 0 2px 8px rgba(61, 53, 32, 0.06);
         }
-        .tsd-table {
-            width: 100%; border-collapse: collapse;
-            font-size: 14px;
-        }
+        .tsd-table { width: 100%; border-collapse: collapse; font-size: 14px; }
         .tsd-table th {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: #FBF7E8; padding: 14px 10px;
-            font-size: 12px; font-weight: 700;
+            color: #FBF7E8; padding: 14px 10px; font-size: 12px; font-weight: 700;
             border-bottom: 2px solid var(--accent-dark);
             white-space: nowrap; text-align: left;
             position: sticky; top: 0; z-index: 10;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            text-transform: uppercase; letter-spacing: 0.5px;
         }
         .tsd-table td {
             border-bottom: 1px solid var(--border-light);
-            padding: 12px 10px;
-            color: var(--text); font-weight: 500;
+            padding: 12px 10px; color: var(--text); font-weight: 500;
             text-align: left; font-size: 14px;
         }
         .tsd-table tr:last-child td { border-bottom: none; }
         .tsd-table tr:hover { background: rgba(139, 111, 63, 0.06); }
 
-        .tsd-table td.mac-cell {
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            color: var(--text-dim);
-            font-weight: 600;
-        }
-        .tsd-table td.owner-cell {
-            font-family: 'Courier New', monospace;
-            color: var(--accent);
-            font-size: 13px;
-            font-weight: 700;
-        }
-        .tsd-table td.num-cell {
-            font-weight: 800;
-            color: var(--text);
-            font-size: 15px;
-        }
+        .tsd-table td.mac-cell { font-family: 'Courier New', monospace; font-size: 13px; color: var(--text-dim); font-weight: 600; }
+        .tsd-table td.owner-cell { font-family: 'Courier New', monospace; color: var(--accent); font-size: 13px; font-weight: 700; }
+        .tsd-table td.num-cell { font-weight: 800; color: var(--text); font-size: 15px; }
+        .tsd-table td.repair-cell { text-align: center; font-weight: 700; }
 
         .tsd-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            display: inline-block; padding: 5px 12px; border-radius: 12px;
+            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
         }
         .tsd-status.issued { background: rgba(184, 134, 11, 0.2); color: #8B6914; border: 1px solid rgba(184, 134, 11, 0.4); }
         .tsd-status.free { background: rgba(77, 124, 63, 0.18); color: var(--success); border: 1px solid rgba(77, 124, 63, 0.35); }
@@ -276,182 +138,76 @@
         .tsd-row.written { background: rgba(154, 141, 115, 0.06); opacity: 0.75; }
 
         .tsd-action-btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #FBF7E8;
-            margin: 2px;
-            transition: 0.15s;
-            font-family: inherit;
-            min-height: 36px;
+            padding: 8px 14px; border: none; border-radius: 6px;
+            font-size: 12px; font-weight: 700; cursor: pointer;
+            color: #FBF7E8; margin: 2px; transition: 0.15s;
+            font-family: inherit; min-height: 36px;
             box-shadow: 0 2px 4px rgba(61, 53, 32, 0.1);
         }
         .tsd-action-btn:active { transform: scale(0.95); }
         .tsd-action-issue { background: linear-gradient(135deg, #5C8A4A, #3D5C30); }
-        .tsd-action-accept { background: linear-gradient(135deg, #B8860B, #8B6914); }
-        .tsd-action-repair { background: linear-gradient(135deg, #A6392D, #7A281E); }
+        .tsd-action-accept { background: linear-gradient(135deg, #8BC34A, #558B2F); }
+        .tsd-action-repair { background: linear-gradient(135deg, #FF9800, #E65100); }
         .tsd-action-restore { background: linear-gradient(135deg, #4A6FA5, #2F4A75); }
         .tsd-action-writeoff { background: linear-gradient(135deg, #7A6F58, #5A5040); }
 
-        .tsd-actions-cell {
-            text-align: right;
-            white-space: nowrap;
-        }
+        .tsd-actions-cell { text-align: right; white-space: nowrap; }
 
-        /* История */
         .tsd-history {
-            background: var(--bg-card);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 20px;
+            background: var(--bg-card); border: 2px solid var(--border);
+            border-radius: 12px; padding: 18px; margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(61, 53, 32, 0.06);
         }
         .tsd-history h3 {
-            margin: 0 0 14px 0;
-            font-size: 15px;
-            color: var(--accent);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 700;
+            margin: 0 0 14px 0; font-size: 15px; color: var(--accent);
+            display: flex; justify-content: space-between; align-items: center; font-weight: 700;
         }
         .tsd-history h3 button {
             background: linear-gradient(135deg, #A6392D, #7A281E);
-            color: #FBF7E8;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
+            color: #FBF7E8; border: none; border-radius: 6px; padding: 8px 14px;
+            font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
             box-shadow: 0 2px 4px rgba(166, 57, 45, 0.2);
         }
         .history-item {
-            padding: 10px 0;
-            border-bottom: 1px dashed var(--border);
-            font-size: 13px;
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
+            padding: 10px 0; border-bottom: 1px dashed var(--border);
+            font-size: 13px; display: flex; justify-content: space-between; gap: 12px;
         }
         .history-item:last-child { border-bottom: none; }
-        .history-item .h-time {
-            color: var(--accent);
-            font-weight: 700;
-            font-family: 'Courier New', monospace;
-        }
+        .history-item .h-time { color: var(--accent); font-weight: 700; font-family: 'Courier New', monospace; }
         .history-item .h-text { flex: 1; color: var(--text); font-weight: 500; }
 
-        /* Модалки */
         .tsd-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(61, 53, 32, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 10000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(61, 53, 32, 0.6); backdrop-filter: blur(4px);
+            z-index: 10000; align-items: center; justify-content: center; padding: 20px;
         }
         .tsd-modal.active { display: flex; }
         .tsd-modal-content {
-            background: var(--bg-elevated);
-            border-radius: 16px;
-            padding: 28px;
-            max-width: 520px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(61, 53, 32, 0.4);
-            border: 2px solid var(--border);
+            background: var(--bg-elevated); border-radius: 16px; padding: 28px;
+            max-width: 520px; width: 100%;
+            box-shadow: 0 20px 60px rgba(61, 53, 32, 0.4); border: 2px solid var(--border);
         }
-        .tsd-modal-content h3 {
-            margin: 0 0 8px 0;
-            font-size: 22px;
-            color: var(--accent);
-            text-align: center;
-            font-weight: 800;
-        }
-        .tsd-modal-content .subtitle {
-            text-align: center;
-            font-size: 14px;
-            color: var(--text-dim);
-            margin-bottom: 24px;
-            font-weight: 600;
-        }
-        .tsd-info-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-        .tsd-info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            font-size: 15px;
-            border-bottom: 1px solid var(--border-light);
-        }
+        .tsd-modal-content h3 { margin: 0 0 8px 0; font-size: 22px; color: var(--accent); text-align: center; font-weight: 800; }
+        .tsd-modal-content .subtitle { text-align: center; font-size: 14px; color: var(--text-dim); margin-bottom: 24px; font-weight: 600; }
+        .tsd-info-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .tsd-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; border-bottom: 1px solid var(--border-light); }
         .tsd-info-row:last-child { border-bottom: none; }
-        .tsd-info-row .label {
-            color: var(--text-dim);
-            font-weight: 700;
-        }
-        .tsd-info-row .value {
-            color: var(--text);
-            font-weight: 800;
-            font-family: 'Courier New', monospace;
-        }
+        .tsd-info-row .label { color: var(--text-dim); font-weight: 700; }
+        .tsd-info-row .value { color: var(--text); font-weight: 800; font-family: 'Courier New', monospace; }
         .tsd-modal-content input {
-            width: 100%;
-            padding: 16px 18px;
-            font-size: 20px;
-            background: var(--bg-input);
-            color: var(--text);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-weight: 700;
-            letter-spacing: 1px;
-            min-height: 60px;
-            transition: 0.2s;
+            width: 100%; padding: 16px 18px; font-size: 20px;
+            background: var(--bg-input); color: var(--text);
+            border: 2px solid var(--border); border-radius: 10px;
+            font-family: 'Courier New', monospace; font-weight: 700;
+            letter-spacing: 1px; min-height: 60px; transition: 0.2s;
         }
-        .tsd-modal-content input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15);
-        }
-        .tsd-modal-content .input-label {
-            display: block;
-            font-size: 13px;
-            color: var(--text-dim);
-            font-weight: 700;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .tsd-modal-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
+        .tsd-modal-content input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15); }
+        .tsd-modal-content .input-label { display: block; font-size: 13px; color: var(--text-dim); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .tsd-modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
         .tsd-modal-buttons button {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #FBF7E8;
-            min-height: 56px;
-            font-family: inherit;
-            transition: 0.15s;
+            flex: 1; padding: 16px; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: 700; cursor: pointer; color: #FBF7E8;
+            min-height: 56px; font-family: inherit; transition: 0.15s;
             box-shadow: 0 4px 12px rgba(61, 53, 32, 0.15);
         }
         .tsd-modal-buttons button:active { transform: scale(0.97); }
@@ -466,10 +222,7 @@
             box-shadow: 0 8px 24px rgba(139, 111, 63, 0.4); display: none; z-index: 9999; 
         }
 
-        @media (max-width: 900px) {
-            .tsd-summary { grid-template-columns: repeat(3, 1fr); }
-        }
-
+        @media (max-width: 900px) { .tsd-summary { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 600px) {
             .container { padding: 12px; }
             .header { padding: 12px 16px; }
@@ -491,44 +244,23 @@
 
 <div class="header">
     <h1>📟 Учёт ТСД</h1>
-    <div class="header-status sync-connecting" id="syncStatus" onclick="forceRefresh()">
-        🔄 Подключение...
-    </div>
+    <div class="header-status sync-connecting" id="syncStatus">🔄 Подключение...</div>
 </div>
 
 <div class="container">
 
     <div class="tsd-summary">
-        <div class="tsd-summary-item total">
-            <div class="num" id="tsdTotal">0</div>
-            <div class="lbl">Всего</div>
-        </div>
-        <div class="tsd-summary-item issued">
-            <div class="num" id="tsdIssued">0</div>
-            <div class="lbl">Выдано</div>
-        </div>
-        <div class="tsd-summary-item free">
-            <div class="num" id="tsdFree">0</div>
-            <div class="lbl">Свободно</div>
-        </div>
-        <div class="tsd-summary-item repair">
-            <div class="num" id="tsdRepair">0</div>
-            <div class="lbl">В ремонте</div>
-        </div>
-        <div class="tsd-summary-item written">
-            <div class="num" id="tsdWritten">0</div>
-            <div class="lbl">Списано</div>
-        </div>
+        <div class="tsd-summary-item total"><div class="num" id="tsdTotal">0</div><div class="lbl">Всего</div></div>
+        <div class="tsd-summary-item issued"><div class="num" id="tsdIssued">0</div><div class="lbl">Выдано</div></div>
+        <div class="tsd-summary-item free"><div class="num" id="tsdFree">0</div><div class="lbl">Свободно</div></div>
+        <div class="tsd-summary-item repair"><div class="num" id="tsdRepair">0</div><div class="lbl">В ремонте</div></div>
+        <div class="tsd-summary-item written"><div class="num" id="tsdWritten">0</div><div class="lbl">Списано</div></div>
     </div>
 
     <div class="tsd-scan-box">
         <label>📷 Сканируй MAC ТСД или Логин сотрудника:</label>
-        <input type="text" class="tsd-scan-input" id="tsdScanInput" 
-               placeholder="B4293DAD4861 или sckaz-khuziev7"
-               autocomplete="off" autofocus>
-        <div class="tsd-scan-hint">
-            💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.
-        </div>
+        <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="B4293DAD4861 или sckaz-khuziev7" autocomplete="off" autofocus>
+        <div class="tsd-scan-hint">💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.</div>
     </div>
 
     <div class="tsd-filters">
@@ -539,21 +271,20 @@
         <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
     </div>
 
-    <input type="text" class="tsd-search" id="tsdSearch" 
-           placeholder="🔍 Поиск по номеру, MAC или логину..."
-           oninput="renderTable()">
+    <input type="text" class="tsd-search" id="tsdSearch" placeholder="🔍 Поиск по номеру, MAC или логину..." oninput="renderTable()">
 
     <div class="tsd-table-wrap">
         <table class="tsd-table">
             <thead>
                 <tr>
                     <th style="width: 60px;">№</th>
-                    <th style="width: 130px;">Номер</th>
+                    <th style="width: 120px;">Номер</th>
                     <th>MAC</th>
-                    <th style="width: 140px;">Статус</th>
+                    <th style="width: 130px;">Статус</th>
                     <th>У кого</th>
-                    <th style="width: 100px;">Выдан</th>
-                    <th style="width: 300px;">Действие</th>
+                    <th style="width: 90px;">Выдан</th>
+                    <th style="width: 100px;">В ремонте</th>
+                    <th style="width: 280px;">Действие</th>
                 </tr>
             </thead>
             <tbody id="tsdTableBody"></tbody>
@@ -561,17 +292,11 @@
     </div>
 
     <div class="tsd-history">
-        <h3>
-            <span>📜 История за сутки</span>
-            <button onclick="clearHistory()">Очистить</button>
-        </h3>
-        <div id="tsdHistoryList">
-            <div style="color: var(--text-dim); font-size: 13px;">История пуста</div>
-        </div>
+        <h3><span>📜 История за сутки</span><button onclick="clearHistory()">Очистить</button></h3>
+        <div id="tsdHistoryList"><div style="color: var(--text-dim); font-size: 13px;">История пуста</div></div>
     </div>
 </div>
 
-<!-- Модалка выдачи -->
 <div class="tsd-modal" id="issueModal">
     <div class="tsd-modal-content">
         <h3>📤 Выдать ТСД</h3>
@@ -589,7 +314,6 @@
     </div>
 </div>
 
-<!-- Модалка приёма -->
 <div class="tsd-modal" id="acceptModal">
     <div class="tsd-modal-content">
         <h3>📥 Принять ТСД</h3>
@@ -611,7 +335,10 @@
 
 <script>
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
-    const SYNC_INTERVAL = 30000;
+    const SYNC_INTERVAL = 5000;   // автоподтягивание каждые 5 сек
+    const SAVE_DEBOUNCE = 2000;   // автосохранение через 2 сек
+    const FETCH_TIMEOUT = 10000;  // 10 сек таймаут
+    const RETRY_DELAY = 5000;     // 5 сек между повторными попытками
 
     let TSD_DATA = JSON.parse(localStorage.getItem('warehouseTsd')) || {};
     let TSD_HISTORY = JSON.parse(localStorage.getItem('warehouseTsdHistory')) || [];
@@ -619,11 +346,13 @@
     let currentIssueMac = null;
     let currentAcceptMac = null;
 
-    let isSaving = false;
-    let serverLoaded = false;
-    let hasUnsaved = false;
     let saveTimer = null;
     let syncTimer = null;
+    let isSaving = false;
+    let isSyncing = false;
+    let serverOnline = true;
+    let lastLocalChange = 0;
+    let lastServerSync = 0;
 
     // ============ УТИЛИТЫ ============
     function normalizeCode(raw) {
@@ -633,14 +362,22 @@
         return s.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     }
 
-    function isMacCode(code) {
-        return /^[A-F0-9]{12}$/.test(code);
-    }
+    function isMacCode(code) { return /^[A-F0-9]{12}$/.test(code); }
 
     function formatTime(ts) {
         if (!ts) return '—';
         const d = new Date(ts);
         return d.toTimeString().slice(0, 5);
+    }
+
+    function formatRepairDays(tsd) {
+        if (tsd.status !== 'repair' || !tsd.repairStartedAt) return '—';
+        const diff = Date.now() - tsd.repairStartedAt;
+        const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+        const hours = Math.floor(diff / (60 * 60 * 1000));
+        if (days > 0) return days + ' дн.';
+        if (hours > 0) return hours + ' ч.';
+        return 'только что';
     }
 
     function getNextTsdNumber() {
@@ -652,6 +389,28 @@
         return 'ТСД-' + String(max + 1).padStart(3, '0');
     }
 
+    // ============ FETCH С TIMEOUT И RETRY ============
+    async function fetchWithTimeout(url, options = {}, timeout = FETCH_TIMEOUT) {
+        return Promise.race([
+            fetch(url, options),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+        ]);
+    }
+
+    async function fetchWithRetry(url, options = {}, retries = 3) {
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetchWithTimeout(url, options);
+                if (response.ok) return response;
+                throw new Error('HTTP ' + response.status);
+            } catch (err) {
+                console.warn('Попытка ' + (i + 1) + ' не удалась:', err.message);
+                if (i < retries - 1) await new Promise(r => setTimeout(r, RETRY_DELAY));
+            }
+        }
+        throw new Error('Все попытки исчерпаны');
+    }
+
     // ============ СТАТУС ============
     function setStatus(cls, text) {
         const el = document.getElementById('syncStatus');
@@ -659,52 +418,72 @@
         el.textContent = text;
     }
 
-    function markUnsaved() {
-        hasUnsaved = true;
-        setStatus('unsaved', '⚠️ Не сохранено — нажми');
-    }
-
-    function markSaved() {
-        hasUnsaved = false;
-        setStatus('online', '✅ Сохранено');
-    }
-
     // ============ СЕРВЕР ============
-    async function loadFromServer() {
+    async function loadFromServer(silent = false) {
+        if (isSyncing) return;
+        if (document.visibilityState !== 'visible') return;
+        isSyncing = true;
+
         try {
-            setStatus('connecting', '🔄 Загрузка...');
-            const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
+            if (!silent) setStatus('connecting', '🔄 Загрузка...');
+            
+            const response = await fetchWithRetry(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
             const data = await response.json();
-            if (data?.tsd?.data) {
-                TSD_DATA = data.tsd.data;
-                localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+
+            const serverTime = data?.tsd?.lastModified || 0;
+            const localTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
+
+            // Если на сервере новее — берём серверные данные
+            if (serverTime > localTime) {
+                if (data?.tsd?.data) {
+                    TSD_DATA = data.tsd.data;
+                    localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+                }
+                if (data?.tsd?.history) {
+                    TSD_HISTORY = data.tsd.history;
+                    localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
+                }
+                renderAll();
             }
-            if (data?.tsd?.history) {
-                TSD_HISTORY = data.tsd.history;
-                localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-            }
-            renderAll();
-            serverLoaded = true;
-            markSaved();
+
+            lastServerSync = Date.now();
+            serverOnline = true;
+            setStatus('online', '✅ Актуально');
         } catch (err) {
             console.error('Ошибка загрузки:', err);
+            serverOnline = false;
             setStatus('offline', '📴 Нет связи');
-            serverLoaded = true;
-            markSaved();
+        } finally {
+            isSyncing = false;
         }
     }
 
     async function saveToServer() {
         if (isSaving) return;
+        if (!navigator.onLine) {
+            setStatus('offline', '📴 Нет интернета — сохраним позже');
+            return;
+        }
+
         isSaving = true;
-        setStatus('connecting', '📤 Сохранение...');
         try {
+            // Читаем текущее состояние сервера, чтобы не перезаписать чужие изменения
             let currentData = {};
             try {
-                const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                const response = await fetchWithTimeout(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (response.ok) currentData = await response.json() || {};
             } catch (e) {}
+
+            // Если на сервере уже новее нашего последнего изменения — сначала подтянем
+            const serverTsd = currentData?.tsd || {};
+            const serverTime = serverTsd.lastModified || 0;
+            const localTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
+
+            if (serverTime > lastLocalChange && serverTime > localTime) {
+                // На сервере свежее — берём серверное, потом отправим своё
+                if (serverTsd.data) TSD_DATA = serverTsd.data;
+                if (serverTsd.history) TSD_HISTORY = serverTsd.history;
+            }
 
             const payload = {
                 current: currentData.current || {},
@@ -712,41 +491,73 @@
                 directions: currentData.directions || {},
                 archive: currentData.archive || {},
                 shipment: currentData.shipment || {},
-                tsd: { data: TSD_DATA, history: TSD_HISTORY, lastModified: Date.now() }
+                tsd: {
+                    data: TSD_DATA,
+                    history: TSD_HISTORY,
+                    lastModified: Date.now()
+                }
             };
 
-            const response = await fetch(BIN_URL, {
+            const response = await fetchWithRetry(BIN_URL, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            markSaved();
+
+            lastLocalChange = Date.now();
+            lastServerSync = Date.now();
+            serverOnline = true;
+            setStatus('online', '✅ Актуально');
         } catch (err) {
             console.error('Ошибка сохранения:', err);
+            serverOnline = false;
             setStatus('offline', '📴 Ошибка сохранения');
         } finally {
             isSaving = false;
         }
     }
 
+    // Дебаунс-сохранение: изменения уходят на сервер через 2 сек после последнего действия
     function saveDebounced() {
+        lastLocalChange = Date.now();
         if (saveTimer) clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
             localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
             localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-            markUnsaved();
-        }, 300);
+            saveToServer();
+        }, SAVE_DEBOUNCE);
     }
 
-    async function forceRefresh() {
-        if (hasUnsaved) {
-            if (!confirm('Есть несохранённые изменения. Сохранить?')) return;
-            await saveToServer();
-        }
-        serverLoaded = false;
-        await loadFromServer();
+    // ============ АВТОСИНХРОНИЗАЦИЯ КАЖДЫЕ 5 СЕК ============
+    function startSyncLoop() {
+        if (syncTimer) clearInterval(syncTimer);
+        syncTimer = setInterval(() => {
+            // Только если вкладка активна
+            if (document.visibilityState !== 'visible') return;
+            // Не синхронизируем, если сохраняем
+            if (isSaving || isSyncing) return;
+            loadFromServer(true);
+        }, SYNC_INTERVAL);
     }
+
+    // При возврате на вкладку — сразу синхронизировать
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            loadFromServer(true);
+        }
+    });
+
+    // При возврате интернета — синхронизировать
+    window.addEventListener('online', () => {
+        serverOnline = true;
+        saveToServer();
+        loadFromServer(true);
+    });
+
+    window.addEventListener('offline', () => {
+        serverOnline = false;
+        setStatus('offline', '📴 Нет интернета');
+    });
 
     // ============ РЕНДЕР ============
     function renderAll() {
@@ -779,12 +590,10 @@
         const search = (document.getElementById('tsdSearch')?.value || '').toLowerCase().trim();
         let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
 
-        if (TSD_FILTER !== 'all') {
-            items = items.filter(it => it.status === TSD_FILTER);
-        }
+        if (TSD_FILTER !== 'all') items = items.filter(it => it.status === TSD_FILTER);
 
         if (search) {
-            items = items.filter(it => 
+            items = items.filter(it =>
                 (it.number || '').toLowerCase().includes(search) ||
                 it.mac.toLowerCase().includes(search) ||
                 (it.owner || '').toLowerCase().includes(search)
@@ -799,18 +608,14 @@
         });
 
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
             return;
         }
 
         let html = '';
         items.forEach((it, i) => {
-            const statusText = {
-                issued: 'Выдан',
-                free: 'Свободен',
-                repair: 'В ремонте',
-                written: 'Списан'
-            }[it.status] || '—';
+            const statusText = { issued: 'Выдан', free: 'Свободен', repair: 'В ремонте', written: 'Списан' }[it.status] || '—';
+            const repairDays = formatRepairDays(it);
 
             let actions = '';
             if (it.status === 'free') {
@@ -832,6 +637,7 @@
                 <td><span class="tsd-status ${it.status}">${statusText}</span></td>
                 <td class="owner-cell">${it.owner || '—'}</td>
                 <td>${formatTime(it.issuedAt)}</td>
+                <td class="repair-cell" style="color:${it.status === 'repair' ? 'var(--danger)' : 'var(--text-muted)'};">${repairDays}</td>
                 <td class="tsd-actions-cell">${actions}</td>
             </tr>`;
         });
@@ -870,12 +676,7 @@
     }
 
     function addHistory(action, number, owner, mac) {
-        TSD_HISTORY.unshift({
-            time: Date.now(),
-            action, number,
-            owner: owner || '',
-            mac: mac || ''
-        });
+        TSD_HISTORY.unshift({ time: Date.now(), action, number, owner: owner || '', mac: mac || '' });
         if (TSD_HISTORY.length > 500) TSD_HISTORY = TSD_HISTORY.slice(0, 500);
         localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
     }
@@ -883,15 +684,22 @@
     // ============ СКАНИРОВАНИЕ ============
     function handleScan(code) {
         if (!code) return;
+
+        // Защита от двойного сканирования
+        const issueModalOpen = document.getElementById('issueModal').classList.contains('active');
+        const acceptModalOpen = document.getElementById('acceptModal').classList.contains('active');
+
         const norm = normalizeCode(code);
 
         if (isMacCode(norm)) {
+            // Если модалка уже открыта — игнорируем MAC
+            if (issueModalOpen || acceptModalOpen) return;
             handleMac(norm);
         } else {
-            const issueModal = document.getElementById('issueModal');
-            if (issueModal.classList.contains('active')) {
+            // Логин
+            if (issueModalOpen) {
                 document.getElementById('issueLoginInput').value = norm.toLowerCase();
-            } else {
+            } else if (!acceptModalOpen) {
                 alert(`Логин сотрудника: ${norm.toLowerCase()}\n\nСначала отсканируй ТСД.`);
             }
         }
@@ -913,17 +721,12 @@
         }
 
         const tsd = TSD_DATA[mac];
-        if (tsd.status === 'free') {
-            openIssueModal(mac);
-        } else if (tsd.status === 'issued') {
-            openAcceptModal(mac);
-        } else if (tsd.status === 'repair') {
-            if (confirm(`ТСД ${tsd.number} в ремонте. Вернуть в работу?`)) {
-                fromRepair(mac);
-            }
-        } else if (tsd.status === 'written') {
-            alert(`ТСД ${tsd.number} списан.`);
+        if (tsd.status === 'free') openIssueModal(mac);
+        else if (tsd.status === 'issued') openAcceptModal(mac);
+        else if (tsd.status === 'repair') {
+            if (confirm(`ТСД ${tsd.number} в ремонте. Вернуть в работу?`)) fromRepair(mac);
         }
+        else if (tsd.status === 'written') alert(`ТСД ${tsd.number} списан.`);
     }
 
     // ============ ВЫДАЧА ============
@@ -1006,6 +809,7 @@
         tsd.status = 'repair';
         tsd.owner = null;
         tsd.issuedAt = null;
+        tsd.repairStartedAt = Date.now();
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
         addHistory('repair', tsd.number, null, mac);
         saveDebounced();
@@ -1016,6 +820,7 @@
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         tsd.status = 'free';
+        tsd.repairStartedAt = null;
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
         addHistory('restore', tsd.number, null, mac);
         saveDebounced();
@@ -1055,33 +860,6 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    // ============ СИНХРОНИЗАЦИЯ ============
-    function startSyncLoop() {
-        if (syncTimer) clearInterval(syncTimer);
-        syncTimer = setInterval(async () => {
-            if (isSaving || !serverLoaded || hasUnsaved) return;
-            try {
-                const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
-                if (!response.ok) return;
-                const data = await response.json();
-                const serverTime = data.tsd?.lastModified || 0;
-                const localTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
-                if (serverTime > localTime && serverTime > 0) {
-                    if (data.tsd?.data) {
-                        TSD_DATA = data.tsd.data;
-                        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-                    }
-                    if (data.tsd?.history) {
-                        TSD_HISTORY = data.tsd.history;
-                        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-                    }
-                    renderAll();
-                    markSaved();
-                }
-            } catch (err) {}
-        }, SYNC_INTERVAL);
-    }
-
     // ============ СТАРТ ============
     window.addEventListener('load', async () => {
         renderAll();
@@ -1098,10 +876,7 @@
         });
 
         document.getElementById('issueLoginInput').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                confirmIssue();
-            }
+            if (e.key === 'Enter') { e.preventDefault(); confirmIssue(); }
         });
 
         document.addEventListener('keydown', (e) => {
