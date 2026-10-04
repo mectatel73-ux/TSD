@@ -1082,7 +1082,6 @@
         try {
             setStatus('connecting', 'Загрузка...');
             
-            // Загружаем ТСД
             const { data: tsdData, error: tsdErr } = await supabase.from('tsd').select('*');
             if (tsdErr) throw tsdErr;
             TSD_DATA = {};
@@ -1090,7 +1089,6 @@
                 TSD_DATA[row.mac] = row;
             });
 
-            // Загружаем историю
             const { data: histData, error: histErr } = await supabase
                 .from('tsd_history')
                 .select('*')
@@ -1100,7 +1098,6 @@
             if (histErr) throw histErr;
             TSD_HISTORY = histData || [];
 
-            // Загружаем сотрудников
             const { data: staffData, error: staffErr } = await supabase.from('tsd_staff').select('*');
             if (staffErr) throw staffErr;
             TSD_STAFF = {};
@@ -1108,7 +1105,6 @@
                 TSD_STAFF[row.login] = row;
             });
 
-            // Загружаем компании
             const { data: compData, error: compErr } = await supabase
                 .from('tsd_companies')
                 .select('*')
@@ -1124,7 +1120,6 @@
         }
     }
 
-    // REAL-TIME ПОДПИСКА
     function subscribeToChanges() {
         supabase
             .channel('tsd-changes')
@@ -2184,7 +2179,6 @@
         await loadAllData();
         subscribeToChanges();
 
-        // Каждую минуту пересчитываем "держит больше 11ч" — для обновления статусов
         setInterval(() => {
             renderTabBadge();
             if (currentTab === 'summary') renderSummaryTab();
