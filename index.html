@@ -49,6 +49,7 @@
             background: transparent; color: var(--text-dim);
             font-size: 14px; font-weight: 700; cursor: pointer;
             transition: 0.15s; font-family: inherit; min-height: 38px;
+            position: relative;
         }
         .tab-btn:hover { color: var(--accent); }
         .tab-btn.active {
@@ -56,6 +57,20 @@
             color: #FBF7E8;
             box-shadow: 0 2px 6px rgba(139, 111, 63, 0.3);
         }
+        .tab-badge {
+            position: absolute;
+            top: -4px; right: -4px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 10px;
+            padding: 2px 7px;
+            min-width: 18px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .tab-badge.warn { background: var(--warning); }
         .header-status {
             font-size: 12px; font-weight: 600; padding: 6px 12px;
             border-radius: 6px; transition: 0.15s;
@@ -194,7 +209,8 @@
         .tsd-row.issued { background: rgba(184, 134, 11, 0.04); }
         .tsd-row.repair { background: rgba(166, 57, 45, 0.04); }
         .tsd-row.written { background: rgba(154, 141, 115, 0.06); opacity: 0.75; }
-        .tsd-row.overdue { background: rgba(166, 57, 45, 0.12); }
+        .tsd-row.warn { background: rgba(255, 152, 0, 0.12) !important; }
+        .tsd-row.overdue { background: rgba(166, 57, 45, 0.12) !important; }
 
         .tsd-action-btn {
             padding: 8px 14px; border: none; border-radius: 6px;
@@ -224,6 +240,8 @@
             border-bottom: 2px solid var(--border);
             padding-bottom: 12px;
         }
+        .summary-block.warn h3 { color: var(--warning); border-bottom-color: rgba(184, 134, 11, 0.3); }
+        .summary-block.warn { border-color: rgba(184, 134, 11, 0.4); }
         .summary-block.alert h3 { color: var(--danger); border-bottom-color: rgba(166, 57, 45, 0.3); }
         .summary-block.alert { border-color: rgba(166, 57, 45, 0.4); }
 
@@ -317,7 +335,6 @@
         .history-item .h-text { flex: 1; color: var(--text); font-weight: 600; }
         .history-item .h-cat { font-size: 12px; font-weight: 700; }
 
-        /* Просроченные карточки */
         .overdue-card {
             display: flex; justify-content: space-between; align-items: center;
             padding: 14px 18px;
@@ -332,12 +349,18 @@
             background: rgba(166, 57, 45, 0.15);
             transform: translateX(4px);
         }
+        .overdue-card.warn {
+            background: rgba(255, 152, 0, 0.08);
+            border-color: rgba(255, 152, 0, 0.35);
+        }
+        .overdue-card.warn:hover { background: rgba(255, 152, 0, 0.15); }
         .overdue-card .login {
             font-family: 'Courier New', monospace;
             font-weight: 800;
             color: var(--danger);
             font-size: 15px;
         }
+        .overdue-card.warn .login { color: var(--warning); }
         .overdue-card .info {
             text-align: right;
             font-size: 13px;
@@ -346,6 +369,7 @@
             font-weight: 800;
             color: var(--danger);
         }
+        .overdue-card.warn .hours { color: var(--warning); }
         .overdue-card .count {
             color: var(--text-dim);
         }
@@ -523,7 +547,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Список ТСД сотрудника */
         .holder-tsd-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 400px; overflow-y: auto; }
         .holder-tsd-item {
             display: flex; justify-content: space-between; align-items: center;
@@ -535,6 +558,10 @@
         .holder-tsd-item .num { font-weight: 800; font-size: 15px; }
         .holder-tsd-item .mac { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-dim); }
         .holder-tsd-item .time { font-size: 12px; color: var(--text-dim); }
+        .holder-tsd-item.warn { border-color: rgba(255, 152, 0, 0.5); background: rgba(255, 152, 0, 0.08); }
+        .holder-tsd-item.overdue { border-color: rgba(166, 57, 45, 0.5); background: rgba(166, 57, 45, 0.08); }
+        .holder-tsd-item.warn .time { color: var(--warning); font-weight: 700; }
+        .holder-tsd-item.overdue .time { color: var(--danger); font-weight: 700; }
 
         @media (max-width: 900px) {
             .tsd-summary { grid-template-columns: repeat(3, 1fr); }
@@ -575,7 +602,10 @@
         <div class="tabs">
             <button class="tab-btn active" id="tabAllBtn" onclick="switchTab('all')">📋 Все ТСД</button>
             <button class="tab-btn" id="tabRepairBtn" onclick="switchTab('repair')">🔧 Ремонт</button>
-            <button class="tab-btn" id="tabSummaryBtn" onclick="switchTab('summary')">📊 Сводка</button>
+            <button class="tab-btn" id="tabSummaryBtn" onclick="switchTab('summary')">
+                📊 Сводка
+                <span class="tab-badge" id="tabBadge" style="display:none;">0</span>
+            </button>
         </div>
     </div>
     <div class="header-status sync-connecting" id="syncStatus">🔄 Подключение...</div>
@@ -708,9 +738,13 @@
             <div class="companies-breakdown" id="companiesBreakdown"></div>
         </div>
 
-        <!-- НОВЫЙ БЛОК: Кто не сдал -->
+        <div class="summary-block warn" id="warnBlock" style="display: none;">
+            <h3>⚠️ Держат больше 11 часов</h3>
+            <div id="warnList"></div>
+        </div>
+
         <div class="summary-block alert" id="overdueBlock" style="display: none;">
-            <h3>⚠️ Кто не сдал ТСД (больше 24 часов)</h3>
+            <h3>🚨 Держат больше 24 часов</h3>
             <div id="overdueList"></div>
         </div>
 
@@ -735,6 +769,7 @@
                             <th>У кого</th>
                             <th style="width: 200px;">Категория</th>
                             <th style="width: 90px;">Выдан</th>
+                            <th style="width: 100px;">Держит</th>
                         </tr>
                     </thead>
                     <tbody id="summaryHoldersBody"></tbody>
@@ -804,6 +839,7 @@
             <div class="tsd-info-row"><span class="label">У кого:</span><span class="value" id="acceptTsdOwner">—</span></div>
             <div class="tsd-info-row"><span class="label">Категория:</span><span class="value" id="acceptTsdCat">—</span></div>
             <div class="tsd-info-row"><span class="label">Выдан:</span><span class="value" id="acceptTsdTime">—</span></div>
+            <div class="tsd-info-row"><span class="label">Держит:</span><span class="value" id="acceptTsdHold">—</span></div>
         </div>
         <div class="tsd-modal-buttons">
             <button class="tsd-modal-btn-cancel" onclick="closeAcceptModal()">Отмена</button>
@@ -812,7 +848,6 @@
     </div>
 </div>
 
-<!-- НОВАЯ МОДАЛКА: ТСД сотрудника -->
 <div class="tsd-modal" id="holderModal">
     <div class="tsd-modal-content">
         <h3>👤 ТСД сотрудника</h3>
@@ -845,10 +880,12 @@
 <script>
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
     const SYNC_INTERVAL = 5000;
-    const SAVE_DEBOUNCE = 2000;
+    const SAVE_DEBOUNCE = 500;
+    const BLOCK_SYNC_AFTER_ACTION = 5000;
     const FETCH_TIMEOUT = 10000;
     const RETRY_DELAY = 5000;
     const HISTORY_HOURS = 48;
+    const WARN_HOURS = 11;
     const OVERDUE_HOURS = 24;
 
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
@@ -875,6 +912,7 @@
     let isSyncing = false;
     let serverOnline = true;
     let lastLocalChange = 0;
+    let lastActionTime = 0;
 
     function normalizeCode(raw) {
         if (!raw) return '';
@@ -909,6 +947,13 @@
         if (days > 0) return days + ' дн. ' + (hours % 24) + ' ч.';
         return hours + ' ч.';
     }
+    function holdStatus(tsd) {
+        if (tsd.status !== 'issued' || !tsd.issuedAt) return null;
+        const hours = (Date.now() - tsd.issuedAt) / (60 * 60 * 1000);
+        if (hours >= OVERDUE_HOURS) return 'overdue';
+        if (hours >= WARN_HOURS) return 'warn';
+        return null;
+    }
     function getNextTsdNumber() {
         let max = 0;
         Object.values(TSD_DATA).forEach(t => {
@@ -926,7 +971,6 @@
         if (cat === 'senior') return { text: '🟣 Старший смены', cls: 'senior' };
         return null;
     }
-
     function isOutstaffCat(cat) {
         return cat === 'outstaff' || cat === 'brigout';
     }
@@ -960,6 +1004,9 @@
     async function loadFromServer(silent = false) {
         if (isSyncing) return;
         if (document.visibilityState !== 'visible') return;
+        // Не подтягиваем, если недавно было действие пользователя
+        if (Date.now() - lastActionTime < BLOCK_SYNC_AFTER_ACTION) return;
+        
         isSyncing = true;
         try {
             if (!silent) setStatus('connecting', '🔄 Загрузка...');
@@ -968,9 +1015,30 @@
 
             const serverTsdTime = data?.tsd?.lastModified || 0;
             const localTsdTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
-            if (serverTsdTime > localTsdTime) {
+            
+            // ВАЖНО: НЕ подтягиваем, если недавно что-то делали
+            if (Date.now() - lastActionTime < BLOCK_SYNC_AFTER_ACTION) {
+                isSyncing = false;
+                return;
+            }
+            
+            // Если на сервере новее И у нас не было недавних изменений
+            if (serverTsdTime > localTsdTime && serverTsdTime > lastLocalChange) {
                 if (data?.tsd?.data) {
-                    TSD_DATA = data.tsd.data;
+                    // Merge: только те ТСД, где серверное время новее локального
+                    const mergedData = { ...data.tsd.data };
+                    const localData = TSD_DATA;
+                    
+                    // Сохраняем локальные изменения, которые не отправились
+                    Object.keys(localData).forEach(mac => {
+                        const localModified = localData[mac].localModified || 0;
+                        const serverModified = mergedData[mac]?.lastModified || 0;
+                        if (localModified > serverModified) {
+                            mergedData[mac] = localData[mac];
+                        }
+                    });
+                    
+                    TSD_DATA = mergedData;
                     localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
                 }
                 if (data?.tsd?.history) {
@@ -1007,12 +1075,29 @@
             return;
         }
         isSaving = true;
+        // Фиксируем время действия - блокируем подтягивание
+        lastActionTime = Date.now();
+        
         try {
             let currentData = {};
             try {
                 const response = await fetchWithTimeout(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
                 if (response.ok) currentData = await response.json() || {};
             } catch (e) {}
+
+            // Проверяем: если серверные ТСД новее - всё равно отправляем своё,
+            // но merge делаем только для чужих изменений
+            const serverTsd = currentData?.tsd?.data || {};
+            const mergedData = { ...serverTsd };
+            
+            // Наши локальные изменения главнее
+            Object.keys(TSD_DATA).forEach(mac => {
+                const localModified = TSD_DATA[mac].localModified || 0;
+                const serverModified = serverTsd[mac]?.lastModified || 0;
+                if (localModified >= serverModified || !serverTsd[mac]) {
+                    mergedData[mac] = TSD_DATA[mac];
+                }
+            });
 
             const payload = {
                 current: currentData.current || {},
@@ -1021,7 +1106,7 @@
                 archive: currentData.archive || {},
                 shipment: currentData.shipment || {},
                 tsd: {
-                    data: TSD_DATA,
+                    data: mergedData,
                     history: TSD_HISTORY,
                     staff: TSD_STAFF,
                     lastModified: Date.now()
@@ -1046,8 +1131,15 @@
         }
     }
 
+    function touchTsd(mac) {
+        if (TSD_DATA[mac]) {
+            TSD_DATA[mac].localModified = Date.now();
+        }
+    }
+
     function saveDebounced() {
         lastLocalChange = Date.now();
+        lastActionTime = Date.now();
         if (saveTimer) clearTimeout(saveTimer);
         saveTimer = setTimeout(() => {
             localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
@@ -1063,17 +1155,22 @@
         syncTimer = setInterval(() => {
             if (document.visibilityState !== 'visible') return;
             if (isSaving || isSyncing) return;
+            // Не подтягиваем, если недавно было действие
+            if (Date.now() - lastActionTime < BLOCK_SYNC_AFTER_ACTION) return;
             loadFromServer(true);
         }, SYNC_INTERVAL);
     }
 
     document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') loadFromServer(true);
+        if (document.visibilityState === 'visible') {
+            // Не сразу, а через паузу
+            setTimeout(() => loadFromServer(true), 1000);
+        }
     });
     window.addEventListener('online', () => {
         serverOnline = true;
         saveToServer();
-        loadFromServer(true);
+        setTimeout(() => loadFromServer(true), 1500);
     });
     window.addEventListener('offline', () => {
         serverOnline = false;
@@ -1130,7 +1227,23 @@
         renderTable();
         renderRepairSummary();
         renderRepairTable();
+        renderTabBadge();
         if (currentTab === 'summary') renderSummaryTab();
+    }
+
+    function renderTabBadge() {
+        const badge = document.getElementById('tabBadge');
+        let warnCount = 0;
+        Object.values(TSD_DATA).forEach(t => {
+            if (holdStatus(t) === 'warn') warnCount++;
+        });
+        if (warnCount > 0) {
+            badge.textContent = warnCount;
+            badge.className = 'tab-badge warn';
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 
     function renderSummary() {
@@ -1140,12 +1253,6 @@
         document.getElementById('tsdFree').textContent = all.filter(m => TSD_DATA[m].status === 'free').length;
         document.getElementById('tsdRepair').textContent = all.filter(m => TSD_DATA[m].status === 'repair').length;
         document.getElementById('tsdWritten').textContent = all.filter(m => TSD_DATA[m].status === 'written').length;
-    }
-
-    function isOverdue(tsd) {
-        if (tsd.status !== 'issued' || !tsd.issuedAt) return false;
-        const hours = (Date.now() - tsd.issuedAt) / (60 * 60 * 1000);
-        return hours >= OVERDUE_HOURS;
     }
 
     function renderTable() {
@@ -1182,7 +1289,8 @@
         let html = '';
         items.forEach((it, i) => {
             const statusText = { issued: 'Выдан', free: 'Свободен', written: 'Списан' }[it.status] || '—';
-            const overdue = isOverdue(it);
+            const hs = holdStatus(it);
+            const rowClass = hs === 'overdue' ? 'overdue' : (hs === 'warn' ? 'warn' : '');
 
             let catBadge = '—';
             if (it.status === 'issued' && it.category) {
@@ -1199,12 +1307,12 @@
                 actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">↩️ Вернуть</button>`;
             }
 
-            html += `<tr class="tsd-row ${it.status || ''} ${overdue ? 'overdue' : ''}">
+            html += `<tr class="tsd-row ${it.status || ''} ${rowClass}">
                 <td>${i + 1}</td>
                 <td class="num-cell">${it.number || '—'}</td>
                 <td class="mac-cell">${it.mac}</td>
                 <td><span class="tsd-status ${it.status}">${statusText}</span></td>
-                <td class="owner-cell clickable" onclick="openHolderModal('${it.owner || ''}')">${it.owner || '—'}</td>
+                <td class="owner-cell clickable" onclick="openHolderModal('${(it.owner || '').replace(/'/g, "\\'")}')">${it.owner || '—'}</td>
                 <td>${catBadge}</td>
                 <td>${formatTime(it.issuedAt)}</td>
                 <td class="tsd-actions-cell">${actions}</td>
@@ -1332,42 +1440,86 @@
 
         breakdown.innerHTML = breakdownHtml;
 
+        renderWarn();
         renderOverdue();
         renderSummaryHolders();
         renderHistory();
     }
 
-    function renderOverdue() {
-        const block = document.getElementById('overdueBlock');
-        const list = document.getElementById('overdueList');
+    function renderWarn() {
+        const block = document.getElementById('warnBlock');
+        const list = document.getElementById('warnList');
         
-        // Группируем просроченные ТСД по сотрудникам
-        const overdueHolders = {};
+        // Только 11-24 часа (не overdue)
+        const holders = {};
         Object.values(TSD_DATA).forEach(t => {
-            if (isOverdue(t) && t.owner) {
-                if (!overdueHolders[t.owner]) {
-                    overdueHolders[t.owner] = { count: 0, oldest: t.issuedAt, category: t.category, company: t.company };
+            if (holdStatus(t) === 'warn' && t.owner) {
+                if (!holders[t.owner]) {
+                    holders[t.owner] = { count: 0, oldest: t.issuedAt, category: t.category, company: t.company };
                 }
-                overdueHolders[t.owner].count++;
-                if (t.issuedAt < overdueHolders[t.owner].oldest) overdueHolders[t.owner].oldest = t.issuedAt;
+                holders[t.owner].count++;
+                if (t.issuedAt < holders[t.owner].oldest) holders[t.owner].oldest = t.issuedAt;
             }
         });
 
-        const logins = Object.keys(overdueHolders);
+        const logins = Object.keys(holders);
         if (logins.length === 0) {
             block.style.display = 'none';
             return;
         }
 
         block.style.display = 'block';
-        logins.sort((a, b) => overdueHolders[b].count - overdueHolders[a].count);
+        logins.sort((a, b) => holders[b].count - holders[a].count);
 
         let html = '';
         logins.forEach(login => {
-            const d = overdueHolders[login];
+            const d = holders[login];
             const catInfo = d.category ? getCategoryLabel(d.category, d.company) : null;
             const catText = catInfo ? catInfo.text : '—';
-            html += `<div class="overdue-card" onclick="openHolderModal('${login}')">
+            html += `<div class="overdue-card warn" onclick="openHolderModal('${login.replace(/'/g, "\\'")}')">
+                <div>
+                    <div class="login">${login}</div>
+                    <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${catText}</div>
+                </div>
+                <div class="info">
+                    <div class="hours">${formatHoldHours(d.oldest)}</div>
+                    <div class="count">${d.count} ТСД</div>
+                </div>
+            </div>`;
+        });
+        list.innerHTML = html;
+    }
+
+    function renderOverdue() {
+        const block = document.getElementById('overdueBlock');
+        const list = document.getElementById('overdueList');
+        
+        const holders = {};
+        Object.values(TSD_DATA).forEach(t => {
+            if (holdStatus(t) === 'overdue' && t.owner) {
+                if (!holders[t.owner]) {
+                    holders[t.owner] = { count: 0, oldest: t.issuedAt, category: t.category, company: t.company };
+                }
+                holders[t.owner].count++;
+                if (t.issuedAt < holders[t.owner].oldest) holders[t.owner].oldest = t.issuedAt;
+            }
+        });
+
+        const logins = Object.keys(holders);
+        if (logins.length === 0) {
+            block.style.display = 'none';
+            return;
+        }
+
+        block.style.display = 'block';
+        logins.sort((a, b) => holders[b].count - holders[a].count);
+
+        let html = '';
+        logins.forEach(login => {
+            const d = holders[login];
+            const catInfo = d.category ? getCategoryLabel(d.category, d.company) : null;
+            const catText = catInfo ? catInfo.text : '—';
+            html += `<div class="overdue-card" onclick="openHolderModal('${login.replace(/'/g, "\\'")}')">
                 <div>
                     <div class="login">${login}</div>
                     <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${catText}</div>
@@ -1406,26 +1558,32 @@
         items.sort((a, b) => (a.number || '').localeCompare(b.number || ''));
 
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
             return;
         }
 
         let html = '';
         items.forEach((it, i) => {
-            const overdue = isOverdue(it);
+            const hs = holdStatus(it);
+            const rowClass = hs === 'overdue' ? 'overdue' : (hs === 'warn' ? 'warn' : '');
+            
             let catBadge = '—';
             if (it.category) {
                 const catInfo = getCategoryLabel(it.category, it.company);
                 if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}">${catInfo.text}</span>`;
             }
+            
+            const holdText = hs ? formatHoldHours(it.issuedAt) : '—';
+            const holdColor = hs === 'overdue' ? 'var(--danger)' : (hs === 'warn' ? 'var(--warning)' : 'var(--text-dim)');
 
-            html += `<tr class="tsd-row issued ${overdue ? 'overdue' : ''}">
+            html += `<tr class="tsd-row issued ${rowClass}">
                 <td>${i + 1}</td>
                 <td class="num-cell">${it.number || '—'}</td>
                 <td class="mac-cell">${it.mac}</td>
-                <td class="owner-cell clickable" onclick="openHolderModal('${it.owner || ''}')">${it.owner || '—'}</td>
+                <td class="owner-cell clickable" onclick="openHolderModal('${(it.owner || '').replace(/'/g, "\\'")}')">${it.owner || '—'}</td>
                 <td>${catBadge}</td>
                 <td>${formatTime(it.issuedAt)}</td>
+                <td style="font-weight:700; color:${holdColor};">${holdText}</td>
             </tr>`;
         });
         tbody.innerHTML = html;
@@ -1504,7 +1662,8 @@
                 owner: null, issuedAt: null,
                 category: null, company: null,
                 repairStartedAt: null,
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                localModified: Date.now()
             };
             localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
             addHistory('created', TSD_DATA[mac].number, null, mac);
@@ -1554,6 +1713,7 @@
             addHistory('restore', tsd.number, null, norm);
         }
 
+        touchTsd(norm);
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
         saveDebounced();
         renderAll();
@@ -1669,6 +1829,7 @@
         tsd.category = selectedCategory;
         tsd.company = isOutstaffCat(selectedCategory) ? selectedCompany : null;
         tsd.issuedAt = Date.now();
+        touchTsd(currentIssueMac);
 
         TSD_STAFF[login] = {
             category: selectedCategory,
@@ -1677,10 +1838,11 @@
         };
 
         addHistory('issue', tsd.number, login, currentIssueMac, selectedCategory, selectedCompany);
-        saveDebounced();
-
+        
+        // Сначала рендерим локально, потом отправляем
         closeIssueModal();
         renderAll();
+        saveDebounced();
     }
 
     function openAcceptModal(mac) {
@@ -1698,6 +1860,10 @@
         }
         document.getElementById('acceptTsdCat').textContent = catText;
         document.getElementById('acceptTsdTime').textContent = formatTime(tsd.issuedAt);
+        
+        const hold = tsd.issuedAt ? formatHoldHours(tsd.issuedAt) : '—';
+        document.getElementById('acceptTsdHold').textContent = hold;
+        
         document.getElementById('acceptModal').classList.add('active');
     }
 
@@ -1713,22 +1879,25 @@
         if (!tsd) return;
 
         const oldOwner = tsd.owner;
+        const mac = currentAcceptMac;
+        
         tsd.status = 'free';
         tsd.owner = null;
         tsd.category = null;
         tsd.company = null;
         tsd.issuedAt = null;
-        addHistory('accept', tsd.number, oldOwner, currentAcceptMac);
-        saveDebounced();
-
+        touchTsd(mac);
+        
+        addHistory('accept', tsd.number, oldOwner, mac);
+        
+        // Сначала локально
         closeAcceptModal();
         renderAll();
+        saveDebounced();
     }
 
-    // ============ МОДАЛКА СТРУДНИКА ============
     function openHolderModal(login) {
         if (!login) return;
-        // Проверим, есть ли ТСД у этого сотрудника
         const tsdList = Object.keys(TSD_DATA)
             .map(mac => ({ mac, ...TSD_DATA[mac] }))
             .filter(t => t.owner === login && t.status === 'issued');
@@ -1745,10 +1914,12 @@
 
         let html = '';
         tsdList.sort((a, b) => (a.number || '').localeCompare(b.number || '')).forEach(t => {
-            const overdue = isOverdue(t);
-            html += `<div class="holder-tsd-item" ${overdue ? 'style="border-color:rgba(166,57,45,0.5);background:rgba(166,57,45,0.08);"' : ''}>
+            const hs = holdStatus(t);
+            const cls = hs || '';
+            const warnIcon = hs === 'overdue' ? ' 🚨' : (hs === 'warn' ? ' ⚠️' : '');
+            html += `<div class="holder-tsd-item ${cls}">
                 <div>
-                    <div class="num">${t.number || '—'} ${overdue ? '⚠️' : ''}</div>
+                    <div class="num">${t.number || '—'}${warnIcon}</div>
                     <div class="mac">${t.mac}</div>
                 </div>
                 <div class="time">${formatHoldHours(t.issuedAt)}</div>
@@ -1766,24 +1937,25 @@
     function acceptAllFromHolder() {
         if (!currentHolderLogin) return;
         const login = currentHolderLogin;
-        const tsdList = Object.keys(TSD_DATA).filter(mac => TSD_DATA[mac].owner === login && TSD_DATA[mac].status === 'issued');
+        const macs = Object.keys(TSD_DATA).filter(mac => TSD_DATA[mac].owner === login && TSD_DATA[mac].status === 'issued');
 
-        if (tsdList.length === 0) { closeHolderModal(); return; }
-        if (!confirm(`Сдать все ${tsdList.length} ТСД от ${login}?`)) return;
+        if (macs.length === 0) { closeHolderModal(); return; }
+        if (!confirm(`Сдать все ${macs.length} ТСД от ${login}?`)) return;
 
-        tsdList.forEach(mac => {
+        macs.forEach(mac => {
             const tsd = TSD_DATA[mac];
             tsd.status = 'free';
             tsd.owner = null;
             tsd.category = null;
             tsd.company = null;
             tsd.issuedAt = null;
+            touchTsd(mac);
             addHistory('accept', tsd.number, login, mac);
         });
 
-        saveDebounced();
         closeHolderModal();
         renderAll();
+        saveDebounced();
     }
 
     function fromRepair(mac) {
@@ -1791,9 +1963,10 @@
         if (!tsd) return;
         tsd.status = 'free';
         tsd.repairStartedAt = null;
+        touchTsd(mac);
         addHistory('restore', tsd.number, null, mac);
-        saveDebounced();
         renderAll();
+        saveDebounced();
     }
 
     function writeOff(mac) {
@@ -1802,9 +1975,10 @@
         if (!confirm(`Списать ${tsd.number} навсегда?`)) return;
         tsd.status = 'written';
         tsd.repairStartedAt = null;
+        touchTsd(mac);
         addHistory('writeoff', tsd.number, null, mac);
-        saveDebounced();
         renderAll();
+        saveDebounced();
     }
 
     function clearHistory() {
@@ -1815,7 +1989,6 @@
         saveDebounced();
     }
 
-    // ============ ЭКСПОРТ ИСТОРИИ ============
     function exportHistoryCSV() {
         const cutoff = Date.now() - HISTORY_HOURS * 60 * 60 * 1000;
         const history = TSD_HISTORY.filter(h => h.time >= cutoff);
@@ -1850,9 +2023,8 @@
         link.click();
     }
 
-    // ============ ЭКСПОРТ ВСЕЙ БАЗЫ ============
     function exportFullBaseCSV() {
-        let csv = 'Номер ТСД;MAC;Статус;Сотрудник;Категория;Компания;Выдан;В ремонте с\n';
+        let csv = 'Номер ТСД;MAC;Статус;Сотрудник;Категория;Компания;Выдан;Держит;В ремонте с\n';
 
         Object.keys(TSD_DATA).sort((a, b) => (TSD_DATA[a].number || '').localeCompare(TSD_DATA[b].number || '')).forEach(mac => {
             const t = TSD_DATA[mac];
@@ -1865,12 +2037,12 @@
             }
 
             const issued = t.issuedAt ? formatDateTime(t.issuedAt) : '';
+            const hold = t.issuedAt ? formatHoldHours(t.issuedAt) : '';
             const repair = t.repairStartedAt ? formatDateTime(t.repairStartedAt) : '';
 
-            csv += `${t.number || ''};${mac};${statusText};${t.owner || ''};${catText};${t.company || ''};${issued};${repair}\n`;
+            csv += `${t.number || ''};${mac};${statusText};${t.owner || ''};${catText};${t.company || ''};${issued};${hold};${repair}\n`;
         });
 
-        // Сводка по категориям
         csv += '\n--- СВОДКА ПО КАТЕГОРИЯМ ---\n';
         const issued = Object.values(TSD_DATA).filter(t => t.status === 'issued');
         const counts = { staff: 0, outstaff: 0, brigout: 0, brig: 0, senior: 0 };
@@ -1998,6 +2170,13 @@
 
         await loadFromServer();
         startSyncLoop();
+
+        // Обновление каждый час — для пересчёта «держит больше 11ч»
+        setInterval(() => {
+            if (currentTab === 'summary') renderSummaryTab();
+            renderTabBadge();
+            if (currentTab === 'all') renderTable();
+        }, 60000);
     });
 </script>
 
