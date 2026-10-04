@@ -299,7 +299,6 @@
             text-align: center;
         }
 
-        /* История */
         .history-item {
             padding: 12px 0; border-bottom: 1px dashed var(--border);
             font-size: 14px; display: flex; justify-content: space-between;
@@ -309,7 +308,7 @@
         .history-item .h-time {
             color: var(--accent); font-weight: 800;
             font-family: 'Courier New', monospace;
-            min-width: 55px;
+            min-width: 90px;
         }
         .history-item .h-text { flex: 1; color: var(--text); font-weight: 600; }
         .history-item .h-cat { font-size: 12px; font-weight: 700; }
@@ -321,11 +320,11 @@
             color: white; border: none; border-radius: 10px;
             font-size: 14px; font-weight: 700; cursor: pointer;
             font-family: inherit; margin-bottom: 16px;
+            margin-right: 8px;
             box-shadow: 0 4px 12px rgba(77, 124, 63, 0.3);
         }
         .export-btn:active { transform: scale(0.97); }
 
-        /* Модалки */
         .tsd-modal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(61, 53, 32, 0.6); backdrop-filter: blur(4px);
@@ -455,7 +454,6 @@
         .tsd-modal-btn-cancel { background: linear-gradient(135deg, #7A6F58, #5A5040); }
         .tsd-modal-btn-ok { background: linear-gradient(135deg, #5C8A4A, #3D5C30); }
 
-        /* Компании */
         .companies-list-edit { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; max-height: 300px; overflow-y: auto; }
         .company-edit-row {
             display: flex; align-items: center; gap: 6px;
@@ -464,7 +462,7 @@
         }
         .company-edit-row input {
             flex: 1; padding: 10px 12px;
-            background: var(--bg-dark, #fff); color: var(--text);
+            background: #fff; color: var(--text);
             border: 1px solid var(--border); border-radius: 6px;
             font-size: 14px; font-weight: 600; font-family: inherit;
             min-height: 40px; margin: 0;
@@ -564,14 +562,6 @@
             <button class="tsd-filter-btn" data-filter="issued" onclick="setTsdFilter('issued')">Выданные</button>
             <button class="tsd-filter-btn" data-filter="free" onclick="setTsdFilter('free')">Свободные</button>
             <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
-        </div>
-
-        <div class="tsd-filters" style="margin-top: -6px;">
-            <button class="tsd-filter-btn cat-staff" data-cat="staff" onclick="setCatFilter('staff')">🟢 Штатные</button>
-            <button class="tsd-filter-btn cat-outstaff" data-cat="outstaff" onclick="setCatFilter('outstaff')">🟡 Аутстафф</button>
-            <button class="tsd-filter-btn cat-brigout" data-cat="brigout" onclick="setCatFilter('brigout')">🟠 Бриг. аутст.</button>
-            <button class="tsd-filter-btn cat-brig" data-cat="brig" onclick="setCatFilter('brig')">🔵 Шт. бриг.</button>
-            <button class="tsd-filter-btn cat-senior" data-cat="senior" onclick="setCatFilter('senior')">🟣 Старшие</button>
         </div>
 
         <input type="text" class="tsd-search" id="tsdSearch" placeholder="🔍 Поиск по номеру, MAC, логину..." oninput="renderTable()">
@@ -678,6 +668,35 @@
             <div class="companies-breakdown" id="companiesBreakdown"></div>
         </div>
 
+        <!-- НОВЫЙ БЛОК: Кто держит ТСД -->
+        <div class="summary-block">
+            <h3>👥 Кто держит ТСД</h3>
+            <div class="tsd-filters" style="margin-bottom: 14px;">
+                <button class="tsd-filter-btn active" data-cat="all" onclick="setSummaryCat('all')">Все</button>
+                <button class="tsd-filter-btn cat-staff" data-cat="staff" onclick="setSummaryCat('staff')">🟢 Штатные</button>
+                <button class="tsd-filter-btn cat-outstaff" data-cat="outstaff" onclick="setSummaryCat('outstaff')">🟡 Аутстафф</button>
+                <button class="tsd-filter-btn cat-brigout" data-cat="brigout" onclick="setSummaryCat('brigout')">🟠 Бриг. аутст.</button>
+                <button class="tsd-filter-btn cat-brig" data-cat="brig" onclick="setSummaryCat('brig')">🔵 Шт. бриг.</button>
+                <button class="tsd-filter-btn cat-senior" data-cat="senior" onclick="setSummaryCat('senior')">🟣 Старшие</button>
+            </div>
+            <input type="text" class="tsd-search" id="summarySearch" placeholder="🔍 Поиск по логину, номеру, MAC..." oninput="renderSummaryHolders()">
+            <div class="tsd-table-wrap" style="max-height: 500px;">
+                <table class="tsd-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">№</th>
+                            <th style="width: 110px;">Номер</th>
+                            <th>MAC</th>
+                            <th>У кого</th>
+                            <th style="width: 200px;">Категория</th>
+                            <th style="width: 90px;">Выдан</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryHoldersBody"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="summary-block">
             <h3>📜 История за 48 часов</h3>
             <button class="export-btn" onclick="exportHistoryCSV()">📥 Экспорт в Excel</button>
@@ -781,7 +800,7 @@
     let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
 
     let TSD_FILTER = 'all';
-    let CAT_FILTER = null;
+    let SUMMARY_CAT = 'all';
     let currentIssueMac = null;
     let currentAcceptMac = null;
     let currentTab = 'all';
@@ -1034,13 +1053,12 @@
         renderTable();
     }
 
-    function setCatFilter(cat) {
-        if (CAT_FILTER === cat) CAT_FILTER = null;
-        else CAT_FILTER = cat;
-        document.querySelectorAll('.tsd-filter-btn[data-cat]').forEach(b => {
-            b.classList.toggle('active', b.dataset.cat === CAT_FILTER);
+    function setSummaryCat(cat) {
+        SUMMARY_CAT = cat;
+        document.querySelectorAll('#tabSummary .tsd-filter-btn[data-cat]').forEach(b => {
+            b.classList.toggle('active', b.dataset.cat === cat);
         });
-        renderTable();
+        renderSummaryHolders();
     }
 
     // ============ РЕНДЕР ============
@@ -1070,7 +1088,6 @@
 
         items = items.filter(it => it.status !== 'repair');
         if (TSD_FILTER !== 'all') items = items.filter(it => it.status === TSD_FILTER);
-        if (CAT_FILTER) items = items.filter(it => (it.category || 'none') === CAT_FILTER);
 
         if (search) {
             items = items.filter(it =>
@@ -1210,7 +1227,6 @@
         document.getElementById('sumSenior').textContent = counts.senior;
         document.getElementById('sumTotal').textContent = issued.length;
 
-        // Разбивка по компаниям
         const breakdown = document.getElementById('companiesBreakdown');
         let breakdownHtml = '';
         
@@ -1247,8 +1263,64 @@
 
         breakdown.innerHTML = breakdownHtml;
 
+        // Таблица «Кто держит ТСД»
+        renderSummaryHolders();
+
         // История
         renderHistory();
+    }
+
+    function renderSummaryHolders() {
+        const tbody = document.getElementById('summaryHoldersBody');
+        if (!tbody) return;
+
+        const search = (document.getElementById('summarySearch')?.value || '').toLowerCase().trim();
+        let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
+        
+        // Только выданные
+        items = items.filter(it => it.status === 'issued');
+
+        // Фильтр по категории
+        if (SUMMARY_CAT !== 'all') {
+            items = items.filter(it => (it.category || 'none') === SUMMARY_CAT);
+        }
+
+        // Поиск
+        if (search) {
+            items = items.filter(it =>
+                (it.number || '').toLowerCase().includes(search) ||
+                it.mac.toLowerCase().includes(search) ||
+                (it.owner || '').toLowerCase().includes(search) ||
+                (it.company || '').toLowerCase().includes(search)
+            );
+        }
+
+        // Сортировка
+        items.sort((a, b) => (a.number || '').localeCompare(b.number || ''));
+
+        if (items.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
+            return;
+        }
+
+        let html = '';
+        items.forEach((it, i) => {
+            let catBadge = '—';
+            if (it.category) {
+                const catInfo = getCategoryLabel(it.category, it.company);
+                if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}">${catInfo.text}</span>`;
+            }
+
+            html += `<tr class="tsd-row issued">
+                <td>${i + 1}</td>
+                <td class="num-cell">${it.number || '—'}</td>
+                <td class="mac-cell">${it.mac}</td>
+                <td class="owner-cell">${it.owner || '—'}</td>
+                <td>${catBadge}</td>
+                <td>${formatTime(it.issuedAt)}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
     }
 
     function renderHistory() {
@@ -1492,7 +1564,6 @@
         tsd.company = isOutstaffCat(selectedCategory) ? selectedCompany : null;
         tsd.issuedAt = Date.now();
 
-        // Запоминаем сотрудника
         TSD_STAFF[login] = {
             category: selectedCategory,
             company: isOutstaffCat(selectedCategory) ? selectedCompany : null,
@@ -1579,7 +1650,7 @@
         saveDebounced();
     }
 
-    // ============ ЭКСПОРТ В EXCEL ============
+    // ============ ЭКСПОРТ ============
     function exportHistoryCSV() {
         const cutoff = Date.now() - HISTORY_HOURS * 60 * 60 * 1000;
         const history = TSD_HISTORY.filter(h => h.time >= cutoff);
@@ -1605,7 +1676,6 @@
             csv += `${dt};${actionText};${h.number || ''};${h.owner || ''};${catText};${h.company || ''}\n`;
         });
 
-        // Сводка по категориям
         csv += '\n--- СВОДКА ПО КАТЕГОРИЯМ (выдано сейчас) ---\n';
         const issued = Object.values(TSD_DATA).filter(t => t.status === 'issued');
         const counts = { staff: 0, outstaff: 0, brigout: 0, brig: 0, senior: 0 };
