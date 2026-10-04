@@ -139,12 +139,10 @@
             background: linear-gradient(135deg, #E8A030, #D2691E);
             color: white; box-shadow: 0 4px 12px rgba(210, 105, 30, 0.3);
         }
-        .repair-action-btn.to-repair.active { border-color: #3D3520; box-shadow: 0 0 0 4px rgba(232, 160, 48, 0.3); }
         .repair-action-btn.from-repair {
             background: linear-gradient(135deg, #7CB342, #558B2F);
             color: white; box-shadow: 0 4px 12px rgba(85, 139, 47, 0.3);
         }
-        .repair-action-btn.from-repair.active { border-color: #3D3520; box-shadow: 0 0 0 4px rgba(124, 179, 66, 0.3); }
 
         .tsd-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
         .tsd-filter-btn {
@@ -687,7 +685,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
                 Сканируй MAC ТСД или Логин сотрудника
             </label>
-            <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="B4293DAD4861 или sckaz-khuziev7" autocomplete="off" autofocus>
+            <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="B4293DAD4861 или 1742539077210 или sckaz-khuziev7" autocomplete="off" autofocus>
             <div class="tsd-scan-hint">Наведи сканер и нажми кнопку. Enter обработается автоматически.</div>
         </div>
 
@@ -729,17 +727,22 @@
         <div class="tsd-scan-box">
             <label>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-                Сканируй MAC ТСД для ремонта
+                Сканируй код ТСД для ремонта (MAC или цифровой ID)
             </label>
-            <input type="text" class="tsd-scan-input" id="repairScanInput" placeholder="B4293DAD4861" autocomplete="off">
-            <div class="tsd-scan-hint">Выбери действие ниже, потом сканируй ТСД.</div>
+            <div style="display:flex; gap:10px; align-items:stretch;">
+                <input type="text" class="tsd-scan-input" id="repairScanInput" placeholder="B4293DAD4861 или 1742539077210" autocomplete="off" style="flex:1;">
+                <button onclick="doRepairAction('to')" style="padding:0 24px; background:linear-gradient(135deg,#8B6F3F,#6B5430); color:#FBF7E8; border:none; border-radius:12px; font-weight:800; cursor:pointer; font-family:inherit; font-size:14px; min-width:130px;">
+                    Обработать
+                </button>
+            </div>
+            <div class="tsd-scan-hint">Введи код и нажми «Обработать», либо выбери действие ниже.</div>
             
             <div class="repair-actions">
-                <button class="repair-action-btn to-repair active" id="btnToRepair" onclick="setRepairMode('to')">
+                <button class="repair-action-btn to-repair" id="btnToRepair" onclick="doRepairAction('to')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
                     Отправить в ремонт
                 </button>
-                <button class="repair-action-btn from-repair" id="btnFromRepair" onclick="setRepairMode('from')">
+                <button class="repair-action-btn from-repair" id="btnFromRepair" onclick="doRepairAction('from')">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
                     Вернуть из ремонта
                 </button>
@@ -754,7 +757,7 @@
                     <tr>
                         <th style="width: 60px;">№</th>
                         <th style="width: 120px;">Номер</th>
-                        <th>MAC</th>
+                        <th>MAC / ID</th>
                         <th style="width: 130px;">Статус</th>
                         <th style="width: 150px;">В ремонте</th>
                         <th style="width: 220px;">Действие</th>
@@ -838,7 +841,7 @@
                         <tr>
                             <th style="width: 50px;">№</th>
                             <th style="width: 110px;">Номер</th>
-                            <th>MAC</th>
+                            <th>MAC / ID</th>
                             <th>У кого</th>
                             <th style="width: 200px;">Категория</th>
                             <th style="width: 90px;">Выдан</th>
@@ -885,7 +888,7 @@
         <div class="subtitle">Проверь данные и укажи категорию</div>
         <div class="tsd-info-box">
             <div class="tsd-info-row"><span class="label">ТСД:</span><span class="value" id="issueTsdNum">—</span></div>
-            <div class="tsd-info-row"><span class="label">MAC:</span><span class="value" id="issueTsdMac">—</span></div>
+            <div class="tsd-info-row"><span class="label">MAC / ID:</span><span class="value" id="issueTsdMac">—</span></div>
             <div class="tsd-info-row"><span class="label">Логин:</span><span class="value" id="issueLoginDisplay">—</span></div>
         </div>
         <label class="modal-section-label">Логин сотрудника</label>
@@ -924,7 +927,7 @@
         <div class="subtitle">Подтверди возврат</div>
         <div class="tsd-info-box">
             <div class="tsd-info-row"><span class="label">ТСД:</span><span class="value" id="acceptTsdNum">—</span></div>
-            <div class="tsd-info-row"><span class="label">MAC:</span><span class="value" id="acceptTsdMac">—</span></div>
+            <div class="tsd-info-row"><span class="label">MAC / ID:</span><span class="value" id="acceptTsdMac">—</span></div>
             <div class="tsd-info-row"><span class="label">У кого:</span><span class="value" id="acceptTsdOwner">—</span></div>
             <div class="tsd-info-row"><span class="label">Категория:</span><span class="value" id="acceptTsdCat">—</span></div>
             <div class="tsd-info-row"><span class="label">Выдан:</span><span class="value" id="acceptTsdTime">—</span></div>
@@ -1009,13 +1012,25 @@
     let selectedCompany = null;
     let editingCompanies = [];
 
+    // ============================================================
+    // ВАЛИДАЦИЯ КОДОВ ТСД
+    // ============================================================
+    // MAC: ровно 12 hex-символов (A-F, 0-9)
+    function isMacCode(code) { return /^[A-F0-9]{12}$/.test(code); }
+    // Числовой ID: только цифры, длина от 8 до 16 знаков (например 1742539077210)
+    function isNumericCode(code) { return /^[0-9]{8,16}$/.test(code); }
+    // Любой валидный код ТСД: либо MAC, либо цифровой ID
+    function isValidTsdCode(code) { return isMacCode(code) || isNumericCode(code); }
+
     function normalizeCode(raw) {
         if (!raw) return '';
         let s = String(raw).trim();
+        // Убираем известные префиксы сканеров
         s = s.replace(/^WIFI\s*MAC\s*[:\-]?\s*/i, '');
+        s = s.replace(/^(SN|S\/N|ID|BARCODE|QR)\s*[:\-]?\s*/i, '');
         return s.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     }
-    function isMacCode(code) { return /^[A-F0-9]{12}$/.test(code); }
+
     function formatTime(ts) {
         if (!ts) return '—';
         return new Date(Number(ts)).toTimeString().slice(0, 5);
@@ -1111,6 +1126,7 @@
                 .order('id');
             if (compErr) throw compErr;
             COMPANIES = (compData || []).map(c => c.name);
+            if (COMPANIES.length === 0) COMPANIES = [...DEFAULT_COMPANIES];
 
             setStatus('online', 'Актуально');
             renderAll();
@@ -1210,11 +1226,18 @@
         }
     }
 
-    function setRepairMode(mode) {
+    // Новая универсальная функция: клик по кнопке → берёт код из поля → обрабатывает
+    function doRepairAction(mode) {
         repairMode = mode;
-        document.getElementById('btnToRepair').classList.toggle('active', mode === 'to');
-        document.getElementById('btnFromRepair').classList.toggle('active', mode === 'from');
-        setTimeout(() => document.getElementById('repairScanInput')?.focus(), 100);
+        const input = document.getElementById('repairScanInput');
+        const code = (input?.value || '').trim();
+        if (code) {
+            input.value = '';
+            handleRepairScan(code);
+        } else {
+            setTimeout(() => input?.focus(), 50);
+            alert('Отсканируй или введи код ТСД в поле выше (MAC или цифровой ID)');
+        }
     }
 
     function setTsdFilter(f) {
@@ -1651,16 +1674,19 @@
         const acceptModalOpen = document.getElementById('acceptModal').classList.contains('active');
         const norm = normalizeCode(code);
 
-        if (isMacCode(norm)) {
+        // Если это похоже на ТСД (MAC или числовой ID) — обрабатываем как ТСД
+        if (isValidTsdCode(norm)) {
             if (issueModalOpen || acceptModalOpen) return;
             handleMac(norm);
-        } else {
-            if (issueModalOpen) {
-                document.getElementById('issueLoginInput').value = norm.toLowerCase();
-                onLoginChange();
-            } else if (!acceptModalOpen) {
-                alert(`Логин сотрудника: ${norm.toLowerCase()}\n\nСначала отсканируй ТСД.`);
-            }
+            return;
+        }
+
+        // Иначе — это логин сотрудника (только внутри модалки выдачи)
+        if (issueModalOpen) {
+            document.getElementById('issueLoginInput').value = norm.toLowerCase();
+            onLoginChange();
+        } else if (!acceptModalOpen) {
+            alert(`Не удалось распознать код: ${norm}\n\nОжидается MAC (12 символов) или цифровой ID, либо открой выдачу для сканирования логина.`);
         }
     }
 
@@ -1692,10 +1718,13 @@
     async function handleRepairScan(code) {
         if (!code) return;
         const norm = normalizeCode(code);
-        if (!isMacCode(norm)) { alert('Это не MAC-адрес ТСД'); return; }
+        if (!isValidTsdCode(norm)) {
+            alert('Не удалось распознать код ТСД. Ожидается MAC (12 символов) или цифровой ID.');
+            return;
+        }
 
         const tsd = TSD_DATA[norm];
-        if (!tsd) { alert(`ТСД ${norm} не найден.`); return; }
+        if (!tsd) { alert(`ТСД ${norm} не найден в базе.`); return; }
 
         if (repairMode === 'to') {
             if (tsd.status === 'repair') { alert(`ТСД ${tsd.number} уже в ремонте.`); return; }
@@ -2022,7 +2051,7 @@
     }
 
     function exportFullBaseCSV() {
-        let csv = 'Номер ТСД;MAC;Статус;Сотрудник;Категория;Компания;Выдан;Держит;В ремонте с\n';
+        let csv = 'Номер ТСД;MAC/ID;Статус;Сотрудник;Категория;Компания;Выдан;Держит;В ремонте с\n';
 
         Object.keys(TSD_DATA).sort((a, b) => (TSD_DATA[a].number || '').localeCompare(TSD_DATA[b].number || '')).forEach(mac => {
             const t = TSD_DATA[mac];
