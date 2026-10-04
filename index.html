@@ -974,14 +974,14 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
 <script>
     const SUPABASE_URL = 'https://gbfuoxbvxwvfxytpjhjw.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_TW5dfhF73MSFzXc0Dac3Tg_KD8u9eM6';
 
-    let supabase = null;
+    let supabaseClient = null;
     try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } catch (e) {
         console.error('Ошибка Supabase:', e);
         alert('Ошибка подключения к базе. Проверь интернет.');
@@ -1082,14 +1082,14 @@
         try {
             setStatus('connecting', 'Загрузка...');
             
-            const { data: tsdData, error: tsdErr } = await supabase.from('tsd').select('*');
+            const { data: tsdData, error: tsdErr } = await supabaseClient.from('tsd').select('*');
             if (tsdErr) throw tsdErr;
             TSD_DATA = {};
             (tsdData || []).forEach(row => {
                 TSD_DATA[row.mac] = row;
             });
 
-            const { data: histData, error: histErr } = await supabase
+            const { data: histData, error: histErr } = await supabaseClient
                 .from('tsd_history')
                 .select('*')
                 .gte('time', Date.now() - HISTORY_HOURS * 60 * 60 * 1000)
@@ -1098,14 +1098,14 @@
             if (histErr) throw histErr;
             TSD_HISTORY = histData || [];
 
-            const { data: staffData, error: staffErr } = await supabase.from('tsd_staff').select('*');
+            const { data: staffData, error: staffErr } = await supabaseClient.from('tsd_staff').select('*');
             if (staffErr) throw staffErr;
             TSD_STAFF = {};
             (staffData || []).forEach(row => {
                 TSD_STAFF[row.login] = row;
             });
 
-            const { data: compData, error: compErr } = await supabase
+            const { data: compData, error: compErr } = await supabaseClient
                 .from('tsd_companies')
                 .select('*')
                 .order('id');
@@ -1121,7 +1121,7 @@
     }
 
     function subscribeToChanges() {
-        supabase
+        supabaseClient
             .channel('tsd-changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd' }, (payload) => {
                 const row = payload.new;
@@ -1133,7 +1133,7 @@
                 }
                 renderAll();
             })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd_history' }, (payload) => {
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd_history' }, () => {
                 loadAllData();
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd_staff' }, (payload) => {
@@ -1148,7 +1148,7 @@
     async function saveTsdToDb(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
-        const { error } = await supabase.from('tsd').upsert({
+        const { error } = await supabaseClient.from('tsd').upsert({
             mac: mac,
             number: tsd.number,
             status: tsd.status,
@@ -1164,7 +1164,7 @@
     }
 
     async function saveHistoryToDb(entry) {
-        const { error } = await supabase.from('tsd_history').insert({
+        const { error } = await supabaseClient.from('tsd_history').insert({
             time: entry.time,
             action: entry.action,
             number: entry.number,
@@ -1179,17 +1179,13 @@
     async function saveStaffToDb(login) {
         const staff = TSD_STAFF[login];
         if (!staff) return;
-        const { error } = await supabase.from('tsd_staff').upsert({
+        const { error } = await supabaseClient.from('tsd_staff').upsert({
             login: login,
             category: staff.category,
             company: staff.company,
             last_seen: staff.last_seen
         });
         if (error) console.error('Ошибка upsert staff:', error);
-    }
-
-    async function deleteTsdFromDb(mac) {
-        await supabase.from('tsd').delete().eq('mac', mac);
     }
 
     function switchTab(tab) {
@@ -1842,12 +1838,16 @@
             last_seen: Date.now()
         };
 
+        const macToSave = currentIssueMac;
+        const catToSave = selectedCategory;
+        const compToSave = selectedCompany;
+
         closeIssueModal();
         renderAll();
         
-        await saveTsdToDb(currentIssueMac);
+        await saveTsdToDb(macToSave);
         await saveStaffToDb(login);
-        await addHistory('issue', tsd.number, login, currentIssueMac, selectedCategory, selectedCompany);
+        await addHistory('issue', tsd.number, login, macToSave, catToSave, compToSave);
     }
 
     function openAcceptModal(mac) {
@@ -1982,7 +1982,7 @@
 
     async function clearHistory() {
         if (!confirm('Очистить всю историю ТСД?')) return;
-        const { error } = await supabase.from('tsd_history').delete().gte('time', 0);
+        const { error } = await supabaseClient.from('tsd_history').delete().gte('time', 0);
         if (error) { alert('Ошибка очистки: ' + error.message); return; }
         TSD_HISTORY = [];
         renderHistory();
@@ -2120,11 +2120,11 @@
         const unique = [...new Set(cleaned)];
         if (unique.length !== cleaned.length) { alert('Есть одинаковые названия'); return; }
 
-        const { error: delErr } = await supabase.from('tsd_companies').delete().gte('id', 0);
+        const { error: delErr } = await supabaseClient.from('tsd_companies').delete().gte('id', 0);
         if (delErr) { alert('Ошибка: ' + delErr.message); return; }
 
         const inserts = unique.map(name => ({ name }));
-        const { error: insErr } = await supabase.from('tsd_companies').insert(inserts);
+        const { error: insErr } = await supabaseClient.from('tsd_companies').insert(inserts);
         if (insErr) { alert('Ошибка: ' + insErr.message); return; }
 
         COMPANIES = unique;
@@ -2133,7 +2133,7 @@
     }
 
     window.addEventListener('load', async () => {
-        if (!supabase) {
+        if (!supabaseClient) {
             alert('Не удалось подключиться к базе. Проверь интернет и перезагрузи страницу.');
             return;
         }
