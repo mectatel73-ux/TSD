@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Учёт ТСД</title>
     <meta name="theme-color" content="#F0E8CD">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Учёт ТСД">
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="256x256" href="icon-256.png">
+    <link rel="shortcut icon" href="favicon.ico">
 
     <style>
         * { box-sizing: border-box; }
@@ -211,7 +209,6 @@
 
         .tsd-actions-cell { text-align: right; white-space: nowrap; }
 
-        /* === СВОДКА === */
         .summary-block {
             background: var(--bg-card); border: 2px solid var(--border);
             border-radius: 14px; padding: 24px; margin-bottom: 20px;
@@ -485,14 +482,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .install-btn { 
-            position: fixed; bottom: 20px; right: 20px; 
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: #FBF7E8; border: none; border-radius: 50px; padding: 14px 24px;
-            font-size: 14px; font-weight: 700; cursor: pointer; 
-            box-shadow: 0 8px 24px rgba(139, 111, 63, 0.4); display: none; z-index: 9999; 
-        }
-
         @media (max-width: 900px) {
             .tsd-summary { grid-template-columns: repeat(3, 1fr); }
             .cat-summary-grid { grid-template-columns: repeat(3, 1fr); }
@@ -540,7 +529,6 @@
 
 <div class="container">
 
-    <!-- ============ ВКЛАДКА: ВСЕ ТСД ============ -->
     <div class="tab-content active" id="tabAll">
 
         <div class="tsd-summary">
@@ -585,7 +573,6 @@
         </div>
     </div>
 
-    <!-- ============ ВКЛАДКА: РЕМОНТ ============ -->
     <div class="tab-content" id="tabRepair">
 
         <div class="tsd-summary">
@@ -628,7 +615,6 @@
         </div>
     </div>
 
-    <!-- ============ ВКЛАДКА: СВОДКА ============ -->
     <div class="tab-content" id="tabSummary">
 
         <div class="summary-block">
@@ -668,7 +654,6 @@
             <div class="companies-breakdown" id="companiesBreakdown"></div>
         </div>
 
-        <!-- НОВЫЙ БЛОК: Кто держит ТСД -->
         <div class="summary-block">
             <h3>👥 Кто держит ТСД</h3>
             <div class="tsd-filters" style="margin-bottom: 14px;">
@@ -710,7 +695,6 @@
     </div>
 </div>
 
-<!-- Модалка выдачи -->
 <div class="tsd-modal" id="issueModal">
     <div class="tsd-modal-content">
         <h3>📤 Выдать ТСД</h3>
@@ -749,7 +733,6 @@
     </div>
 </div>
 
-<!-- Модалка приёма -->
 <div class="tsd-modal" id="acceptModal">
     <div class="tsd-modal-content">
         <h3>📥 Принять ТСД</h3>
@@ -768,7 +751,6 @@
     </div>
 </div>
 
-<!-- Модалка управления компаниями -->
 <div class="tsd-modal" id="companiesModal">
     <div class="tsd-modal-content">
         <h3>⚙️ Компании аутстаффа</h3>
@@ -781,8 +763,6 @@
         </div>
     </div>
 </div>
-
-<button class="install-btn" id="installBtn" onclick="installPWA()">📲 Установить</button>
 
 <script>
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
@@ -816,7 +796,6 @@
     let serverOnline = true;
     let lastLocalChange = 0;
 
-    // ============ УТИЛИТЫ ============
     function normalizeCode(raw) {
         if (!raw) return '';
         let s = String(raw).trim();
@@ -864,7 +843,6 @@
         return cat === 'outstaff' || cat === 'brigout';
     }
 
-    // ============ FETCH ============
     async function fetchWithTimeout(url, options = {}, timeout = FETCH_TIMEOUT) {
         return Promise.race([
             fetch(url, options),
@@ -891,7 +869,6 @@
         el.textContent = text;
     }
 
-    // ============ СЕРВЕР ============
     async function loadFromServer(silent = false) {
         if (isSyncing) return;
         if (document.visibilityState !== 'visible') return;
@@ -1015,7 +992,6 @@
         setStatus('offline', '📴 Нет интернета');
     });
 
-    // ============ ВКЛАДКИ ============
     function switchTab(tab) {
         currentTab = tab;
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -1061,7 +1037,6 @@
         renderSummaryHolders();
     }
 
-    // ============ РЕНДЕР ============
     function renderAll() {
         renderSummary();
         renderTable();
@@ -1204,7 +1179,6 @@
         tbody.innerHTML = html;
     }
 
-    // ============ СВОДКА ============
     function renderSummaryTab() {
         const issued = Object.values(TSD_DATA).filter(t => t.status === 'issued');
         
@@ -1263,10 +1237,7 @@
 
         breakdown.innerHTML = breakdownHtml;
 
-        // Таблица «Кто держит ТСД»
         renderSummaryHolders();
-
-        // История
         renderHistory();
     }
 
@@ -1277,15 +1248,12 @@
         const search = (document.getElementById('summarySearch')?.value || '').toLowerCase().trim();
         let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
         
-        // Только выданные
         items = items.filter(it => it.status === 'issued');
 
-        // Фильтр по категории
         if (SUMMARY_CAT !== 'all') {
             items = items.filter(it => (it.category || 'none') === SUMMARY_CAT);
         }
 
-        // Поиск
         if (search) {
             items = items.filter(it =>
                 (it.number || '').toLowerCase().includes(search) ||
@@ -1295,7 +1263,6 @@
             );
         }
 
-        // Сортировка
         items.sort((a, b) => (a.number || '').localeCompare(b.number || ''));
 
         if (items.length === 0) {
@@ -1369,7 +1336,6 @@
         if (TSD_HISTORY.length > 1000) TSD_HISTORY = TSD_HISTORY.slice(0, 1000);
     }
 
-    // ============ СКАНИРОВАНИЕ ============
     function handleScan(code) {
         if (!code) return;
         const issueModalOpen = document.getElementById('issueModal').classList.contains('active');
@@ -1452,7 +1418,6 @@
         renderAll();
     }
 
-    // ============ ВЫДАЧА ============
     function openIssueModal(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
@@ -1577,7 +1542,6 @@
         renderAll();
     }
 
-    // ============ ПРИЁМ ============
     function openAcceptModal(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
@@ -1620,7 +1584,6 @@
         renderAll();
     }
 
-    // ============ РЕМОНТ ============
     function fromRepair(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
@@ -1650,7 +1613,6 @@
         saveDebounced();
     }
 
-    // ============ ЭКСПОРТ ============
     function exportHistoryCSV() {
         const cutoff = Date.now() - HISTORY_HOURS * 60 * 60 * 1000;
         const history = TSD_HISTORY.filter(h => h.time >= cutoff);
@@ -1710,7 +1672,6 @@
         link.click();
     }
 
-    // ============ УПРАВЛЕНИЕ КОМПАНИЯМИ ============
     function openCompaniesModal() {
         editingCompanies = [...COMPANIES];
         renderCompaniesEditList();
@@ -1763,21 +1724,6 @@
         saveDebounced();
     }
 
-    // ============ PWA ============
-    let deferredPrompt = null;
-    const installBtn = document.getElementById('installBtn');
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); deferredPrompt = e; installBtn.style.display = 'block';
-    });
-    function installPWA() {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => { deferredPrompt = null; installBtn.style.display = 'none'; });
-        }
-    }
-    window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
-
-    // ============ СТАРТ ============
     window.addEventListener('load', async () => {
         renderAll();
         setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 200);
