@@ -8,6 +8,9 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="256x256" href="icon-256.png">
     <link rel="shortcut icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * { box-sizing: border-box; }
@@ -24,12 +27,15 @@
             --senior: #8B5A9E;
         }
         body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Montserrat', 'Segoe UI', sans-serif; 
             background: var(--bg); color: var(--text);
             margin: 0; padding: 0; font-size: 14px; 
             -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%;
             min-height: 100vh;
+            font-weight: 500;
         }
+        svg.icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+
         .header {
             background: var(--bg-card); border-bottom: 2px solid var(--border);
             padding: 12px 20px; display: flex; justify-content: space-between;
@@ -38,7 +44,11 @@
             gap: 16px; flex-wrap: wrap;
         }
         .header-left { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-        .header h1 { margin: 0; font-size: 18px; color: var(--accent); font-weight: 700; }
+        .header h1 { 
+            margin: 0; font-size: 18px; color: var(--accent); 
+            font-weight: 800; display: flex; align-items: center; gap: 10px;
+            letter-spacing: 0.3px;
+        }
         .tabs {
             display: flex; gap: 6px;
             background: var(--bg); padding: 4px; border-radius: 10px;
@@ -47,9 +57,10 @@
         .tab-btn {
             padding: 8px 16px; border: none; border-radius: 8px;
             background: transparent; color: var(--text-dim);
-            font-size: 14px; font-weight: 700; cursor: pointer;
+            font-size: 13px; font-weight: 700; cursor: pointer;
             transition: 0.15s; font-family: inherit; min-height: 38px;
             position: relative;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .tab-btn:hover { color: var(--accent); }
         .tab-btn.active {
@@ -60,7 +71,7 @@
         .tab-badge {
             position: absolute;
             top: -4px; right: -4px;
-            background: var(--danger);
+            background: var(--warning);
             color: white;
             font-size: 10px;
             font-weight: 800;
@@ -70,10 +81,10 @@
             text-align: center;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .tab-badge.warn { background: var(--warning); }
         .header-status {
-            font-size: 12px; font-weight: 600; padding: 6px 12px;
+            font-size: 12px; font-weight: 700; padding: 6px 12px;
             border-radius: 6px; transition: 0.15s;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .sync-online { background: rgba(77, 124, 63, 0.15); color: var(--success); border: 1px solid rgba(77, 124, 63, 0.3); }
         .sync-offline { background: rgba(166, 57, 45, 0.15); color: var(--danger); border: 1px solid rgba(166, 57, 45, 0.3); }
@@ -101,42 +112,46 @@
             border: 2px solid var(--accent); border-radius: 12px; padding: 24px;
             margin-bottom: 20px; box-shadow: 0 4px 12px rgba(139, 111, 63, 0.1);
         }
-        .tsd-scan-box label { display: block; font-size: 16px; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
+        .tsd-scan-box label { 
+            display: flex; align-items: center; gap: 8px;
+            font-size: 15px; color: var(--accent); font-weight: 700; margin-bottom: 12px; 
+        }
         .tsd-scan-input {
-            width: 100%; padding: 20px 22px; font-size: 24px;
+            width: 100%; padding: 20px 22px; font-size: 22px;
             background: var(--bg-input); color: var(--text);
             border: 2px solid var(--border); border-radius: 12px;
-            font-family: 'Courier New', monospace; font-weight: 700;
-            letter-spacing: 2px; min-height: 72px; transition: 0.2s;
+            font-family: 'Montserrat', monospace; font-weight: 700;
+            letter-spacing: 1px; min-height: 68px; transition: 0.2s;
         }
         .tsd-scan-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15); }
-        .tsd-scan-hint { font-size: 13px; color: var(--text-dim); margin-top: 10px; text-align: center; font-weight: 600; }
+        .tsd-scan-hint { font-size: 12px; color: var(--text-dim); margin-top: 10px; text-align: center; font-weight: 600; }
 
         .repair-actions { display: flex; gap: 12px; margin-top: 16px; }
         .repair-action-btn {
             flex: 1; padding: 16px; border: 2px solid transparent;
-            border-radius: 10px; font-size: 15px; font-weight: 700;
+            border-radius: 10px; font-size: 14px; font-weight: 700;
             cursor: pointer; font-family: inherit; min-height: 56px;
             transition: 0.15s; display: flex;
             align-items: center; justify-content: center; gap: 8px;
         }
         .repair-action-btn:active { transform: scale(0.97); }
         .repair-action-btn.to-repair {
-            background: linear-gradient(135deg, #FF9800, #E65100);
-            color: white; box-shadow: 0 4px 12px rgba(230, 81, 0, 0.3);
+            background: linear-gradient(135deg, #E8A030, #D2691E);
+            color: white; box-shadow: 0 4px 12px rgba(210, 105, 30, 0.3);
         }
-        .repair-action-btn.to-repair.active { border-color: #3D3520; box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.3); }
+        .repair-action-btn.to-repair.active { border-color: #3D3520; box-shadow: 0 0 0 4px rgba(232, 160, 48, 0.3); }
         .repair-action-btn.from-repair {
-            background: linear-gradient(135deg, #8BC34A, #558B2F);
+            background: linear-gradient(135deg, #7CB342, #558B2F);
             color: white; box-shadow: 0 4px 12px rgba(85, 139, 47, 0.3);
         }
-        .repair-action-btn.from-repair.active { border-color: #3D3520; box-shadow: 0 0 0 4px rgba(139, 195, 74, 0.3); }
+        .repair-action-btn.from-repair.active { border-color: #3D3520; box-shadow: 0 0 0 4px rgba(124, 179, 66, 0.3); }
 
         .tsd-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
         .tsd-filter-btn {
             padding: 10px 16px; border: 2px solid var(--border); background: var(--bg-card);
-            color: var(--text-dim); border-radius: 8px; font-size: 13px; font-weight: 700;
+            color: var(--text-dim); border-radius: 8px; font-size: 12px; font-weight: 700;
             cursor: pointer; transition: 0.15s; font-family: inherit;
+            display: inline-flex; align-items: center; gap: 6px;
         }
         .tsd-filter-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-elevated); }
         .tsd-filter-btn.active {
@@ -144,15 +159,26 @@
             color: #FBF7E8; border-color: var(--accent-dark);
             box-shadow: 0 4px 12px rgba(139, 111, 63, 0.3);
         }
-        .tsd-filter-btn.cat-staff.active { background: linear-gradient(135deg, #5C8A4A, #3D5C30); border-color: #3D5C30; }
-        .tsd-filter-btn.cat-outstaff.active { background: linear-gradient(135deg, #B8860B, #8B6914); border-color: #8B6914; }
-        .tsd-filter-btn.cat-brigout.active { background: linear-gradient(135deg, #D2691E, #A0522D); border-color: #A0522D; }
-        .tsd-filter-btn.cat-brig.active { background: linear-gradient(135deg, #4A6FA5, #2F4A75); border-color: #2F4A75; }
-        .tsd-filter-btn.cat-senior.active { background: linear-gradient(135deg, #8B5A9E, #5E3B6C); border-color: #5E3B6C; }
+        .tsd-filter-btn.cat-staff.active { background: linear-gradient(135deg, #7CB342, #558B2F); border-color: #558B2F; }
+        .tsd-filter-btn.cat-outstaff.active { background: linear-gradient(135deg, #E8A030, #B8860B); border-color: #B8860B; }
+        .tsd-filter-btn.cat-brigout.active { background: linear-gradient(135deg, #E8A030, #D2691E); border-color: #D2691E; }
+        .tsd-filter-btn.cat-brig.active { background: linear-gradient(135deg, #5C8AD0, #4A6FA5); border-color: #4A6FA5; }
+        .tsd-filter-btn.cat-senior.active { background: linear-gradient(135deg, #A574B8, #8B5A9E); border-color: #8B5A9E; }
+
+        .dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            display: inline-block; flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .dot.staff { background: #7CB342; }
+        .dot.outstaff { background: #E8A030; }
+        .dot.brigout { background: #D2691E; }
+        .dot.brig { background: #5C8AD0; }
+        .dot.senior { background: #A574B8; }
 
         .tsd-search {
             width: 100%; padding: 14px 18px; background: var(--bg-input); color: var(--text);
-            border: 2px solid var(--border); border-radius: 10px; font-size: 15px;
+            border: 2px solid var(--border); border-radius: 10px; font-size: 14px;
             margin-bottom: 14px; min-height: 50px; font-family: inherit; font-weight: 500;
         }
         .tsd-search:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139, 111, 63, 0.12); }
@@ -163,69 +189,76 @@
             max-height: 600px; overflow-y: auto;
             box-shadow: 0 2px 8px rgba(61, 53, 32, 0.06);
         }
-        .tsd-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .tsd-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .tsd-table th {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: #FBF7E8; padding: 14px 10px; font-size: 12px; font-weight: 700;
+            color: #FBF7E8; padding: 14px 10px; font-size: 11px; font-weight: 700;
             border-bottom: 2px solid var(--accent-dark);
             white-space: nowrap; text-align: left;
             position: sticky; top: 0; z-index: 10;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            text-transform: uppercase; letter-spacing: 0.8px;
         }
         .tsd-table td {
             border-bottom: 1px solid var(--border-light);
             padding: 12px 10px; color: var(--text); font-weight: 500;
-            text-align: left; font-size: 14px;
+            text-align: left; font-size: 13px;
         }
         .tsd-table tr:last-child td { border-bottom: none; }
         .tsd-table tr:hover { background: rgba(139, 111, 63, 0.06); }
 
-        .tsd-table td.mac-cell { font-family: 'Courier New', monospace; font-size: 13px; color: var(--text-dim); font-weight: 600; }
-        .tsd-table td.owner-cell { font-family: 'Courier New', monospace; color: var(--accent); font-size: 13px; font-weight: 700; }
-        .tsd-table td.num-cell { font-weight: 800; color: var(--text); font-size: 15px; }
+        .tsd-table td.mac-cell { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-dim); font-weight: 600; }
+        .tsd-table td.owner-cell { font-family: 'Courier New', monospace; color: var(--accent); font-size: 12px; font-weight: 700; }
+        .tsd-table td.num-cell { font-weight: 800; color: var(--text); font-size: 14px; }
         .tsd-table td.repair-cell { text-align: center; font-weight: 700; }
         .tsd-table td.clickable { cursor: pointer; }
         .tsd-table td.clickable:hover { color: var(--accent); text-decoration: underline; }
 
         .tsd-status {
-            display: inline-block; padding: 5px 12px; border-radius: 12px;
-            font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+            display: inline-block; padding: 4px 10px; border-radius: 12px;
+            font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .tsd-status.issued { background: rgba(184, 134, 11, 0.2); color: #8B6914; border: 1px solid rgba(184, 134, 11, 0.4); }
-        .tsd-status.free { background: rgba(77, 124, 63, 0.18); color: var(--success); border: 1px solid rgba(77, 124, 63, 0.35); }
+        .tsd-status.issued { background: rgba(232, 160, 48, 0.18); color: #B8860B; border: 1px solid rgba(232, 160, 48, 0.4); }
+        .tsd-status.free { background: rgba(124, 179, 66, 0.18); color: var(--success); border: 1px solid rgba(124, 179, 66, 0.35); }
         .tsd-status.repair { background: rgba(166, 57, 45, 0.18); color: var(--danger); border: 1px solid rgba(166, 57, 45, 0.35); }
         .tsd-status.written { background: rgba(154, 141, 115, 0.2); color: var(--text-muted); border: 1px solid rgba(154, 141, 115, 0.4); }
 
         .cat-badge {
-            display: inline-block; padding: 4px 10px; border-radius: 12px;
-            font-size: 11px; font-weight: 700; letter-spacing: 0.3px;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 12px;
+            font-size: 10px; font-weight: 700; letter-spacing: 0.3px;
         }
-        .cat-badge.staff { background: rgba(77, 124, 63, 0.18); color: var(--staff); border: 1px solid rgba(77, 124, 63, 0.35); }
-        .cat-badge.outstaff { background: rgba(184, 134, 11, 0.18); color: var(--outstaff); border: 1px solid rgba(184, 134, 11, 0.35); }
+        .cat-badge.staff { background: rgba(124, 179, 66, 0.18); color: var(--staff); border: 1px solid rgba(124, 179, 66, 0.35); }
+        .cat-badge.outstaff { background: rgba(232, 160, 48, 0.18); color: var(--outstaff); border: 1px solid rgba(232, 160, 48, 0.35); }
         .cat-badge.brigout { background: rgba(210, 105, 30, 0.18); color: var(--brigout); border: 1px solid rgba(210, 105, 30, 0.35); }
-        .cat-badge.brig { background: rgba(74, 111, 165, 0.18); color: var(--brig); border: 1px solid rgba(74, 111, 165, 0.35); }
-        .cat-badge.senior { background: rgba(139, 90, 158, 0.18); color: var(--senior); border: 1px solid rgba(139, 90, 158, 0.35); }
+        .cat-badge.brig { background: rgba(92, 138, 208, 0.18); color: var(--brig); border: 1px solid rgba(92, 138, 208, 0.35); }
+        .cat-badge.senior { background: rgba(165, 116, 184, 0.18); color: var(--senior); border: 1px solid rgba(165, 116, 184, 0.35); }
 
-        .tsd-row.issued { background: rgba(184, 134, 11, 0.04); }
+        .tsd-row.issued { background: rgba(232, 160, 48, 0.04); }
         .tsd-row.repair { background: rgba(166, 57, 45, 0.04); }
         .tsd-row.written { background: rgba(154, 141, 115, 0.06); opacity: 0.75; }
-        .tsd-row.warn { background: rgba(255, 152, 0, 0.12) !important; }
+        .tsd-row.warn { background: rgba(232, 160, 48, 0.12) !important; }
         .tsd-row.overdue { background: rgba(166, 57, 45, 0.12) !important; }
 
         .tsd-action-btn {
             padding: 8px 14px; border: none; border-radius: 6px;
-            font-size: 12px; font-weight: 700; cursor: pointer;
+            font-size: 11px; font-weight: 700; cursor: pointer;
             color: #FBF7E8; margin: 2px; transition: 0.15s;
-            font-family: inherit; min-height: 36px;
+            font-family: inherit; min-height: 34px;
             box-shadow: 0 2px 4px rgba(61, 53, 32, 0.1);
+            letter-spacing: 0.3px;
+            display: inline-flex; align-items: center; gap: 5px;
         }
         .tsd-action-btn:active { transform: scale(0.95); }
-        .tsd-action-issue { background: linear-gradient(135deg, #5C8A4A, #3D5C30); }
+        .tsd-action-issue { background: linear-gradient(135deg, #7CB342, #558B2F); }
         .tsd-action-accept { background: linear-gradient(135deg, #8BC34A, #558B2F); }
-        .tsd-action-repair { background: linear-gradient(135deg, #FF9800, #E65100); }
-        .tsd-action-restore { background: linear-gradient(135deg, #4A6FA5, #2F4A75); }
-        .tsd-action-writeoff { background: linear-gradient(135deg, #7A6F58, #5A5040); }
-        .tsd-action-accept-all { background: linear-gradient(135deg, #558B2F, #33691E); padding: 12px 24px; font-size: 14px; min-height: 48px; width: 100%; margin-top: 12px; }
+        .tsd-action-repair { background: linear-gradient(135deg, #E8A030, #D2691E); }
+        .tsd-action-restore { background: linear-gradient(135deg, #5C8AD0, #4A6FA5); }
+        .tsd-action-writeoff { background: linear-gradient(135deg, #8A7A5F, #5A5040); }
+        .tsd-action-accept-all { 
+            background: linear-gradient(135deg, #558B2F, #33691E); 
+            padding: 12px 24px; font-size: 13px; min-height: 48px; width: 100%; 
+            margin-top: 12px; justify-content: center;
+        }
 
         .tsd-actions-cell { text-align: right; white-space: nowrap; }
 
@@ -235,10 +268,11 @@
             box-shadow: 0 2px 8px rgba(61, 53, 32, 0.06);
         }
         .summary-block h3 {
-            margin: 0 0 18px 0; font-size: 16px; color: var(--accent);
-            font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+            margin: 0 0 18px 0; font-size: 15px; color: var(--accent);
+            font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
             border-bottom: 2px solid var(--border);
             padding-bottom: 12px;
+            display: flex; align-items: center; gap: 10px;
         }
         .summary-block.warn h3 { color: var(--warning); border-bottom-color: rgba(184, 134, 11, 0.3); }
         .summary-block.warn { border-color: rgba(184, 134, 11, 0.4); }
@@ -254,41 +288,41 @@
             border: 2px solid var(--border); background: var(--bg-elevated);
             text-align: center;
         }
-        .cat-summary-item .cat-icon { font-size: 24px; margin-bottom: 6px; }
+        .cat-summary-item .cat-icon { margin-bottom: 8px; display: flex; justify-content: center; }
         .cat-summary-item .cat-label {
-            font-size: 11px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.5px; margin-bottom: 8px; color: var(--text-dim);
+            font-size: 10px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.8px; margin-bottom: 8px; color: var(--text-dim);
         }
         .cat-summary-item .cat-num {
             font-size: 32px; font-weight: 800; line-height: 1;
         }
-        .cat-summary-item.staff { border-color: rgba(77, 124, 63, 0.4); }
+        .cat-summary-item.staff { border-color: rgba(124, 179, 66, 0.4); }
         .cat-summary-item.staff .cat-num { color: var(--staff); }
-        .cat-summary-item.outstaff { border-color: rgba(184, 134, 11, 0.4); }
+        .cat-summary-item.outstaff { border-color: rgba(232, 160, 48, 0.4); }
         .cat-summary-item.outstaff .cat-num { color: var(--outstaff); }
         .cat-summary-item.brigout { border-color: rgba(210, 105, 30, 0.4); }
         .cat-summary-item.brigout .cat-num { color: var(--brigout); }
         .cat-summary-item.brig .cat-num { color: var(--brig); }
-        .cat-summary-item.brig { border-color: rgba(74, 111, 165, 0.4); }
-        .cat-summary-item.senior { border-color: rgba(139, 90, 158, 0.4); }
+        .cat-summary-item.brig { border-color: rgba(92, 138, 208, 0.4); }
+        .cat-summary-item.senior { border-color: rgba(165, 116, 184, 0.4); }
         .cat-summary-item.senior .cat-num { color: var(--senior); }
 
         .total-line {
             text-align: center; padding: 14px;
             background: linear-gradient(135deg, rgba(139, 111, 63, 0.15), rgba(168, 138, 90, 0.1));
             border-radius: 10px; border: 2px solid var(--accent);
-            font-size: 16px; font-weight: 800; color: var(--accent);
+            font-size: 14px; font-weight: 800; color: var(--accent);
             text-transform: uppercase; letter-spacing: 1px;
         }
-        .total-line span { font-size: 24px; color: var(--text); margin-left: 8px; }
+        .total-line span { font-size: 22px; color: var(--text); margin-left: 8px; }
 
         .companies-breakdown {
             margin-top: 18px; padding-top: 18px;
             border-top: 1px dashed var(--border);
         }
         .comp-category-title {
-            font-size: 13px; font-weight: 800; text-transform: uppercase;
-            letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 16px;
+            font-size: 12px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 0.8px; margin-bottom: 12px; margin-top: 16px;
         }
         .comp-category-title.outstaff { color: var(--outstaff); }
         .comp-category-title.brigout { color: var(--brigout); }
@@ -298,11 +332,11 @@
         .comp-category-item {
             padding: 12px 16px; border-radius: 10px;
             display: flex; justify-content: space-between; align-items: center;
-            border: 2px solid; font-size: 14px; font-weight: 700;
+            border: 2px solid; font-size: 13px; font-weight: 700;
         }
         .comp-category-item.outstaff {
-            background: rgba(184, 134, 11, 0.08);
-            border-color: rgba(184, 134, 11, 0.35);
+            background: rgba(232, 160, 48, 0.08);
+            border-color: rgba(232, 160, 48, 0.35);
             color: var(--outstaff);
         }
         .comp-category-item.brigout {
@@ -315,7 +349,7 @@
             color: white;
             border-radius: 10px;
             padding: 2px 10px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             min-width: 32px;
             text-align: center;
@@ -323,17 +357,18 @@
 
         .history-item {
             padding: 12px 0; border-bottom: 1px dashed var(--border);
-            font-size: 14px; display: flex; justify-content: space-between;
+            font-size: 13px; display: flex; justify-content: space-between;
             gap: 12px; align-items: flex-start;
         }
         .history-item:last-child { border-bottom: none; }
         .history-item .h-time {
-            color: var(--accent); font-weight: 800;
+            color: var(--accent); font-weight: 700;
             font-family: 'Courier New', monospace;
             min-width: 90px;
+            font-size: 12px;
         }
         .history-item .h-text { flex: 1; color: var(--text); font-weight: 600; }
-        .history-item .h-cat { font-size: 12px; font-weight: 700; }
+        .history-item .h-cat { font-size: 11px; font-weight: 700; }
 
         .overdue-card {
             display: flex; justify-content: space-between; align-items: center;
@@ -350,42 +385,44 @@
             transform: translateX(4px);
         }
         .overdue-card.warn {
-            background: rgba(255, 152, 0, 0.08);
-            border-color: rgba(255, 152, 0, 0.35);
+            background: rgba(232, 160, 48, 0.08);
+            border-color: rgba(232, 160, 48, 0.35);
         }
-        .overdue-card.warn:hover { background: rgba(255, 152, 0, 0.15); }
+        .overdue-card.warn:hover { background: rgba(232, 160, 48, 0.15); }
         .overdue-card .login {
             font-family: 'Courier New', monospace;
             font-weight: 800;
             color: var(--danger);
-            font-size: 15px;
+            font-size: 14px;
         }
         .overdue-card.warn .login { color: var(--warning); }
         .overdue-card .info {
             text-align: right;
-            font-size: 13px;
+            font-size: 12px;
         }
         .overdue-card .hours {
             font-weight: 800;
             color: var(--danger);
         }
         .overdue-card.warn .hours { color: var(--warning); }
-        .overdue-card .count {
-            color: var(--text-dim);
-        }
+        .overdue-card .count { color: var(--text-dim); }
 
         .export-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 20px;
-            background: linear-gradient(135deg, #4D7C3F, #3D5C30);
+            background: linear-gradient(135deg, #7CB342, #558B2F);
             color: white; border: none; border-radius: 10px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
+            font-size: 13px; font-weight: 700; cursor: pointer;
             font-family: inherit; margin-bottom: 16px;
             margin-right: 8px;
-            box-shadow: 0 4px 12px rgba(77, 124, 63, 0.3);
+            box-shadow: 0 4px 12px rgba(124, 179, 66, 0.3);
+            letter-spacing: 0.3px;
         }
         .export-btn:active { transform: scale(0.97); }
-        .export-btn.blue { background: linear-gradient(135deg, #4A6FA5, #2F4A75); box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3); }
+        .export-btn.blue { 
+            background: linear-gradient(135deg, #5C8AD0, #4A6FA5); 
+            box-shadow: 0 4px 12px rgba(92, 138, 208, 0.3); 
+        }
 
         .tsd-modal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -398,25 +435,30 @@
             max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto;
             box-shadow: 0 20px 60px rgba(61, 53, 32, 0.4); border: 2px solid var(--border);
         }
-        .tsd-modal-content h3 { margin: 0 0 8px 0; font-size: 22px; color: var(--accent); text-align: center; font-weight: 800; }
-        .tsd-modal-content .subtitle { text-align: center; font-size: 14px; color: var(--text-dim); margin-bottom: 20px; font-weight: 600; }
+        .tsd-modal-content h3 { 
+            margin: 0 0 8px 0; font-size: 20px; color: var(--accent); 
+            text-align: center; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            letter-spacing: 0.3px;
+        }
+        .tsd-modal-content .subtitle { text-align: center; font-size: 13px; color: var(--text-dim); margin-bottom: 20px; font-weight: 600; }
         .tsd-info-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-        .tsd-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 15px; border-bottom: 1px solid var(--border-light); }
+        .tsd-info-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid var(--border-light); }
         .tsd-info-row:last-child { border-bottom: none; }
         .tsd-info-row .label { color: var(--text-dim); font-weight: 700; }
-        .tsd-info-row .value { color: var(--text); font-weight: 800; font-family: 'Courier New', monospace; }
+        .tsd-info-row .value { color: var(--text); font-weight: 800; font-family: 'Courier New', monospace; font-size: 12px; }
 
         .modal-section-label {
-            display: block; font-size: 13px; color: var(--text-dim);
-            font-weight: 700; margin-bottom: 8px; text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: block; font-size: 11px; color: var(--text-dim);
+            font-weight: 800; margin-bottom: 8px; text-transform: uppercase;
+            letter-spacing: 0.8px;
         }
         .tsd-modal-content input {
-            width: 100%; padding: 14px 16px; font-size: 18px;
+            width: 100%; padding: 14px 16px; font-size: 16px;
             background: var(--bg-input); color: var(--text);
             border: 2px solid var(--border); border-radius: 10px;
-            font-family: 'Courier New', monospace; font-weight: 700;
-            letter-spacing: 1px; min-height: 54px; transition: 0.2s;
+            font-family: 'Montserrat', monospace; font-weight: 700;
+            letter-spacing: 1px; min-height: 52px; transition: 0.2s;
             margin-bottom: 16px;
         }
         .tsd-modal-content input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgba(139, 111, 63, 0.15); }
@@ -431,42 +473,42 @@
             background: var(--bg-card);
             color: var(--text);
             border-radius: 10px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
             transition: 0.15s;
-            min-height: 52px;
+            min-height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
         }
         .cat-btn:hover { border-color: var(--accent); }
         .cat-btn.active.staff {
-            background: linear-gradient(135deg, #5C8A4A, #3D5C30);
-            color: white; border-color: #3D5C30;
-            box-shadow: 0 4px 12px rgba(77, 124, 63, 0.3);
+            background: linear-gradient(135deg, #7CB342, #558B2F);
+            color: white; border-color: #558B2F;
+            box-shadow: 0 4px 12px rgba(124, 179, 66, 0.3);
         }
         .cat-btn.active.outstaff {
-            background: linear-gradient(135deg, #B8860B, #8B6914);
-            color: white; border-color: #8B6914;
-            box-shadow: 0 4px 12px rgba(184, 134, 11, 0.3);
+            background: linear-gradient(135deg, #E8A030, #B8860B);
+            color: white; border-color: #B8860B;
+            box-shadow: 0 4px 12px rgba(232, 160, 48, 0.3);
         }
         .cat-btn.active.brigout {
-            background: linear-gradient(135deg, #D2691E, #A0522D);
-            color: white; border-color: #A0522D;
+            background: linear-gradient(135deg, #E8A030, #D2691E);
+            color: white; border-color: #D2691E;
             box-shadow: 0 4px 12px rgba(210, 105, 30, 0.3);
         }
         .cat-btn.active.brig {
-            background: linear-gradient(135deg, #4A6FA5, #2F4A75);
-            color: white; border-color: #2F4A75;
-            box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3);
+            background: linear-gradient(135deg, #5C8AD0, #4A6FA5);
+            color: white; border-color: #4A6FA5;
+            box-shadow: 0 4px 12px rgba(92, 138, 208, 0.3);
         }
         .cat-btn.active.senior {
-            background: linear-gradient(135deg, #8B5A9E, #5E3B6C);
-            color: white; border-color: #5E3B6C;
-            box-shadow: 0 4px 12px rgba(139, 90, 158, 0.3);
+            background: linear-gradient(135deg, #A574B8, #8B5A9E);
+            color: white; border-color: #8B5A9E;
+            box-shadow: 0 4px 12px rgba(165, 116, 184, 0.3);
         }
 
         .company-selector { display: none; margin-bottom: 16px; }
@@ -477,21 +519,21 @@
         }
         .company-btn {
             padding: 12px 10px;
-            border: 2px solid rgba(184, 134, 11, 0.35);
-            background: rgba(184, 134, 11, 0.08);
+            border: 2px solid rgba(232, 160, 48, 0.35);
+            background: rgba(232, 160, 48, 0.08);
             color: var(--outstaff);
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
             transition: 0.15s;
-            min-height: 46px;
+            min-height: 44px;
         }
-        .company-btn:hover { background: rgba(184, 134, 11, 0.15); }
+        .company-btn:hover { background: rgba(232, 160, 48, 0.15); }
         .company-btn.active {
-            background: linear-gradient(135deg, #B8860B, #8B6914);
-            color: white; border-color: #8B6914;
+            background: linear-gradient(135deg, #E8A030, #B8860B);
+            color: white; border-color: #B8860B;
         }
         .company-header {
             display: flex; justify-content: space-between;
@@ -499,22 +541,24 @@
         }
         .company-settings-btn {
             padding: 6px 12px;
-            background: linear-gradient(135deg, #7A6F58, #5A5040);
+            background: linear-gradient(135deg, #8A7A5F, #5A5040);
             color: #FBF7E8; border: none; border-radius: 6px;
-            font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+            font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit;
+            display: inline-flex; align-items: center; gap: 5px;
         }
 
         .tsd-modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
         .tsd-modal-buttons button {
             flex: 1; padding: 16px; border: none; border-radius: 10px;
-            font-size: 16px; font-weight: 700; cursor: pointer; color: #FBF7E8;
-            min-height: 56px; font-family: inherit; transition: 0.15s;
+            font-size: 14px; font-weight: 700; cursor: pointer; color: #FBF7E8;
+            min-height: 54px; font-family: inherit; transition: 0.15s;
             box-shadow: 0 4px 12px rgba(61, 53, 32, 0.15);
+            letter-spacing: 0.3px;
         }
         .tsd-modal-buttons button:active { transform: scale(0.97); }
         .tsd-modal-buttons button:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.5); }
-        .tsd-modal-btn-cancel { background: linear-gradient(135deg, #7A6F58, #5A5040); }
-        .tsd-modal-btn-ok { background: linear-gradient(135deg, #5C8A4A, #3D5C30); }
+        .tsd-modal-btn-cancel { background: linear-gradient(135deg, #8A7A5F, #5A5040); }
+        .tsd-modal-btn-ok { background: linear-gradient(135deg, #7CB342, #558B2F); }
 
         .companies-list-edit { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; max-height: 300px; overflow-y: auto; }
         .company-edit-row {
@@ -526,7 +570,7 @@
             flex: 1; padding: 10px 12px;
             background: #fff; color: var(--text);
             border: 1px solid var(--border); border-radius: 6px;
-            font-size: 14px; font-weight: 600; font-family: inherit;
+            font-size: 13px; font-weight: 600; font-family: inherit;
             min-height: 40px; margin: 0;
         }
         .company-edit-row input:focus { outline: none; border-color: var(--accent); }
@@ -540,7 +584,7 @@
             width: 100%; padding: 12px;
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
             color: #FBF7E8; border: none; border-radius: 8px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
+            font-size: 13px; font-weight: 700; cursor: pointer;
             font-family: inherit; margin-bottom: 12px;
         }
 
@@ -555,13 +599,13 @@
             border: 2px solid var(--border);
             border-radius: 10px;
         }
-        .holder-tsd-item .num { font-weight: 800; font-size: 15px; }
-        .holder-tsd-item .mac { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-dim); }
-        .holder-tsd-item .time { font-size: 12px; color: var(--text-dim); }
-        .holder-tsd-item.warn { border-color: rgba(255, 152, 0, 0.5); background: rgba(255, 152, 0, 0.08); }
+        .holder-tsd-item .num { font-weight: 800; font-size: 14px; }
+        .holder-tsd-item .mac { font-family: 'Courier New', monospace; font-size: 11px; color: var(--text-dim); }
+        .holder-tsd-item .time { font-size: 12px; color: var(--text-dim); font-weight: 700; }
+        .holder-tsd-item.warn { border-color: rgba(232, 160, 48, 0.5); background: rgba(232, 160, 48, 0.08); }
         .holder-tsd-item.overdue { border-color: rgba(166, 57, 45, 0.5); background: rgba(166, 57, 45, 0.08); }
-        .holder-tsd-item.warn .time { color: var(--warning); font-weight: 700; }
-        .holder-tsd-item.overdue .time { color: var(--danger); font-weight: 700; }
+        .holder-tsd-item.warn .time { color: var(--warning); }
+        .holder-tsd-item.overdue .time { color: var(--danger); }
 
         @media (max-width: 900px) {
             .tsd-summary { grid-template-columns: repeat(3, 1fr); }
@@ -572,7 +616,7 @@
             .header { padding: 10px 12px; gap: 8px; }
             .header h1 { font-size: 14px; }
             .header-left { gap: 10px; }
-            .tab-btn { padding: 6px 10px; font-size: 12px; min-height: 32px; }
+            .tab-btn { padding: 6px 10px; font-size: 11px; min-height: 32px; }
             .tsd-summary { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .tsd-summary-item { padding: 12px; }
             .tsd-summary-item .num { font-size: 24px; }
@@ -580,15 +624,15 @@
             .cat-summary-item { padding: 12px 8px; }
             .cat-summary-item .cat-num { font-size: 24px; }
             .tsd-scan-box { padding: 16px; }
-            .tsd-scan-input { font-size: 18px; padding: 14px; min-height: 56px; }
-            .repair-action-btn { padding: 12px; font-size: 13px; min-height: 48px; }
+            .tsd-scan-input { font-size: 16px; padding: 14px; min-height: 52px; }
+            .repair-action-btn { padding: 12px; font-size: 12px; min-height: 48px; }
             .tsd-filters { gap: 6px; }
-            .tsd-filter-btn { padding: 8px 10px; font-size: 11px; }
-            .tsd-table th { font-size: 10px; padding: 10px 6px; }
-            .tsd-table td { font-size: 12px; padding: 8px 6px; }
-            .tsd-action-btn { padding: 6px 10px; font-size: 11px; min-height: 32px; }
+            .tsd-filter-btn { padding: 8px 10px; font-size: 10px; }
+            .tsd-table th { font-size: 9px; padding: 10px 6px; }
+            .tsd-table td { font-size: 11px; padding: 8px 6px; }
+            .tsd-action-btn { padding: 6px 10px; font-size: 10px; min-height: 30px; }
             .cat-buttons { grid-template-columns: 1fr 1fr; }
-            .cat-btn { padding: 10px 6px; font-size: 11px; min-height: 46px; }
+            .cat-btn { padding: 10px 6px; font-size: 10px; min-height: 44px; }
             .company-buttons { grid-template-columns: 1fr; }
             .summary-block { padding: 16px; }
         }
@@ -598,23 +642,38 @@
 
 <div class="header">
     <div class="header-left">
-        <h1>📟 Учёт ТСД</h1>
+        <h1>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <path d="M8 8h8M8 12h8M8 16h5"/>
+            </svg>
+            Учёт ТСД
+        </h1>
         <div class="tabs">
-            <button class="tab-btn active" id="tabAllBtn" onclick="switchTab('all')">📋 Все ТСД</button>
-            <button class="tab-btn" id="tabRepairBtn" onclick="switchTab('repair')">🔧 Ремонт</button>
+            <button class="tab-btn active" id="tabAllBtn" onclick="switchTab('all')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Все ТСД
+            </button>
+            <button class="tab-btn" id="tabRepairBtn" onclick="switchTab('repair')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                Ремонт
+            </button>
             <button class="tab-btn" id="tabSummaryBtn" onclick="switchTab('summary')">
-                📊 Сводка
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+                Сводка
                 <span class="tab-badge" id="tabBadge" style="display:none;">0</span>
             </button>
         </div>
     </div>
-    <div class="header-status sync-connecting" id="syncStatus">🔄 Подключение...</div>
+    <div class="header-status sync-connecting" id="syncStatus">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.22-8.56"/></svg>
+        Подключение...
+    </div>
 </div>
 
 <div class="container">
 
     <div class="tab-content active" id="tabAll">
-
         <div class="tsd-summary">
             <div class="tsd-summary-item total"><div class="num" id="tsdTotal">0</div><div class="lbl">Всего</div></div>
             <div class="tsd-summary-item issued"><div class="num" id="tsdIssued">0</div><div class="lbl">Выдано</div></div>
@@ -624,9 +683,12 @@
         </div>
 
         <div class="tsd-scan-box">
-            <label>📷 Сканируй MAC ТСД или Логин сотрудника:</label>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>
+                Сканируй MAC ТСД или Логин сотрудника
+            </label>
             <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="B4293DAD4861 или sckaz-khuziev7" autocomplete="off" autofocus>
-            <div class="tsd-scan-hint">💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.</div>
+            <div class="tsd-scan-hint">Наведи сканер и нажми кнопку. Enter обработается автоматически.</div>
         </div>
 
         <div class="tsd-filters">
@@ -636,7 +698,7 @@
             <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
         </div>
 
-        <input type="text" class="tsd-search" id="tsdSearch" placeholder="🔍 Поиск по номеру, MAC, логину..." oninput="renderTable()">
+        <input type="text" class="tsd-search" id="tsdSearch" placeholder="Поиск по номеру, MAC, логину..." oninput="renderTable()">
 
         <div class="tsd-table-wrap">
             <table class="tsd-table">
@@ -658,7 +720,6 @@
     </div>
 
     <div class="tab-content" id="tabRepair">
-
         <div class="tsd-summary">
             <div class="tsd-summary-item total"><div class="num" id="repairTotal">0</div><div class="lbl">Всего в ремонте</div></div>
             <div class="tsd-summary-item repair"><div class="num" id="repairOldest">0</div><div class="lbl">Дней (самый старый)</div></div>
@@ -666,21 +727,26 @@
         </div>
 
         <div class="tsd-scan-box">
-            <label>📷 Сканируй MAC ТСД для ремонта:</label>
+            <label>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                Сканируй MAC ТСД для ремонта
+            </label>
             <input type="text" class="tsd-scan-input" id="repairScanInput" placeholder="B4293DAD4861" autocomplete="off">
-            <div class="tsd-scan-hint">💡 Выбери действие ниже, потом сканируй ТСД.</div>
+            <div class="tsd-scan-hint">Выбери действие ниже, потом сканируй ТСД.</div>
             
             <div class="repair-actions">
                 <button class="repair-action-btn to-repair active" id="btnToRepair" onclick="setRepairMode('to')">
-                    🔧 Отправить в ремонт
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                    Отправить в ремонт
                 </button>
                 <button class="repair-action-btn from-repair" id="btnFromRepair" onclick="setRepairMode('from')">
-                    ✅ Вернуть из ремонта
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Вернуть из ремонта
                 </button>
             </div>
         </div>
 
-        <input type="text" class="tsd-search" id="repairSearch" placeholder="🔍 Поиск по номеру или MAC..." oninput="renderRepairTable()">
+        <input type="text" class="tsd-search" id="repairSearch" placeholder="Поиск по номеру или MAC..." oninput="renderRepairTable()">
 
         <div class="tsd-table-wrap">
             <table class="tsd-table">
@@ -700,65 +766,72 @@
     </div>
 
     <div class="tab-content" id="tabSummary">
-
         <div class="summary-block">
-            <h3>📊 Выдано сейчас по категориям</h3>
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+                Выдано сейчас по категориям
+            </h3>
             <div class="cat-summary-grid">
                 <div class="cat-summary-item staff">
-                    <div class="cat-icon">🟢</div>
+                    <div class="cat-icon"><span class="dot staff" style="width:24px;height:24px;"></span></div>
                     <div class="cat-label">Штатные</div>
                     <div class="cat-num" id="sumStaff">0</div>
                 </div>
                 <div class="cat-summary-item outstaff">
-                    <div class="cat-icon">🟡</div>
+                    <div class="cat-icon"><span class="dot outstaff" style="width:24px;height:24px;"></span></div>
                     <div class="cat-label">Аутстафф</div>
                     <div class="cat-num" id="sumOutstaff">0</div>
                 </div>
                 <div class="cat-summary-item brigout">
-                    <div class="cat-icon">🟠</div>
+                    <div class="cat-icon"><span class="dot brigout" style="width:24px;height:24px;"></span></div>
                     <div class="cat-label">Бриг. аутстаффа</div>
                     <div class="cat-num" id="sumBrigout">0</div>
                 </div>
                 <div class="cat-summary-item brig">
-                    <div class="cat-icon">🔵</div>
+                    <div class="cat-icon"><span class="dot brig" style="width:24px;height:24px;"></span></div>
                     <div class="cat-label">Шт. бригадиры</div>
                     <div class="cat-num" id="sumBrig">0</div>
                 </div>
                 <div class="cat-summary-item senior">
-                    <div class="cat-icon">🟣</div>
+                    <div class="cat-icon"><span class="dot senior" style="width:24px;height:24px;"></span></div>
                     <div class="cat-label">Старшие смены</div>
                     <div class="cat-num" id="sumSenior">0</div>
                 </div>
             </div>
-
-            <div class="total-line">
-                Всего выдано: <span id="sumTotal">0</span>
-            </div>
-
+            <div class="total-line">Всего выдано: <span id="sumTotal">0</span></div>
             <div class="companies-breakdown" id="companiesBreakdown"></div>
         </div>
 
         <div class="summary-block warn" id="warnBlock" style="display: none;">
-            <h3>⚠️ Держат больше 11 часов</h3>
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Держат больше 11 часов
+            </h3>
             <div id="warnList"></div>
         </div>
 
         <div class="summary-block alert" id="overdueBlock" style="display: none;">
-            <h3>🚨 Держат больше 24 часов</h3>
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Держат больше 24 часов
+            </h3>
             <div id="overdueList"></div>
         </div>
 
         <div class="summary-block">
-            <h3>👥 Кто держит ТСД</h3>
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                Кто держит ТСД
+            </h3>
             <div class="tsd-filters" style="margin-bottom: 14px;">
                 <button class="tsd-filter-btn active" data-cat="all" onclick="setSummaryCat('all')">Все</button>
-                <button class="tsd-filter-btn cat-staff" data-cat="staff" onclick="setSummaryCat('staff')">🟢 Штатные</button>
-                <button class="tsd-filter-btn cat-outstaff" data-cat="outstaff" onclick="setSummaryCat('outstaff')">🟡 Аутстафф</button>
-                <button class="tsd-filter-btn cat-brigout" data-cat="brigout" onclick="setSummaryCat('brigout')">🟠 Бриг. аутст.</button>
-                <button class="tsd-filter-btn cat-brig" data-cat="brig" onclick="setSummaryCat('brig')">🔵 Шт. бриг.</button>
-                <button class="tsd-filter-btn cat-senior" data-cat="senior" onclick="setSummaryCat('senior')">🟣 Старшие</button>
+                <button class="tsd-filter-btn cat-staff" data-cat="staff" onclick="setSummaryCat('staff')"><span class="dot staff"></span>Штатные</button>
+                <button class="tsd-filter-btn cat-outstaff" data-cat="outstaff" onclick="setSummaryCat('outstaff')"><span class="dot outstaff"></span>Аутстафф</button>
+                <button class="tsd-filter-btn cat-brigout" data-cat="brigout" onclick="setSummaryCat('brigout')"><span class="dot brigout"></span>Бриг. аутст.</button>
+                <button class="tsd-filter-btn cat-brig" data-cat="brig" onclick="setSummaryCat('brig')"><span class="dot brig"></span>Шт. бриг.</button>
+                <button class="tsd-filter-btn cat-senior" data-cat="senior" onclick="setSummaryCat('senior')"><span class="dot senior"></span>Старшие</button>
             </div>
-            <input type="text" class="tsd-search" id="summarySearch" placeholder="🔍 Поиск по логину, номеру, MAC..." oninput="renderSummaryHolders()">
+            <input type="text" class="tsd-search" id="summarySearch" placeholder="Поиск по логину, номеру, MAC..." oninput="renderSummaryHolders()">
             <div class="tsd-table-wrap" style="max-height: 500px;">
                 <table class="tsd-table">
                     <thead>
@@ -778,10 +851,22 @@
         </div>
 
         <div class="summary-block">
-            <h3>📜 История за 48 часов</h3>
-            <button class="export-btn" onclick="exportHistoryCSV()">📥 Экспорт истории</button>
-            <button class="export-btn blue" onclick="exportFullBaseCSV()">📦 Экспорт всей базы ТСД</button>
-            <button class="export-btn" style="background:linear-gradient(135deg,#A6392D,#7A281E);" onclick="clearHistory()">🗑️ Очистить историю</button>
+            <h3>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                История за 48 часов
+            </h3>
+            <button class="export-btn" onclick="exportHistoryCSV()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Экспорт истории
+            </button>
+            <button class="export-btn blue" onclick="exportFullBaseCSV()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                Экспорт всей базы
+            </button>
+            <button class="export-btn" style="background:linear-gradient(135deg,#A6392D,#7A281E);" onclick="clearHistory()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                Очистить историю
+            </button>
             <div id="historyList">
                 <div style="color: var(--text-dim); font-size: 13px; padding: 20px; text-align: center;">
                     История пуста
@@ -793,35 +878,36 @@
 
 <div class="tsd-modal" id="issueModal">
     <div class="tsd-modal-content">
-        <h3>📤 Выдать ТСД</h3>
+        <h3>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Выдать ТСД
+        </h3>
         <div class="subtitle">Проверь данные и укажи категорию</div>
-        
         <div class="tsd-info-box">
             <div class="tsd-info-row"><span class="label">ТСД:</span><span class="value" id="issueTsdNum">—</span></div>
             <div class="tsd-info-row"><span class="label">MAC:</span><span class="value" id="issueTsdMac">—</span></div>
             <div class="tsd-info-row"><span class="label">Логин:</span><span class="value" id="issueLoginDisplay">—</span></div>
         </div>
-
-        <label class="modal-section-label">Логин сотрудника:</label>
+        <label class="modal-section-label">Логин сотрудника</label>
         <input type="text" id="issueLoginInput" placeholder="sckaz-khuziev7" autocomplete="off">
-
         <label class="modal-section-label">Кто это?</label>
         <div class="cat-buttons">
-            <button class="cat-btn" data-cat="staff" onclick="selectCategory('staff')">🟢 Штатный</button>
-            <button class="cat-btn" data-cat="outstaff" onclick="selectCategory('outstaff')">🟡 Аутстафф</button>
-            <button class="cat-btn" data-cat="brigout" onclick="selectCategory('brigout')">🟠 Бриг. аутстаффа</button>
-            <button class="cat-btn" data-cat="brig" onclick="selectCategory('brig')">🔵 Шт. бригадир</button>
-            <button class="cat-btn" data-cat="senior" onclick="selectCategory('senior')">🟣 Старший смены</button>
+            <button class="cat-btn" data-cat="staff" onclick="selectCategory('staff')"><span class="dot staff"></span>Штатный</button>
+            <button class="cat-btn" data-cat="outstaff" onclick="selectCategory('outstaff')"><span class="dot outstaff"></span>Аутстафф</button>
+            <button class="cat-btn" data-cat="brigout" onclick="selectCategory('brigout')"><span class="dot brigout"></span>Бриг. аутстаффа</button>
+            <button class="cat-btn" data-cat="brig" onclick="selectCategory('brig')"><span class="dot brig"></span>Шт. бригадир</button>
+            <button class="cat-btn" data-cat="senior" onclick="selectCategory('senior')"><span class="dot senior"></span>Старший смены</button>
         </div>
-
         <div class="company-selector" id="companySelector">
             <div class="company-header">
-                <label class="modal-section-label" style="margin-bottom:0;">Компания аутстаффа:</label>
-                <button class="company-settings-btn" onclick="openCompaniesModal()">⚙️ Настроить</button>
+                <label class="modal-section-label" style="margin-bottom:0;">Компания аутстаффа</label>
+                <button class="company-settings-btn" onclick="openCompaniesModal()">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                    Настроить
+                </button>
             </div>
             <div class="company-buttons" id="companyButtons"></div>
         </div>
-
         <div class="tsd-modal-buttons">
             <button class="tsd-modal-btn-cancel" onclick="closeIssueModal()">Отмена</button>
             <button class="tsd-modal-btn-ok" id="issueConfirmBtn" onclick="confirmIssue()" disabled>Выдать</button>
@@ -831,7 +917,10 @@
 
 <div class="tsd-modal" id="acceptModal">
     <div class="tsd-modal-content">
-        <h3>📥 Принять ТСД</h3>
+        <h3>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Принять ТСД
+        </h3>
         <div class="subtitle">Подтверди возврат</div>
         <div class="tsd-info-box">
             <div class="tsd-info-row"><span class="label">ТСД:</span><span class="value" id="acceptTsdNum">—</span></div>
@@ -850,14 +939,20 @@
 
 <div class="tsd-modal" id="holderModal">
     <div class="tsd-modal-content">
-        <h3>👤 ТСД сотрудника</h3>
+        <h3>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            ТСД сотрудника
+        </h3>
         <div class="subtitle" id="holderLoginDisplay">—</div>
         <div class="tsd-info-box">
             <div class="tsd-info-row"><span class="label">Категория:</span><span class="value" id="holderCategory">—</span></div>
             <div class="tsd-info-row"><span class="label">Кол-во ТСД:</span><span class="value" id="holderCount">0</span></div>
         </div>
         <div class="holder-tsd-list" id="holderTsdList"></div>
-        <button class="tsd-action-btn tsd-action-accept-all" id="acceptAllBtn" onclick="acceptAllFromHolder()">📥 Сдать все ТСД</button>
+        <button class="tsd-action-btn tsd-action-accept-all" id="acceptAllBtn" onclick="acceptAllFromHolder()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Сдать все ТСД
+        </button>
         <div class="tsd-modal-buttons">
             <button class="tsd-modal-btn-cancel" onclick="closeHolderModal()" style="width:100%;">Закрыть</button>
         </div>
@@ -866,34 +961,42 @@
 
 <div class="tsd-modal" id="companiesModal">
     <div class="tsd-modal-content">
-        <h3>⚙️ Компании аутстаффа</h3>
-        <div class="subtitle">Список общий с основным приложением</div>
+        <h3>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            Компании аутстаффа
+        </h3>
         <div class="companies-list-edit" id="companiesEditList"></div>
         <button class="company-add-btn" onclick="addCompanyEdit()">+ Добавить компанию</button>
         <div class="tsd-modal-buttons">
             <button class="tsd-modal-btn-cancel" onclick="closeCompaniesModal()">Отмена</button>
-            <button class="tsd-modal-btn-ok" onclick="saveCompaniesEdit()">✅ Сохранить</button>
+            <button class="tsd-modal-btn-ok" onclick="saveCompaniesEdit()">Сохранить</button>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-    const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
-    const SYNC_INTERVAL = 5000;
-    const SAVE_DEBOUNCE = 500;
-    const BLOCK_SYNC_AFTER_ACTION = 5000;
-    const FETCH_TIMEOUT = 10000;
-    const RETRY_DELAY = 5000;
+    const SUPABASE_URL = 'https://gbfuoxbvxwvfxytpjhjw.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_TW5dfhF73MSFzXc0Dac3Tg_KD8u9eM6';
+
+    let supabase = null;
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } catch (e) {
+        console.error('Ошибка Supabase:', e);
+        alert('Ошибка подключения к базе. Проверь интернет.');
+    }
+
     const HISTORY_HOURS = 48;
     const WARN_HOURS = 11;
     const OVERDUE_HOURS = 24;
 
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
 
-    let TSD_DATA = JSON.parse(localStorage.getItem('warehouseTsd')) || {};
-    let TSD_HISTORY = JSON.parse(localStorage.getItem('warehouseTsdHistory')) || [];
-    let TSD_STAFF = JSON.parse(localStorage.getItem('warehouseTsdStaff')) || {};
-    let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
+    let TSD_DATA = {};
+    let TSD_HISTORY = [];
+    let TSD_STAFF = {};
+    let COMPANIES = [...DEFAULT_COMPANIES];
 
     let TSD_FILTER = 'all';
     let SUMMARY_CAT = 'all';
@@ -906,14 +1009,6 @@
     let selectedCompany = null;
     let editingCompanies = [];
 
-    let saveTimer = null;
-    let syncTimer = null;
-    let isSaving = false;
-    let isSyncing = false;
-    let serverOnline = true;
-    let lastLocalChange = 0;
-    let lastActionTime = 0;
-
     function normalizeCode(raw) {
         if (!raw) return '';
         let s = String(raw).trim();
@@ -923,16 +1018,16 @@
     function isMacCode(code) { return /^[A-F0-9]{12}$/.test(code); }
     function formatTime(ts) {
         if (!ts) return '—';
-        return new Date(ts).toTimeString().slice(0, 5);
+        return new Date(Number(ts)).toTimeString().slice(0, 5);
     }
     function formatDateTime(ts) {
         if (!ts) return '—';
-        const d = new Date(ts);
+        const d = new Date(Number(ts));
         return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }) + ' ' + d.toTimeString().slice(0, 5);
     }
     function formatRepairDays(ts) {
         if (!ts) return '—';
-        const diff = Date.now() - ts;
+        const diff = Date.now() - Number(ts);
         const days = Math.floor(diff / (24 * 60 * 60 * 1000));
         const hours = Math.floor(diff / (60 * 60 * 1000));
         if (days > 0) return days + ' дн.';
@@ -941,15 +1036,15 @@
     }
     function formatHoldHours(ts) {
         if (!ts) return '—';
-        const diff = Date.now() - ts;
+        const diff = Date.now() - Number(ts);
         const hours = Math.floor(diff / (60 * 60 * 1000));
         const days = Math.floor(hours / 24);
         if (days > 0) return days + ' дн. ' + (hours % 24) + ' ч.';
         return hours + ' ч.';
     }
     function holdStatus(tsd) {
-        if (tsd.status !== 'issued' || !tsd.issuedAt) return null;
-        const hours = (Date.now() - tsd.issuedAt) / (60 * 60 * 1000);
+        if (tsd.status !== 'issued' || !tsd.issued_at) return null;
+        const hours = (Date.now() - Number(tsd.issued_at)) / (60 * 60 * 1000);
         if (hours >= OVERDUE_HOURS) return 'overdue';
         if (hours >= WARN_HOURS) return 'warn';
         return null;
@@ -964,218 +1059,143 @@
     }
 
     function getCategoryLabel(cat, company) {
-        if (cat === 'staff') return { text: '🟢 Штатный', cls: 'staff' };
-        if (cat === 'outstaff') return { text: '🟡 Аутстафф' + (company ? ' / ' + company : ''), cls: 'outstaff' };
-        if (cat === 'brigout') return { text: '🟠 Бриг. аутстаффа' + (company ? ' / ' + company : ''), cls: 'brigout' };
-        if (cat === 'brig') return { text: '🔵 Шт. бригадир', cls: 'brig' };
-        if (cat === 'senior') return { text: '🟣 Старший смены', cls: 'senior' };
+        if (cat === 'staff') return { text: 'Штатный', cls: 'staff' };
+        if (cat === 'outstaff') return { text: 'Аутстафф' + (company ? ' / ' + company : ''), cls: 'outstaff' };
+        if (cat === 'brigout') return { text: 'Бриг. аутстаффа' + (company ? ' / ' + company : ''), cls: 'brigout' };
+        if (cat === 'brig') return { text: 'Шт. бригадир', cls: 'brig' };
+        if (cat === 'senior') return { text: 'Старший смены', cls: 'senior' };
         return null;
     }
-    function isOutstaffCat(cat) {
-        return cat === 'outstaff' || cat === 'brigout';
-    }
-
-    async function fetchWithTimeout(url, options = {}, timeout = FETCH_TIMEOUT) {
-        return Promise.race([
-            fetch(url, options),
-            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
-        ]);
-    }
-    async function fetchWithRetry(url, options = {}, retries = 3) {
-        for (let i = 0; i < retries; i++) {
-            try {
-                const response = await fetchWithTimeout(url, options);
-                if (response.ok) return response;
-                throw new Error('HTTP ' + response.status);
-            } catch (err) {
-                console.warn('Попытка ' + (i + 1) + ' не удалась:', err.message);
-                if (i < retries - 1) await new Promise(r => setTimeout(r, RETRY_DELAY));
-            }
-        }
-        throw new Error('Все попытки исчерпаны');
-    }
+    function isOutstaffCat(cat) { return cat === 'outstaff' || cat === 'brigout'; }
 
     function setStatus(cls, text) {
         const el = document.getElementById('syncStatus');
         el.className = 'header-status sync-' + cls;
-        el.textContent = text;
+        let icon = '';
+        if (cls === 'online') icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        else if (cls === 'offline') icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/><path d="M5 12.55a10.94 10.94 0 015.17-2.39"/><path d="M10.71 5.05A16 16 0 0122.58 9"/><path d="M1.42 9a15.91 15.91 0 014.7-2.88"/><path d="M8.53 16.11a6 6 0 016.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>';
+        else icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-6.22-8.56"/></svg>';
+        el.innerHTML = icon + ' ' + text;
     }
 
-    async function loadFromServer(silent = false) {
-        if (isSyncing) return;
-        if (document.visibilityState !== 'visible') return;
-        // Не подтягиваем, если недавно было действие пользователя
-        if (Date.now() - lastActionTime < BLOCK_SYNC_AFTER_ACTION) return;
-        
-        isSyncing = true;
+    async function loadAllData() {
         try {
-            if (!silent) setStatus('connecting', '🔄 Загрузка...');
-            const response = await fetchWithRetry(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
-            const data = await response.json();
-
-            const serverTsdTime = data?.tsd?.lastModified || 0;
-            const localTsdTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
+            setStatus('connecting', 'Загрузка...');
             
-            // ВАЖНО: НЕ подтягиваем, если недавно что-то делали
-            if (Date.now() - lastActionTime < BLOCK_SYNC_AFTER_ACTION) {
-                isSyncing = false;
-                return;
-            }
-            
-            // Если на сервере новее И у нас не было недавних изменений
-            if (serverTsdTime > localTsdTime && serverTsdTime > lastLocalChange) {
-                if (data?.tsd?.data) {
-                    // Merge: только те ТСД, где серверное время новее локального
-                    const mergedData = { ...data.tsd.data };
-                    const localData = TSD_DATA;
-                    
-                    // Сохраняем локальные изменения, которые не отправились
-                    Object.keys(localData).forEach(mac => {
-                        const localModified = localData[mac].localModified || 0;
-                        const serverModified = mergedData[mac]?.lastModified || 0;
-                        if (localModified > serverModified) {
-                            mergedData[mac] = localData[mac];
-                        }
-                    });
-                    
-                    TSD_DATA = mergedData;
-                    localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-                }
-                if (data?.tsd?.history) {
-                    TSD_HISTORY = data.tsd.history;
-                    localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-                }
-                if (data?.tsd?.staff) {
-                    TSD_STAFF = data.tsd.staff;
-                    localStorage.setItem('warehouseTsdStaff', JSON.stringify(TSD_STAFF));
-                }
-            }
+            // Загружаем ТСД
+            const { data: tsdData, error: tsdErr } = await supabase.from('tsd').select('*');
+            if (tsdErr) throw tsdErr;
+            TSD_DATA = {};
+            (tsdData || []).forEach(row => {
+                TSD_DATA[row.mac] = row;
+            });
 
-            if (data?.companies?.list) {
-                COMPANIES = data.companies.list;
-                localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-            }
+            // Загружаем историю
+            const { data: histData, error: histErr } = await supabase
+                .from('tsd_history')
+                .select('*')
+                .gte('time', Date.now() - HISTORY_HOURS * 60 * 60 * 1000)
+                .order('time', { ascending: false })
+                .limit(500);
+            if (histErr) throw histErr;
+            TSD_HISTORY = histData || [];
 
-            serverOnline = true;
-            setStatus('online', '✅ Актуально');
+            // Загружаем сотрудников
+            const { data: staffData, error: staffErr } = await supabase.from('tsd_staff').select('*');
+            if (staffErr) throw staffErr;
+            TSD_STAFF = {};
+            (staffData || []).forEach(row => {
+                TSD_STAFF[row.login] = row;
+            });
+
+            // Загружаем компании
+            const { data: compData, error: compErr } = await supabase
+                .from('tsd_companies')
+                .select('*')
+                .order('id');
+            if (compErr) throw compErr;
+            COMPANIES = (compData || []).map(c => c.name);
+
+            setStatus('online', 'Актуально');
             renderAll();
         } catch (err) {
             console.error('Ошибка загрузки:', err);
-            serverOnline = false;
-            setStatus('offline', '📴 Нет связи');
-        } finally {
-            isSyncing = false;
+            setStatus('offline', 'Нет связи');
         }
     }
 
-    async function saveToServer() {
-        if (isSaving) return;
-        if (!navigator.onLine) {
-            setStatus('offline', '📴 Нет интернета');
-            return;
-        }
-        isSaving = true;
-        // Фиксируем время действия - блокируем подтягивание
-        lastActionTime = Date.now();
-        
-        try {
-            let currentData = {};
-            try {
-                const response = await fetchWithTimeout(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
-                if (response.ok) currentData = await response.json() || {};
-            } catch (e) {}
-
-            // Проверяем: если серверные ТСД новее - всё равно отправляем своё,
-            // но merge делаем только для чужих изменений
-            const serverTsd = currentData?.tsd?.data || {};
-            const mergedData = { ...serverTsd };
-            
-            // Наши локальные изменения главнее
-            Object.keys(TSD_DATA).forEach(mac => {
-                const localModified = TSD_DATA[mac].localModified || 0;
-                const serverModified = serverTsd[mac]?.lastModified || 0;
-                if (localModified >= serverModified || !serverTsd[mac]) {
-                    mergedData[mac] = TSD_DATA[mac];
+    // REAL-TIME ПОДПИСКА
+    function subscribeToChanges() {
+        supabase
+            .channel('tsd-changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd' }, (payload) => {
+                const row = payload.new;
+                const old = payload.old;
+                if (payload.eventType === 'DELETE') {
+                    delete TSD_DATA[old.mac];
+                } else if (row) {
+                    TSD_DATA[row.mac] = row;
                 }
-            });
-
-            const payload = {
-                current: currentData.current || {},
-                companies: { list: COMPANIES },
-                directions: currentData.directions || {},
-                archive: currentData.archive || {},
-                shipment: currentData.shipment || {},
-                tsd: {
-                    data: mergedData,
-                    history: TSD_HISTORY,
-                    staff: TSD_STAFF,
-                    lastModified: Date.now()
-                }
-            };
-
-            await fetchWithRetry(BIN_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            lastLocalChange = Date.now();
-            serverOnline = true;
-            setStatus('online', '✅ Актуально');
-        } catch (err) {
-            console.error('Ошибка сохранения:', err);
-            serverOnline = false;
-            setStatus('offline', '📴 Ошибка сохранения');
-        } finally {
-            isSaving = false;
-        }
+                renderAll();
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd_history' }, (payload) => {
+                loadAllData();
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd_staff' }, (payload) => {
+                if (payload.new) TSD_STAFF[payload.new.login] = payload.new;
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tsd_companies' }, () => {
+                loadAllData();
+            })
+            .subscribe();
     }
 
-    function touchTsd(mac) {
-        if (TSD_DATA[mac]) {
-            TSD_DATA[mac].localModified = Date.now();
-        }
+    async function saveTsdToDb(mac) {
+        const tsd = TSD_DATA[mac];
+        if (!tsd) return;
+        const { error } = await supabase.from('tsd').upsert({
+            mac: mac,
+            number: tsd.number,
+            status: tsd.status,
+            owner: tsd.owner,
+            category: tsd.category,
+            company: tsd.company,
+            issued_at: tsd.issued_at,
+            repair_started_at: tsd.repair_started_at,
+            created_at: tsd.created_at,
+            local_modified: Date.now()
+        });
+        if (error) console.error('Ошибка upsert:', error);
     }
 
-    function saveDebounced() {
-        lastLocalChange = Date.now();
-        lastActionTime = Date.now();
-        if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => {
-            localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-            localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-            localStorage.setItem('warehouseTsdStaff', JSON.stringify(TSD_STAFF));
-            localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-            saveToServer();
-        }, SAVE_DEBOUNCE);
+    async function saveHistoryToDb(entry) {
+        const { error } = await supabase.from('tsd_history').insert({
+            time: entry.time,
+            action: entry.action,
+            number: entry.number,
+            owner: entry.owner,
+            mac: entry.mac,
+            category: entry.category,
+            company: entry.company
+        });
+        if (error) console.error('Ошибка insert history:', error);
     }
 
-    function startSyncLoop() {
-        if (syncTimer) clearInterval(syncTimer);
-        syncTimer = setInterval(() => {
-            if (document.visibilityState !== 'visible') return;
-            if (isSaving || isSyncing) return;
-            // Не подтягиваем, если недавно было действие
-            if (Date.now() - lastActionTime < BLOCK_SYNC_AFTER_ACTION) return;
-            loadFromServer(true);
-        }, SYNC_INTERVAL);
+    async function saveStaffToDb(login) {
+        const staff = TSD_STAFF[login];
+        if (!staff) return;
+        const { error } = await supabase.from('tsd_staff').upsert({
+            login: login,
+            category: staff.category,
+            company: staff.company,
+            last_seen: staff.last_seen
+        });
+        if (error) console.error('Ошибка upsert staff:', error);
     }
 
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            // Не сразу, а через паузу
-            setTimeout(() => loadFromServer(true), 1000);
-        }
-    });
-    window.addEventListener('online', () => {
-        serverOnline = true;
-        saveToServer();
-        setTimeout(() => loadFromServer(true), 1500);
-    });
-    window.addEventListener('offline', () => {
-        serverOnline = false;
-        setStatus('offline', '📴 Нет интернета');
-    });
+    async function deleteTsdFromDb(mac) {
+        await supabase.from('tsd').delete().eq('mac', mac);
+    }
 
     function switchTab(tab) {
         currentTab = tab;
@@ -1235,11 +1255,10 @@
         const badge = document.getElementById('tabBadge');
         let warnCount = 0;
         Object.values(TSD_DATA).forEach(t => {
-            if (holdStatus(t) === 'warn') warnCount++;
+            if (holdStatus(t) === 'warn' || holdStatus(t) === 'overdue') warnCount++;
         });
         if (warnCount > 0) {
             badge.textContent = warnCount;
-            badge.className = 'tab-badge warn';
             badge.style.display = 'inline-block';
         } else {
             badge.style.display = 'none';
@@ -1295,16 +1314,22 @@
             let catBadge = '—';
             if (it.status === 'issued' && it.category) {
                 const catInfo = getCategoryLabel(it.category, it.company);
-                if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}">${catInfo.text}</span>`;
+                if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}"><span class="dot ${catInfo.cls}"></span>${catInfo.text}</span>`;
             }
 
             let actions = '';
             if (it.status === 'free') {
-                actions = `<button class="tsd-action-btn tsd-action-issue" onclick="openIssueModal('${it.mac}')">📤 Выдать</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-issue" onclick="openIssueModal('${it.mac}')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                    Выдать</button>`;
             } else if (it.status === 'issued') {
-                actions = `<button class="tsd-action-btn tsd-action-accept" onclick="openAcceptModal('${it.mac}')">📥 Принять</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-accept" onclick="openAcceptModal('${it.mac}')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Принять</button>`;
             } else if (it.status === 'written') {
-                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">↩️ Вернуть</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                    Вернуть</button>`;
             }
 
             html += `<tr class="tsd-row ${it.status || ''} ${rowClass}">
@@ -1314,7 +1339,7 @@
                 <td><span class="tsd-status ${it.status}">${statusText}</span></td>
                 <td class="owner-cell clickable" onclick="openHolderModal('${(it.owner || '').replace(/'/g, "\\'")}')">${it.owner || '—'}</td>
                 <td>${catBadge}</td>
-                <td>${formatTime(it.issuedAt)}</td>
+                <td>${formatTime(it.issued_at)}</td>
                 <td class="tsd-actions-cell">${actions}</td>
             </tr>`;
         });
@@ -1327,15 +1352,15 @@
 
         let oldestDays = 0;
         repairs.forEach(t => {
-            if (t.repairStartedAt) {
-                const days = Math.floor((Date.now() - t.repairStartedAt) / (24 * 60 * 60 * 1000));
+            if (t.repair_started_at) {
+                const days = Math.floor((Date.now() - Number(t.repair_started_at)) / (24 * 60 * 60 * 1000));
                 if (days > oldestDays) oldestDays = days;
             }
         });
         document.getElementById('repairOldest').textContent = oldestDays;
 
         const todayStart = new Date().setHours(0, 0, 0, 0);
-        const todayCount = repairs.filter(t => t.repairStartedAt >= todayStart).length;
+        const todayCount = repairs.filter(t => Number(t.repair_started_at) >= todayStart).length;
         document.getElementById('repairToday').textContent = todayCount;
     }
 
@@ -1354,7 +1379,7 @@
             );
         }
 
-        items.sort((a, b) => (a.repairStartedAt || 0) - (b.repairStartedAt || 0));
+        items.sort((a, b) => (Number(a.repair_started_at) || 0) - (Number(b.repair_started_at) || 0));
 
         if (items.length === 0) {
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim); padding:30px;">В ремонте никого нет</td></tr>';
@@ -1363,8 +1388,8 @@
 
         let html = '';
         items.forEach((it, i) => {
-            const days = formatRepairDays(it.repairStartedAt);
-            const daysNum = it.repairStartedAt ? Math.floor((Date.now() - it.repairStartedAt) / (24 * 60 * 60 * 1000)) : 0;
+            const days = formatRepairDays(it.repair_started_at);
+            const daysNum = it.repair_started_at ? Math.floor((Date.now() - Number(it.repair_started_at)) / (24 * 60 * 60 * 1000)) : 0;
             const daysColor = daysNum >= 7 ? 'var(--danger)' : (daysNum >= 3 ? 'var(--warning)' : 'var(--text-dim)');
 
             html += `<tr class="tsd-row repair">
@@ -1374,8 +1399,12 @@
                 <td><span class="tsd-status repair">В ремонте</span></td>
                 <td class="repair-cell" style="color:${daysColor};">${days}</td>
                 <td class="tsd-actions-cell">
-                    <button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">✅ Вернуть</button>
-                    <button class="tsd-action-btn tsd-action-writeoff" onclick="writeOff('${it.mac}')">❌ Списать</button>
+                    <button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Вернуть</button>
+                    <button class="tsd-action-btn tsd-action-writeoff" onclick="writeOff('${it.mac}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        Списать</button>
                 </td>
             </tr>`;
         });
@@ -1411,7 +1440,7 @@
         const brigoutCompanies = Object.keys(companyCounts.brigout).sort();
 
         if (outstaffCompanies.length > 0) {
-            breakdownHtml += `<div class="comp-category-title outstaff">🟡 Аутстафф по компаниям:</div>`;
+            breakdownHtml += `<div class="comp-category-title outstaff">Аутстафф по компаниям:</div>`;
             breakdownHtml += `<div class="comp-category-grid">`;
             outstaffCompanies.forEach(c => {
                 breakdownHtml += `<div class="comp-category-item outstaff">
@@ -1423,7 +1452,7 @@
         }
 
         if (brigoutCompanies.length > 0) {
-            breakdownHtml += `<div class="comp-category-title brigout">🟠 Бригадиры аутстаффа по компаниям:</div>`;
+            breakdownHtml += `<div class="comp-category-title brigout">Бригадиры аутстаффа по компаниям:</div>`;
             breakdownHtml += `<div class="comp-category-grid">`;
             brigoutCompanies.forEach(c => {
                 breakdownHtml += `<div class="comp-category-item brigout">
@@ -1435,9 +1464,8 @@
         }
 
         if (!breakdownHtml) {
-            breakdownHtml = '<div style="color: var(--text-dim); font-size: 13px; text-align: center; padding: 20px;">Нет выданных ТСД аутстаффу</div>';
+            breakdownHtml = '<div style="color: var(--text-dim); font-size: 12px; text-align: center; padding: 20px;">Нет выданных ТСД аутстаффу</div>';
         }
-
         breakdown.innerHTML = breakdownHtml;
 
         renderWarn();
@@ -1450,23 +1478,19 @@
         const block = document.getElementById('warnBlock');
         const list = document.getElementById('warnList');
         
-        // Только 11-24 часа (не overdue)
         const holders = {};
         Object.values(TSD_DATA).forEach(t => {
             if (holdStatus(t) === 'warn' && t.owner) {
                 if (!holders[t.owner]) {
-                    holders[t.owner] = { count: 0, oldest: t.issuedAt, category: t.category, company: t.company };
+                    holders[t.owner] = { count: 0, oldest: t.issued_at, category: t.category, company: t.company };
                 }
                 holders[t.owner].count++;
-                if (t.issuedAt < holders[t.owner].oldest) holders[t.owner].oldest = t.issuedAt;
+                if (Number(t.issued_at) < Number(holders[t.owner].oldest)) holders[t.owner].oldest = t.issued_at;
             }
         });
 
         const logins = Object.keys(holders);
-        if (logins.length === 0) {
-            block.style.display = 'none';
-            return;
-        }
+        if (logins.length === 0) { block.style.display = 'none'; return; }
 
         block.style.display = 'block';
         logins.sort((a, b) => holders[b].count - holders[a].count);
@@ -1479,7 +1503,7 @@
             html += `<div class="overdue-card warn" onclick="openHolderModal('${login.replace(/'/g, "\\'")}')">
                 <div>
                     <div class="login">${login}</div>
-                    <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${catText}</div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">${catText}</div>
                 </div>
                 <div class="info">
                     <div class="hours">${formatHoldHours(d.oldest)}</div>
@@ -1498,18 +1522,15 @@
         Object.values(TSD_DATA).forEach(t => {
             if (holdStatus(t) === 'overdue' && t.owner) {
                 if (!holders[t.owner]) {
-                    holders[t.owner] = { count: 0, oldest: t.issuedAt, category: t.category, company: t.company };
+                    holders[t.owner] = { count: 0, oldest: t.issued_at, category: t.category, company: t.company };
                 }
                 holders[t.owner].count++;
-                if (t.issuedAt < holders[t.owner].oldest) holders[t.owner].oldest = t.issuedAt;
+                if (Number(t.issued_at) < Number(holders[t.owner].oldest)) holders[t.owner].oldest = t.issued_at;
             }
         });
 
         const logins = Object.keys(holders);
-        if (logins.length === 0) {
-            block.style.display = 'none';
-            return;
-        }
+        if (logins.length === 0) { block.style.display = 'none'; return; }
 
         block.style.display = 'block';
         logins.sort((a, b) => holders[b].count - holders[a].count);
@@ -1522,7 +1543,7 @@
             html += `<div class="overdue-card" onclick="openHolderModal('${login.replace(/'/g, "\\'")}')">
                 <div>
                     <div class="login">${login}</div>
-                    <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${catText}</div>
+                    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">${catText}</div>
                 </div>
                 <div class="info">
                     <div class="hours">${formatHoldHours(d.oldest)}</div>
@@ -1539,7 +1560,6 @@
 
         const search = (document.getElementById('summarySearch')?.value || '').toLowerCase().trim();
         let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
-        
         items = items.filter(it => it.status === 'issued');
 
         if (SUMMARY_CAT !== 'all') {
@@ -1570,10 +1590,10 @@
             let catBadge = '—';
             if (it.category) {
                 const catInfo = getCategoryLabel(it.category, it.company);
-                if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}">${catInfo.text}</span>`;
+                if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}"><span class="dot ${catInfo.cls}"></span>${catInfo.text}</span>`;
             }
             
-            const holdText = hs ? formatHoldHours(it.issuedAt) : '—';
+            const holdText = hs ? formatHoldHours(it.issued_at) : '—';
             const holdColor = hs === 'overdue' ? 'var(--danger)' : (hs === 'warn' ? 'var(--warning)' : 'var(--text-dim)');
 
             html += `<tr class="tsd-row issued ${rowClass}">
@@ -1582,7 +1602,7 @@
                 <td class="mac-cell">${it.mac}</td>
                 <td class="owner-cell clickable" onclick="openHolderModal('${(it.owner || '').replace(/'/g, "\\'")}')">${it.owner || '—'}</td>
                 <td>${catBadge}</td>
-                <td>${formatTime(it.issuedAt)}</td>
+                <td>${formatTime(it.issued_at)}</td>
                 <td style="font-weight:700; color:${holdColor};">${holdText}</td>
             </tr>`;
         });
@@ -1593,11 +1613,8 @@
         const container = document.getElementById('historyList');
         if (!container) return;
 
-        const cutoff = Date.now() - HISTORY_HOURS * 60 * 60 * 1000;
-        TSD_HISTORY = TSD_HISTORY.filter(h => h.time >= cutoff);
-
         if (TSD_HISTORY.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-dim); font-size: 13px; padding: 20px; text-align: center;">История пуста</div>';
+            container.innerHTML = '<div style="color: var(--text-dim); font-size: 12px; padding: 20px; text-align: center;">История пуста</div>';
             return;
         }
 
@@ -1607,15 +1624,15 @@
             let text = '';
             let catText = '';
             if (h.action === 'issue') {
-                text = `📤 ${h.number} → ${h.owner}`;
+                text = `${h.number} выдан → ${h.owner}`;
                 const cat = h.category ? getCategoryLabel(h.category, h.company) : null;
-                if (cat) catText = `<span class="cat-badge ${cat.cls}" style="font-size:11px;">${cat.text}</span>`;
+                if (cat) catText = `<span class="cat-badge ${cat.cls}" style="font-size:10px;"><span class="dot ${cat.cls}"></span>${cat.text}</span>`;
             }
-            else if (h.action === 'accept') text = `📥 ${h.number} принят от ${h.owner}`;
-            else if (h.action === 'repair') text = `🔧 ${h.number} → в ремонт`;
-            else if (h.action === 'restore') text = `✅ ${h.number} → из ремонта`;
-            else if (h.action === 'writeoff') text = `❌ ${h.number} списан`;
-            else if (h.action === 'created') text = `➕ ${h.number} добавлен`;
+            else if (h.action === 'accept') text = `${h.number} принят от ${h.owner}`;
+            else if (h.action === 'repair') text = `${h.number} → в ремонт`;
+            else if (h.action === 'restore') text = `${h.number} → из ремонта`;
+            else if (h.action === 'writeoff') text = `${h.number} списан`;
+            else if (h.action === 'created') text = `${h.number} добавлен`;
             html += `<div class="history-item">
                 <span class="h-time">${t}</span>
                 <span class="h-text">${text}</span>
@@ -1625,14 +1642,16 @@
         container.innerHTML = html;
     }
 
-    function addHistory(action, number, owner, mac, category, company) {
-        TSD_HISTORY.unshift({
+    async function addHistory(action, number, owner, mac, category, company) {
+        const entry = {
             time: Date.now(), action, number,
             owner: owner || '', mac: mac || '',
             category: category || null,
             company: company || null
-        });
+        };
+        TSD_HISTORY.unshift(entry);
         if (TSD_HISTORY.length > 1000) TSD_HISTORY = TSD_HISTORY.slice(0, 1000);
+        await saveHistoryToDb(entry);
     }
 
     function handleScan(code) {
@@ -1654,20 +1673,19 @@
         }
     }
 
-    function handleMac(mac) {
+    async function handleMac(mac) {
         if (!TSD_DATA[mac]) {
             TSD_DATA[mac] = {
+                mac: mac,
                 number: getNextTsdNumber(),
                 status: 'free',
-                owner: null, issuedAt: null,
+                owner: null, issued_at: null,
                 category: null, company: null,
-                repairStartedAt: null,
-                createdAt: Date.now(),
-                localModified: Date.now()
+                repair_started_at: null,
+                created_at: Date.now()
             };
-            localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-            addHistory('created', TSD_DATA[mac].number, null, mac);
-            saveDebounced();
+            await saveTsdToDb(mac);
+            await addHistory('created', TSD_DATA[mac].number, null, mac);
             renderAll();
         }
 
@@ -1680,19 +1698,13 @@
         else if (tsd.status === 'written') alert(`ТСД ${tsd.number} списан.`);
     }
 
-    function handleRepairScan(code) {
+    async function handleRepairScan(code) {
         if (!code) return;
         const norm = normalizeCode(code);
-        if (!isMacCode(norm)) {
-            alert('Это не MAC-адрес ТСД');
-            return;
-        }
+        if (!isMacCode(norm)) { alert('Это не MAC-адрес ТСД'); return; }
 
         const tsd = TSD_DATA[norm];
-        if (!tsd) {
-            alert(`ТСД ${norm} не найден. Сначала добавь его на вкладке "Все ТСД".`);
-            return;
-        }
+        if (!tsd) { alert(`ТСД ${norm} не найден.`); return; }
 
         if (repairMode === 'to') {
             if (tsd.status === 'repair') { alert(`ТСД ${tsd.number} уже в ремонте.`); return; }
@@ -1701,21 +1713,19 @@
             }
             tsd.status = 'repair';
             tsd.owner = null;
-            tsd.issuedAt = null;
+            tsd.issued_at = null;
             tsd.category = null;
             tsd.company = null;
-            tsd.repairStartedAt = Date.now();
-            addHistory('repair', tsd.number, null, norm);
+            tsd.repair_started_at = Date.now();
+            await addHistory('repair', tsd.number, null, norm);
         } else {
             if (tsd.status !== 'repair') { alert(`ТСД ${tsd.number} не в ремонте.`); return; }
             tsd.status = 'free';
-            tsd.repairStartedAt = null;
-            addHistory('restore', tsd.number, null, norm);
+            tsd.repair_started_at = null;
+            await addHistory('restore', tsd.number, null, norm);
         }
 
-        touchTsd(norm);
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        saveDebounced();
+        await saveTsdToDb(norm);
         renderAll();
     }
 
@@ -1814,7 +1824,7 @@
         btn.disabled = false;
     }
 
-    function confirmIssue() {
+    async function confirmIssue() {
         if (!currentIssueMac) return;
         const login = document.getElementById('issueLoginInput').value.trim().toLowerCase();
         if (!login) { alert('Отсканируй логин сотрудника'); return; }
@@ -1828,21 +1838,21 @@
         tsd.owner = login;
         tsd.category = selectedCategory;
         tsd.company = isOutstaffCat(selectedCategory) ? selectedCompany : null;
-        tsd.issuedAt = Date.now();
-        touchTsd(currentIssueMac);
+        tsd.issued_at = Date.now();
 
         TSD_STAFF[login] = {
+            login: login,
             category: selectedCategory,
             company: isOutstaffCat(selectedCategory) ? selectedCompany : null,
-            lastSeen: Date.now()
+            last_seen: Date.now()
         };
 
-        addHistory('issue', tsd.number, login, currentIssueMac, selectedCategory, selectedCompany);
-        
-        // Сначала рендерим локально, потом отправляем
         closeIssueModal();
         renderAll();
-        saveDebounced();
+        
+        await saveTsdToDb(currentIssueMac);
+        await saveStaffToDb(login);
+        await addHistory('issue', tsd.number, login, currentIssueMac, selectedCategory, selectedCompany);
     }
 
     function openAcceptModal(mac) {
@@ -1859,9 +1869,9 @@
             if (info) catText = info.text;
         }
         document.getElementById('acceptTsdCat').textContent = catText;
-        document.getElementById('acceptTsdTime').textContent = formatTime(tsd.issuedAt);
+        document.getElementById('acceptTsdTime').textContent = formatTime(tsd.issued_at);
         
-        const hold = tsd.issuedAt ? formatHoldHours(tsd.issuedAt) : '—';
+        const hold = tsd.issued_at ? formatHoldHours(tsd.issued_at) : '—';
         document.getElementById('acceptTsdHold').textContent = hold;
         
         document.getElementById('acceptModal').classList.add('active');
@@ -1873,7 +1883,7 @@
         setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 100);
     }
 
-    function confirmAccept() {
+    async function confirmAccept() {
         if (!currentAcceptMac) return;
         const tsd = TSD_DATA[currentAcceptMac];
         if (!tsd) return;
@@ -1885,15 +1895,13 @@
         tsd.owner = null;
         tsd.category = null;
         tsd.company = null;
-        tsd.issuedAt = null;
-        touchTsd(mac);
+        tsd.issued_at = null;
         
-        addHistory('accept', tsd.number, oldOwner, mac);
-        
-        // Сначала локально
         closeAcceptModal();
         renderAll();
-        saveDebounced();
+        
+        await saveTsdToDb(mac);
+        await addHistory('accept', tsd.number, oldOwner, mac);
     }
 
     function openHolderModal(login) {
@@ -1916,13 +1924,12 @@
         tsdList.sort((a, b) => (a.number || '').localeCompare(b.number || '')).forEach(t => {
             const hs = holdStatus(t);
             const cls = hs || '';
-            const warnIcon = hs === 'overdue' ? ' 🚨' : (hs === 'warn' ? ' ⚠️' : '');
             html += `<div class="holder-tsd-item ${cls}">
                 <div>
-                    <div class="num">${t.number || '—'}${warnIcon}</div>
+                    <div class="num">${t.number || '—'}</div>
                     <div class="mac">${t.mac}</div>
                 </div>
-                <div class="time">${formatHoldHours(t.issuedAt)}</div>
+                <div class="time">${formatHoldHours(t.issued_at)}</div>
             </div>`;
         });
         document.getElementById('holderTsdList').innerHTML = html;
@@ -1934,7 +1941,7 @@
         currentHolderLogin = null;
     }
 
-    function acceptAllFromHolder() {
+    async function acceptAllFromHolder() {
         if (!currentHolderLogin) return;
         const login = currentHolderLogin;
         const macs = Object.keys(TSD_DATA).filter(mac => TSD_DATA[mac].owner === login && TSD_DATA[mac].status === 'issued');
@@ -1942,56 +1949,52 @@
         if (macs.length === 0) { closeHolderModal(); return; }
         if (!confirm(`Сдать все ${macs.length} ТСД от ${login}?`)) return;
 
-        macs.forEach(mac => {
+        for (const mac of macs) {
             const tsd = TSD_DATA[mac];
             tsd.status = 'free';
             tsd.owner = null;
             tsd.category = null;
             tsd.company = null;
-            tsd.issuedAt = null;
-            touchTsd(mac);
-            addHistory('accept', tsd.number, login, mac);
-        });
+            tsd.issued_at = null;
+            await saveTsdToDb(mac);
+            await addHistory('accept', tsd.number, login, mac);
+        }
 
         closeHolderModal();
         renderAll();
-        saveDebounced();
     }
 
-    function fromRepair(mac) {
+    async function fromRepair(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         tsd.status = 'free';
-        tsd.repairStartedAt = null;
-        touchTsd(mac);
-        addHistory('restore', tsd.number, null, mac);
+        tsd.repair_started_at = null;
+        await saveTsdToDb(mac);
+        await addHistory('restore', tsd.number, null, mac);
         renderAll();
-        saveDebounced();
     }
 
-    function writeOff(mac) {
+    async function writeOff(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         if (!confirm(`Списать ${tsd.number} навсегда?`)) return;
         tsd.status = 'written';
-        tsd.repairStartedAt = null;
-        touchTsd(mac);
-        addHistory('writeoff', tsd.number, null, mac);
+        tsd.repair_started_at = null;
+        await saveTsdToDb(mac);
+        await addHistory('writeoff', tsd.number, null, mac);
         renderAll();
-        saveDebounced();
     }
 
-    function clearHistory() {
+    async function clearHistory() {
         if (!confirm('Очистить всю историю ТСД?')) return;
+        const { error } = await supabase.from('tsd_history').delete().gte('time', 0);
+        if (error) { alert('Ошибка очистки: ' + error.message); return; }
         TSD_HISTORY = [];
-        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
         renderHistory();
-        saveDebounced();
     }
 
     function exportHistoryCSV() {
-        const cutoff = Date.now() - HISTORY_HOURS * 60 * 60 * 1000;
-        const history = TSD_HISTORY.filter(h => h.time >= cutoff);
+        const history = TSD_HISTORY;
 
         let csv = 'Дата и время;Событие;Номер ТСД;Сотрудник;Категория;Компания\n';
 
@@ -2008,7 +2011,7 @@
             let catText = '';
             if (h.category) {
                 const info = getCategoryLabel(h.category, h.company);
-                if (info) catText = info.text.replace(/[🟢🟡🟠🔵🟣]/g, '').trim();
+                if (info) catText = info.text;
             }
 
             csv += `${dt};${actionText};${h.number || ''};${h.owner || ''};${catText};${h.company || ''}\n`;
@@ -2033,12 +2036,12 @@
             let catText = '';
             if (t.category) {
                 const info = getCategoryLabel(t.category, t.company);
-                if (info) catText = info.text.replace(/[🟢🟡🟠🔵🟣]/g, '').trim();
+                if (info) catText = info.text;
             }
 
-            const issued = t.issuedAt ? formatDateTime(t.issuedAt) : '';
-            const hold = t.issuedAt ? formatHoldHours(t.issuedAt) : '';
-            const repair = t.repairStartedAt ? formatDateTime(t.repairStartedAt) : '';
+            const issued = t.issued_at ? formatDateTime(t.issued_at) : '';
+            const hold = t.issued_at ? formatHoldHours(t.issued_at) : '';
+            const repair = t.repair_started_at ? formatDateTime(t.repair_started_at) : '';
 
             csv += `${t.number || ''};${mac};${statusText};${t.owner || ''};${catText};${t.company || ''};${issued};${hold};${repair}\n`;
         });
@@ -2096,7 +2099,7 @@
             div.className = 'company-edit-row';
             div.innerHTML = `
                 <input type="text" value="${c.replace(/"/g, '&quot;')}" maxlength="40" oninput="updateCompanyEdit(${i}, this.value)">
-                <button class="del-btn" onclick="removeCompanyEdit(${i})">🗑</button>
+                <button class="del-btn" onclick="removeCompanyEdit(${i})">×</button>
             `;
             list.appendChild(div);
         });
@@ -2116,20 +2119,30 @@
             if (inputs.length) { inputs[inputs.length-1].focus(); inputs[inputs.length-1].select(); }
         }, 50);
     }
-    function saveCompaniesEdit() {
+    async function saveCompaniesEdit() {
         const cleaned = editingCompanies.map(c => c.trim()).filter(c => c.length > 0);
         if (cleaned.length === 0) { alert('Нужна хотя бы одна компания'); return; }
         const unique = [...new Set(cleaned)];
         if (unique.length !== cleaned.length) { alert('Есть одинаковые названия'); return; }
 
+        const { error: delErr } = await supabase.from('tsd_companies').delete().gte('id', 0);
+        if (delErr) { alert('Ошибка: ' + delErr.message); return; }
+
+        const inserts = unique.map(name => ({ name }));
+        const { error: insErr } = await supabase.from('tsd_companies').insert(inserts);
+        if (insErr) { alert('Ошибка: ' + insErr.message); return; }
+
         COMPANIES = unique;
-        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
         closeCompaniesModal();
         renderCompanyButtons();
-        saveDebounced();
     }
 
     window.addEventListener('load', async () => {
+        if (!supabase) {
+            alert('Не удалось подключиться к базе. Проверь интернет и перезагрузи страницу.');
+            return;
+        }
+        
         renderAll();
         setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 200);
 
@@ -2168,13 +2181,13 @@
             }
         });
 
-        await loadFromServer();
-        startSyncLoop();
+        await loadAllData();
+        subscribeToChanges();
 
-        // Обновление каждый час — для пересчёта «держит больше 11ч»
+        // Каждую минуту пересчитываем "держит больше 11ч" — для обновления статусов
         setInterval(() => {
-            if (currentTab === 'summary') renderSummaryTab();
             renderTabBadge();
+            if (currentTab === 'summary') renderSummaryTab();
             if (currentTab === 'all') renderTable();
         }, 60000);
     });
