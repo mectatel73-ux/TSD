@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Отчет по складу</title>
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
-    <link rel="shortcut icon" href="icon-192.png">
+    <title>Учёт ТСД</title>
     <meta name="theme-color" content="#1a1d21">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Отчет склада">
+    <meta name="apple-mobile-web-app-title" content="Учёт ТСД">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 
     <style>
         * { box-sizing: border-box; }
@@ -31,327 +28,60 @@
             min-height: 100vh;
         }
 
-        .hamburger {
-            position: fixed; top: 12px; left: 12px;
-            width: 48px; height: 48px;
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 26px; color: var(--accent); cursor: pointer;
-            z-index: 1000; transition: 0.2s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .hamburger:active { transform: scale(0.92); }
-
-        .fullscreen-menu {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg-dark);
-            z-index: 2000;
-            display: flex; flex-direction: column;
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-            overflow-y: auto;
-        }
-        .fullscreen-menu.active { transform: translateX(0); }
-        .menu-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px;
+        .header {
+            background: var(--bg-card);
             border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .menu-logo { font-size: 18px; font-weight: 700; color: var(--accent); }
-        .menu-close {
-            width: 44px; height: 44px;
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 10px; color: var(--text);
-            font-size: 20px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--accent);
+            font-weight: 700;
         }
-        .menu-close:active { transform: scale(0.92); }
-        .menu-items {
-            padding: 12px; display: flex; flex-direction: column; gap: 6px;
-        }
-        .menu-item {
-            display: flex; align-items: center; gap: 16px;
-            padding: 18px 20px;
-            background: transparent; border: none;
-            border-radius: 12px; color: var(--text);
-            font-size: 17px; font-weight: 600; text-align: left;
-            cursor: pointer; transition: 0.15s;
-            min-height: 64px; font-family: inherit;
-        }
-        .menu-item:hover, .menu-item:active { background: rgba(79, 195, 247, 0.1); }
-        .menu-item.active {
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white;
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
-        }
-        .menu-icon { font-size: 24px; width: 32px; text-align: center; }
-
-        /* Скрываем пункт ТСД на телефоне */
-        @media (max-width: 768px) {
-            .menu-item-tsd { display: none !important; }
-            .tab-content-tsd { display: none !important; }
-        }
-
-        .main-content { padding: 72px 16px 16px 16px; min-height: 100vh; }
-        .container { max-width: 1400px; margin: auto; }
-        h2 { text-align: center; margin: 0 0 16px 0; color: var(--text); font-size: 20px; font-weight: 600; }
-
-        .sync-status {
-            text-align: center; font-size: 12px; font-weight: 600;
-            padding: 8px; border-radius: 8px; margin-bottom: 12px; transition: 0.3s;
+        .header-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
         }
-        .sync-status:hover { opacity: 0.85; }
         .sync-online { background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
         .sync-offline { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(220, 53, 69, 0.3); }
         .sync-connecting { background: rgba(255, 193, 7, 0.15); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
         .sync-unsaved { background: rgba(255, 152, 0, 0.15); color: #ff9800; border: 1px solid rgba(255, 152, 0, 0.3); }
 
-        .date-time-row { display: flex; justify-content: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-        .date-time-row label { font-size: 13px; display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-weight: 600; }
-        .date-time-row input { 
-            padding: 8px 10px; font-size: 13px; background: var(--bg-input); color: var(--text);
-            border: 1px solid var(--border); border-radius: 8px;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
-        .date-time-row input:focus { outline: none; border-color: var(--accent); }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .table-wrap { 
-            overflow-x: auto; -webkit-overflow-scrolling: touch;
-            margin-bottom: 16px; width: 100%; border-radius: 12px; background: var(--bg-card);
-        }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th, td { border: 1px solid var(--border); padding: 6px; text-align: center; vertical-align: middle; }
-        th { 
-            background: linear-gradient(135deg, #2d333b, #252a31);
-            color: var(--accent); font-weight: 600; font-size: 12px;
-            padding: 10px 4px; white-space: nowrap; border-bottom: 2px solid var(--accent);
-        }
-        
-        .station-name { 
-            text-align: left; font-weight: 700; background: #1e2227; color: var(--text);
-            font-size: 16px; white-space: nowrap; padding: 12px 14px;
-            cursor: pointer; position: relative; transition: 0.2s;
-        }
-        .station-name:hover, .station-name:active { background: #262b31; color: var(--accent); }
-        .station-name.editing { padding: 0; background: #fff3cd; }
-        .station-name input {
-            width: 100%; border: none; background: transparent; padding: 8px 10px;
-            font-size: 16px; font-weight: 700; font-family: inherit;
-            outline: 2px solid var(--accent); border-radius: 3px; color: #333;
-        }
-        .zone-sort { background: #1e2227; }
-        .zone-load { background: #23272b; }
-        .zone-break { background: #1a1d21; }
-
-        .stepper {
-            display: inline-flex; align-items: center; justify-content: center;
-            gap: 4px; user-select: none;
-        }
-        .stepper .btn-minus {
-            width: 34px; height: 34px; border: none; border-radius: 8px;
-            font-size: 20px; font-weight: 700; cursor: pointer; color: white;
-            padding: 0; margin: 0; display: inline-flex; align-items: center;
-            justify-content: center; flex-shrink: 0;
-            background: linear-gradient(135deg, #dc3545, #b02a37);
-            line-height: 1; font-family: Arial, sans-serif; transition: 0.15s;
-        }
-        .stepper .btn-plus {
-            width: 34px; height: 34px; border: none; border-radius: 8px;
-            font-size: 20px; font-weight: 700; cursor: pointer; color: white;
-            padding: 0; margin: 0; display: inline-flex; align-items: center;
-            justify-content: center; flex-shrink: 0;
-            background: linear-gradient(135deg, #198754, #0f5132);
-            line-height: 1; font-family: Arial, sans-serif; transition: 0.15s;
-        }
-        .stepper .btn-minus:active, .stepper .btn-plus:active { transform: scale(0.9); }
-        .stepper input {
-            width: 42px; height: 34px; text-align: center;
-            background: var(--bg-input); color: var(--text);
-            border: 1px solid var(--border); border-radius: 8px;
-            font-size: 15px; font-weight: 700; padding: 0; margin: 0;
-        }
-        .stepper input::-webkit-outer-spin-button,
-        .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .stepper input[type=number] { -moz-appearance: textfield; }
-
-        .total-row { font-weight: 700; background: linear-gradient(135deg, #2d333b, #252a31); }
-        .total-row td { border-top: 2px solid var(--accent); padding: 10px 4px; color: var(--accent); font-size: 15px; }
-
-        .brig-cell { vertical-align: middle; padding: 10px 6px; text-align: center; }
-        .brig-cell.sort { background: linear-gradient(135deg, #1a3a5c, #1e4976); }
-        .brig-cell.load { background: linear-gradient(135deg, #5c3a1a, #76491e); }
-        .brig-cell .stepper input { width: 64px; height: 46px; font-size: 22px; border: 2px solid var(--accent); }
-        .brig-cell .stepper .btn-minus,
-        .brig-cell .stepper .btn-plus { width: 46px; height: 46px; font-size: 24px; }
-
-        .companies-cell { text-align: left; padding: 6px 8px; vertical-align: top; min-width: 180px; }
-        .companies-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-        .company-chip {
-            display: inline-flex; align-items: center; gap: 4px;
-            background: rgba(79, 195, 247, 0.15); color: var(--accent);
-            border: 1px solid rgba(79, 195, 247, 0.4); border-radius: 14px;
-            padding: 4px 10px; font-size: 12px; font-weight: 600; white-space: nowrap;
-        }
-        .company-chip .remove-chip {
-            cursor: pointer; color: #ff6b6b; font-weight: bold; font-size: 16px;
-            line-height: 1; margin-left: 2px; padding: 0 4px;
-            border-radius: 50%; min-width: 20px; text-align: center; transition: 0.15s;
-        }
-        .company-chip .remove-chip:active { background: rgba(255, 107, 107, 0.3); }
-        .add-company-btn {
-            display: inline-flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white; border: none; border-radius: 14px; padding: 6px 14px;
-            font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
-            min-height: 32px; transition: 0.15s;
-            box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
-        }
-        .add-company-btn:active { transform: scale(0.95); }
-
-        /* ОТГРУЗКА */
-        .shipment-top {
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.15), rgba(255, 152, 0, 0.1));
-            border: 2px solid var(--warning); border-radius: 12px;
-            padding: 18px; margin-bottom: 16px;
-        }
-        .shipment-top h3 { margin: 0 0 14px 0; color: var(--warning); font-size: 16px; }
-        .shipment-top-list { display: flex; flex-direction: column; gap: 8px; }
-        .shipment-top-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px 16px; border-radius: 10px; font-weight: 700; font-size: 15px;
-        }
-        .shipment-top-item.rank-1 { background: linear-gradient(135deg, #dc3545, #b02a37); color: white; box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4); }
-        .shipment-top-item.rank-2 { background: linear-gradient(135deg, #ffc107, #e0a800); color: #333; box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4); }
-        .shipment-top-item.rank-3 { background: linear-gradient(135deg, rgba(255, 193, 7, 0.3), rgba(255, 152, 0, 0.2)); color: var(--warning); border: 1px solid var(--warning); }
-        .shipment-top-item .rank-dir { flex: 1; text-align: left; }
-        .shipment-top-item .rank-sum { font-size: 20px; font-weight: 800; }
-        .shipment-top-item .rank-details { font-size: 12px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
-
-        .shipment-table {
-            width: 100%; border-collapse: collapse; margin-bottom: 16px;
-            background: var(--bg-card); border-radius: 12px; overflow: hidden;
-            font-size: 15px;
-        }
-        .shipment-table th {
-            background: linear-gradient(135deg, #2d333b, #252a31);
-            color: var(--accent); padding: 16px 10px; font-size: 14px;
-            font-weight: 700; border-bottom: 2px solid var(--accent); white-space: nowrap;
-        }
-        .shipment-table td {
-            border: 1px solid var(--border); padding: 10px 6px;
-            text-align: center; font-size: 15px; color: var(--text); font-weight: 600;
-        }
-        .shipment-table td.dir-name {
-            text-align: left; font-weight: 700; background: #1e2227;
-            padding: 14px 18px; color: var(--text); font-size: 17px; white-space: nowrap;
-        }
-        .shipment-table td.sum-cell {
-            font-weight: 800; background: rgba(79, 195, 247, 0.1);
-            color: var(--accent); font-size: 17px;
-        }
-        .shipment-table td.ts-cell {
-            font-weight: 700; background: rgba(255, 193, 7, 0.08);
-            color: var(--warning); font-size: 16px;
-        }
-        .shipment-table tr.rank-1 { background: rgba(220, 53, 69, 0.1); }
-        .shipment-table tr.rank-2 { background: rgba(255, 193, 7, 0.08); }
-        .shipment-table tr.rank-3 { background: rgba(255, 193, 7, 0.04); }
-
-        .ship-stepper { gap: 3px; }
-        .ship-stepper .btn-minus,
-        .ship-stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
-        .ship-stepper input { width: 42px; height: 32px; font-size: 14px; border-radius: 6px; }
-
-        .shipment-history {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 16px; margin-top: 16px;
-        }
-        .shipment-history h3 {
-            margin: 0 0 10px 0; font-size: 15px; color: var(--text-dim);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .shipment-history h3 button {
-            background: linear-gradient(135deg, #dc3545, #b02a37);
-            color: white; border: none; border-radius: 6px; padding: 6px 12px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-        }
-        .history-item {
-            padding: 8px 0; border-bottom: 1px dashed var(--border);
-            font-size: 13px; display: flex; justify-content: space-between;
-            gap: 8px; color: var(--text-dim);
-        }
-        .history-item:last-child { border-bottom: none; }
-        .history-item .h-time { color: var(--accent); font-weight: 700; }
-        .history-item .h-text { flex: 1; text-align: right; color: var(--text); }
-
-        .edit-dirs-btn {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            width: 100%; padding: 14px;
-            background: linear-gradient(135deg, #6c757d, #495057);
-            color: white; border: none; border-radius: 12px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
-            margin-bottom: 12px; min-height: 50px;
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-            transition: 0.15s; font-family: inherit;
-        }
-        .edit-dirs-btn:active { transform: scale(0.97); }
-
-        .dir-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-        .dir-item {
-            display: flex; align-items: center; gap: 6px;
-            padding: 6px; background: var(--bg-input); border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .dir-item input {
-            flex: 1; padding: 10px 12px;
-            background: var(--bg-dark); color: var(--text);
-            border: 1px solid var(--border); border-radius: 8px;
-            font-size: 14px; font-weight: 600; font-family: inherit;
-            min-height: 42px;
-        }
-        .dir-item input:focus { outline: none; border-color: var(--accent); }
-        .dir-item .dir-del {
-            width: 42px; height: 42px;
-            background: linear-gradient(135deg, #dc3545, #b02a37);
-            color: white; border: none; border-radius: 8px;
-            font-size: 18px; cursor: pointer; flex-shrink: 0;
-        }
-        .dir-item .dir-del:active { transform: scale(0.92); }
-
-        .dir-add-btn {
-            width: 100%; padding: 14px;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white; border: none; border-radius: 10px;
-            font-size: 14px; font-weight: 700; cursor: pointer;
-            margin-bottom: 12px; min-height: 48px;
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
-        }
-        .dir-add-btn:active { transform: scale(0.97); }
-
-        /* === ТСД === */
+        /* Сводка */
         .tsd-summary {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
         .tsd-summary-item {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 14px;
+            padding: 16px;
             text-align: center;
         }
         .tsd-summary-item .num {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
-            color: var(--accent);
             line-height: 1;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
         .tsd-summary-item .lbl {
             font-size: 11px;
@@ -366,49 +96,57 @@
         .tsd-summary-item.repair .num { color: #dc3545; }
         .tsd-summary-item.written .num { color: #6c757d; }
 
+        /* Сканер */
         .tsd-scan-box {
             background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(3, 169, 244, 0.08));
             border: 2px solid var(--accent);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
         }
         .tsd-scan-box label {
             display: block;
-            font-size: 14px;
+            font-size: 16px;
             color: var(--accent);
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
         .tsd-scan-input {
             width: 100%;
-            padding: 16px 18px;
-            font-size: 20px;
+            padding: 20px 22px;
+            font-size: 24px;
             background: var(--bg-input);
             color: var(--text);
             border: 2px solid var(--border);
-            border-radius: 10px;
+            border-radius: 12px;
             font-family: 'Courier New', monospace;
             font-weight: 700;
-            letter-spacing: 1px;
-            min-height: 60px;
+            letter-spacing: 2px;
+            min-height: 72px;
         }
         .tsd-scan-input:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.2);
         }
+        .tsd-scan-hint {
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-top: 10px;
+            text-align: center;
+        }
 
+        /* Фильтры */
         .tsd-filters {
-            display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px;
         }
         .tsd-filter-btn {
-            padding: 8px 14px;
+            padding: 10px 18px;
             border: 1px solid var(--border);
             background: var(--bg-card);
             color: var(--text-dim);
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.15s;
@@ -423,34 +161,47 @@
 
         .tsd-search {
             width: 100%;
-            padding: 12px 16px;
+            padding: 14px 18px;
             background: var(--bg-input);
             color: var(--text);
             border: 1px solid var(--border);
             border-radius: 10px;
-            font-size: 14px;
-            margin-bottom: 12px;
-            min-height: 46px;
+            font-size: 15px;
+            margin-bottom: 14px;
+            min-height: 50px;
         }
         .tsd-search:focus { outline: none; border-color: var(--accent); }
 
+        /* Таблица */
+        .tsd-table-wrap {
+            background: var(--bg-card);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
         .tsd-table {
             width: 100%; border-collapse: collapse;
-            background: var(--bg-card); border-radius: 12px; overflow: hidden;
             font-size: 14px;
         }
         .tsd-table th {
             background: linear-gradient(135deg, #2d333b, #252a31);
-            color: var(--accent); padding: 12px 8px;
+            color: var(--accent); padding: 14px 10px;
             font-size: 12px; font-weight: 700;
             border-bottom: 2px solid var(--accent);
             white-space: nowrap; text-align: left;
+            position: sticky; top: 0; z-index: 10;
         }
         .tsd-table td {
-            border: 1px solid var(--border); padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            padding: 12px 10px;
             color: var(--text); font-weight: 500;
             text-align: left; font-size: 14px;
         }
+        .tsd-table tr:last-child td { border-bottom: none; }
+        .tsd-table tr:hover { background: rgba(79, 195, 247, 0.05); }
+
         .tsd-table td.mac-cell {
             font-family: 'Courier New', monospace;
             font-size: 13px;
@@ -464,15 +215,12 @@
         .tsd-table td.num-cell {
             font-weight: 700;
             color: var(--text);
-        }
-        .tsd-table td.actions-cell {
-            text-align: right;
-            white-space: nowrap;
+            font-size: 15px;
         }
 
         .tsd-status {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 12px;
             font-size: 11px;
             font-weight: 700;
@@ -489,17 +237,17 @@
         .tsd-row.written { background: rgba(108, 117, 125, 0.05); opacity: 0.7; }
 
         .tsd-action-btn {
-            padding: 6px 12px;
+            padding: 8px 14px;
             border: none;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             color: white;
-            margin-left: 4px;
+            margin: 2px;
             transition: 0.15s;
             font-family: inherit;
-            min-height: 32px;
+            min-height: 36px;
         }
         .tsd-action-btn:active { transform: scale(0.95); }
         .tsd-action-issue { background: linear-gradient(135deg, #4caf50, #0f5132); }
@@ -508,12 +256,60 @@
         .tsd-action-restore { background: linear-gradient(135deg, #0d6efd, #0a58ca); }
         .tsd-action-writeoff { background: linear-gradient(135deg, #6c757d, #495057); }
 
-        /* Модалка сканирования */
+        .tsd-actions-cell {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        /* История */
+        .tsd-history {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+        .tsd-history h3 {
+            margin: 0 0 14px 0;
+            font-size: 15px;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tsd-history h3 button {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .history-item:last-child { border-bottom: none; }
+        .history-item .h-time {
+            color: var(--accent);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        .history-item .h-text { flex: 1; color: var(--text); }
+
+        /* Модалки */
         .tsd-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             z-index: 10000;
             align-items: center;
             justify-content: center;
@@ -523,49 +319,52 @@
         .tsd-modal-content {
             background: var(--bg-elevated);
             border-radius: 16px;
-            padding: 24px;
-            max-width: 500px;
+            padding: 28px;
+            max-width: 520px;
             width: 100%;
             box-shadow: 0 20px 60px rgba(0,0,0,0.7);
             border: 1px solid var(--border);
         }
         .tsd-modal-content h3 {
             margin: 0 0 8px 0;
-            font-size: 20px;
+            font-size: 22px;
             color: var(--text);
             text-align: center;
+            font-weight: 700;
         }
         .tsd-modal-content .subtitle {
             text-align: center;
             font-size: 14px;
             color: var(--text-dim);
+            margin-bottom: 24px;
+        }
+        .tsd-info-box {
+            background: var(--bg-input);
+            border-radius: 12px;
+            padding: 16px;
             margin-bottom: 20px;
         }
-        .tsd-modal-content .tsd-info-box {
-            background: var(--bg-input);
-            border-radius: 10px;
-            padding: 14px;
-            margin-bottom: 16px;
-        }
-        .tsd-modal-content .tsd-info-row {
+        .tsd-info-row {
             display: flex;
             justify-content: space-between;
-            padding: 6px 0;
-            font-size: 14px;
+            padding: 8px 0;
+            font-size: 15px;
+            border-bottom: 1px solid var(--border);
         }
-        .tsd-modal-content .tsd-info-row .label {
+        .tsd-info-row:last-child { border-bottom: none; }
+        .tsd-info-row .label {
             color: var(--text-dim);
             font-weight: 600;
         }
-        .tsd-modal-content .tsd-info-row .value {
+        .tsd-info-row .value {
             color: var(--text);
             font-weight: 700;
             font-family: 'Courier New', monospace;
         }
         .tsd-modal-content input {
             width: 100%;
-            padding: 14px 16px;
-            font-size: 16px;
+            padding: 16px 18px;
+            font-size: 20px;
             background: var(--bg-input);
             color: var(--text);
             border: 2px solid var(--border);
@@ -573,227 +372,40 @@
             font-family: 'Courier New', monospace;
             font-weight: 700;
             letter-spacing: 1px;
-            min-height: 52px;
-            margin-top: 8px;
+            min-height: 60px;
         }
         .tsd-modal-content input:focus {
             outline: none;
             border-color: var(--accent);
         }
+        .tsd-modal-content .input-label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-dim);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
         .tsd-modal-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 24px;
         }
         .tsd-modal-buttons button {
             flex: 1;
-            padding: 14px;
+            padding: 16px;
             border: none;
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             color: white;
-            min-height: 52px;
+            min-height: 56px;
             font-family: inherit;
             transition: 0.15s;
         }
         .tsd-modal-buttons button:active { transform: scale(0.97); }
         .tsd-modal-btn-cancel { background: linear-gradient(135deg, #6c757d, #495057); }
         .tsd-modal-btn-ok { background: linear-gradient(135deg, #4caf50, #0f5132); }
-
-        .action-bar {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-top: 16px;
-            margin-bottom: 20px;
-        }
-        .action-btn {
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 4px; padding: 12px 4px;
-            border: none; border-radius: 12px;
-            font-size: 11px; font-weight: 700;
-            cursor: pointer; color: white;
-            min-height: 68px;
-            transition: 0.15s;
-            font-family: inherit;
-            line-height: 1.2;
-            text-align: center;
-        }
-        .action-btn .ico { font-size: 22px; line-height: 1; }
-        .action-btn:active { transform: scale(0.95); }
-
-        .act-snapshot { background: linear-gradient(135deg, var(--purple), #553098); }
-        .act-excel { background: linear-gradient(135deg, var(--success), #0f5132); }
-        .act-clear { background: linear-gradient(135deg, #dc3545, #b02a37); }
-        .act-confirm { background: linear-gradient(135deg, #4caf50, #0f5132); }
-        .act-confirm.saved { background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border); }
-        .act-confirm.unsaved { animation: pulse 2s infinite; }
-        .act-refresh { background: linear-gradient(135deg, #0d6efd, #0a58ca); }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            50% { box-shadow: 0 0 0 12px rgba(76, 175, 80, 0); }
-        }
-
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
-            z-index: 10000; align-items: center; justify-content: center; padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal {
-            background: var(--bg-elevated); border-radius: 16px; padding: 24px;
-            max-width: 480px; width: 100%; max-height: 85vh; overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid var(--border);
-        }
-        .modal h3 { margin: 0 0 16px 0; color: var(--text); font-size: 18px; text-align: center; font-weight: 700; }
-        .modal-company-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .modal-company-item {
-            padding: 14px 10px; background: var(--bg-input); color: var(--text);
-            border: 2px solid transparent; border-radius: 10px; text-align: center;
-            font-weight: 600; font-size: 14px; cursor: pointer; user-select: none;
-            min-height: 52px; display: flex; align-items: center; justify-content: center;
-            transition: 0.15s;
-        }
-        .modal-company-item:hover { background: #353b44; }
-        .modal-company-item.selected { 
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white; border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
-        }
-        .modal-add-company {
-            display: flex; gap: 8px; margin-top: 16px; padding-top: 16px;
-            border-top: 1px solid var(--border);
-        }
-        .modal-add-company input {
-            flex: 1; padding: 12px 14px; background: var(--bg-input); color: var(--text);
-            border: 1px solid var(--border); border-radius: 10px;
-            font-size: 14px; min-height: 48px;
-        }
-        .modal-add-company input:focus { outline: none; border-color: var(--accent); }
-        .modal-add-company button {
-            padding: 12px 18px; background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            color: white; border: none; border-radius: 10px; font-size: 14px;
-            font-weight: 700; cursor: pointer; min-height: 48px; white-space: nowrap;
-            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
-        }
-        .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
-        .modal-actions button {
-            flex: 1; padding: 14px 20px; border: none; border-radius: 10px;
-            font-size: 14px; font-weight: 700; cursor: pointer; color: white;
-            min-height: 50px; transition: 0.15s;
-        }
-        .modal-close-btn { background: linear-gradient(135deg, #6c757d, #495057); }
-        .modal-reset-btn { background: linear-gradient(135deg, #dc3545, #b02a37); }
-        .modal-confirm-btn { background: linear-gradient(135deg, #4caf50, #0f5132); }
-        .modal-actions button:active { transform: scale(0.97); }
-
-        .grand-total-box { 
-            background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(3, 169, 244, 0.08));
-            border: 2px solid var(--accent); border-radius: 12px; padding: 16px;
-            margin-bottom: 14px; text-align: center; font-size: 14px;
-            font-weight: 700; color: var(--accent);
-        }
-        .grand-total-box span { font-size: 26px; color: white; }
-
-        .reconciliation-box { 
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 12px; padding: 14px; margin-bottom: 14px;
-        }
-        .reconciliation-box h3 { margin: 0 0 12px 0; color: var(--accent); font-size: 15px; }
-        .rec-grid { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px; margin-bottom: 10px;
-        }
-        .rec-item { 
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 8px; font-weight: 600; font-size: 14px; background: var(--bg-input);
-            color: var(--text); padding: 8px 12px; border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-        .rec-item.admin { opacity: 0.7; }
-        .rec-status { 
-            margin-top: 12px; font-size: 13px; font-weight: 700;
-            padding: 12px; border-radius: 8px; line-height: 1.5;
-        }
-        .status-ok { color: #4caf50; background: rgba(76, 175, 80, 0.12); border: 1px solid rgba(76, 175, 80, 0.3); }
-        .status-error { color: #ff6b6b; background: rgba(220, 53, 69, 0.12); border: 1px solid rgba(220, 53, 69, 0.3); }
-        .status-neutral { color: #ffc107; background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); }
-        .details { font-weight: 400; font-size: 12px; opacity: 0.85; }
-
-        .analytics-container { display: flex; flex-direction: column; gap: 14px; }
-        .analytics-section { 
-            background: var(--bg-input); border-radius: 12px; padding: 14px;
-            border-left: 4px solid var(--accent);
-        }
-        .analytics-section h4 { margin: 0 0 10px 0; font-size: 14px; color: var(--accent); }
-
-        .history-table { width: 100%; font-size: 12px; border-collapse: collapse; }
-        .history-table th { background: var(--bg-elevated); color: var(--accent); padding: 8px; font-size: 11px; border-radius: 6px; }
-        .history-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text); }
-        .diff-positive { color: #4caf50; font-weight: bold; }
-        .diff-negative { color: #ff6b6b; font-weight: bold; }
-        .diff-zero { color: var(--text-muted); }
-
-        .top-zones-list { list-style: none; padding: 0; margin: 0; }
-        .top-zones-list li { 
-            padding: 8px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; font-size: 12px; color: var(--text);
-        }
-        .top-zones-list li:last-child { border-bottom: none; }
-        .top-zones-list .zone-bar { 
-            display: inline-block; height: 8px;
-            background: linear-gradient(90deg, var(--accent), #26c6da);
-            border-radius: 4px; margin-right: 8px; vertical-align: middle;
-        }
-        .top-zones-list .zone-name { font-weight: 600; }
-
-        .compare-item { 
-            padding: 6px 0; font-size: 12px; border-bottom: 1px dashed var(--border);
-            display: flex; justify-content: space-between; color: var(--text-dim);
-        }
-        .compare-item:last-child { border-bottom: none; }
-
-        .archive-item { 
-            padding: 8px; border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 12px; gap: 8px; color: var(--text);
-        }
-        .archive-item:last-child { border-bottom: none; }
-        .archive-item button { 
-            padding: 6px 12px; font-size: 12px; border: none; border-radius: 6px;
-            cursor: pointer; color: white;
-            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            flex: none; min-height: 32px; font-weight: 600;
-        }
-
-        .autosave-indicator { font-size: 12px; color: var(--accent); text-align: center; margin-top: 8px; height: 15px; font-weight: 600; }
-
-        .zoom-panel {
-            display: flex; align-items: center; justify-content: center;
-            gap: 10px; margin-top: 12px; padding: 10px; background: var(--bg-card);
-            border-radius: 10px; font-size: 13px; font-weight: 600;
-            color: var(--text-dim); flex-wrap: wrap; border: 1px solid var(--border);
-        }
-        .zoom-btn {
-            width: 44px; height: 44px; border: none; border-radius: 10px;
-            background: linear-gradient(135deg, var(--purple), #553098);
-            color: white; font-size: 22px; font-weight: 700; cursor: pointer;
-            line-height: 1; display: inline-flex; align-items: center;
-            justify-content: center; transition: 0.15s;
-        }
-        .zoom-btn:active { transform: scale(0.9); }
-        .zoom-value { min-width: 60px; text-align: center; font-size: 15px; font-weight: 700; color: var(--accent); }
-        .zoom-reset {
-            padding: 12px 16px; border: 1px solid var(--accent); background: transparent;
-            color: var(--accent); border-radius: 10px; font-size: 13px;
-            font-weight: 700; cursor: pointer; margin-left: 6px;
-            min-height: 44px; transition: 0.15s;
-        }
-        .zoom-reset:active { background: rgba(79, 195, 247, 0.15); }
 
         .install-btn { 
             position: fixed; bottom: 20px; right: 20px; 
@@ -803,417 +415,123 @@
             box-shadow: 0 8px 24px rgba(79, 195, 247, 0.4); display: none; z-index: 9999; 
         }
 
-        @media (max-width: 768px) {
-            body.snapshot-mode .stepper .btn-minus,
-            body.snapshot-mode .stepper .btn-plus { 
-                visibility: hidden; width: 0 !important; margin: 0 !important; padding: 0 !important; overflow: hidden;
+        @media (max-width: 900px) {
+            .tsd-summary {
+                grid-template-columns: repeat(3, 1fr);
             }
-            body.snapshot-mode .stepper { gap: 0; }
-            body.snapshot-mode .add-company-btn { display: none !important; }
-            body.snapshot-mode .company-chip .remove-chip { display: none !important; }
-            body.snapshot-mode .ship-btn-reset { display: none !important; }
-            body.snapshot-mode .edit-dirs-btn { display: none !important; }
-            body.snapshot-mode .action-bar,
-            body.snapshot-mode .install-btn,
-            body.snapshot-mode .autosave-indicator,
-            body.snapshot-mode .date-time-row,
-            body.snapshot-mode .sync-status,
-            body.snapshot-mode .hamburger,
-            body.snapshot-mode .zoom-panel,
-            body.snapshot-mode .shipment-history { 
-                display: none !important; 
-            }
-            body.snapshot-mode .main-content { padding: 6px; }
-            body.snapshot-mode .table-wrap { overflow: visible !important; }
-            body.snapshot-mode table { min-width: auto !important; width: 100% !important; table-layout: fixed !important; }
-            body.snapshot-mode th { font-size: 8px !important; padding: 3px 1px !important; white-space: normal !important; word-break: break-word !important; }
-            body.snapshot-mode td { padding: 1px !important; font-size: 10px !important; }
-            body.snapshot-mode .station-name { font-size: 9px !important; padding: 2px !important; white-space: normal !important; word-break: break-word !important; cursor: default !important; }
-            body.snapshot-mode .stepper input { width: 22px !important; height: 22px !important; font-size: 10px !important; }
-            body.snapshot-mode .companies-cell { min-width: 0 !important; padding: 1px !important; }
-            body.snapshot-mode .company-chip { font-size: 8px !important; padding: 1px 3px !important; border-radius: 6px !important; }
-            body.snapshot-mode .brig-cell .stepper input { width: 26px !important; height: 22px !important; font-size: 11px !important; }
-            body.snapshot-mode .total-row td { font-size: 9px !important; padding: 2px !important; }
-            body.snapshot-mode .grand-total-box { padding: 6px !important; font-size: 11px !important; }
-            body.snapshot-mode .grand-total-box span { font-size: 16px !important; }
-            body.snapshot-mode .reconciliation-box { padding: 6px !important; }
-            body.snapshot-mode .rec-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 3px !important; }
-            body.snapshot-mode .rec-item { font-size: 10px !important; padding: 3px 5px !important; }
-            body.snapshot-mode .rec-status { font-size: 10px !important; padding: 5px !important; }
-            body.snapshot-mode h2 { font-size: 13px !important; margin-bottom: 6px !important; }
-            body.snapshot-mode .shipment-top { padding: 6px !important; margin-bottom: 6px !important; }
-            body.snapshot-mode .shipment-top h3 { font-size: 11px !important; }
-            body.snapshot-mode .shipment-table th { font-size: 8px !important; padding: 3px 1px !important; }
-            body.snapshot-mode .shipment-table td { font-size: 9px !important; padding: 2px 1px !important; }
-            body.snapshot-mode .shipment-table td.dir-name { font-size: 9px !important; padding: 2px 3px !important; }
-            body.snapshot-mode .shipment-table td.sum-cell { font-size: 10px !important; }
         }
 
-        @media (min-width: 769px) {
-            body.snapshot-mode .stepper .btn-minus,
-            body.snapshot-mode .stepper .btn-plus { 
-                display: none !important;
+        @media (max-width: 600px) {
+            .container { padding: 12px; }
+            .header { padding: 12px 16px; }
+            .header h1 { font-size: 16px; }
+            .tsd-summary {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
-            body.snapshot-mode .add-company-btn { display: none !important; }
-            body.snapshot-mode .company-chip .remove-chip { display: none !important; }
-            body.snapshot-mode .ship-btn-reset { display: none !important; }
-            body.snapshot-mode .edit-dirs-btn { display: none !important; }
-            body.snapshot-mode .action-bar,
-            body.snapshot-mode .install-btn,
-            body.snapshot-mode .autosave-indicator,
-            body.snapshot-mode .date-time-row,
-            body.snapshot-mode .sync-status,
-            body.snapshot-mode .hamburger,
-            body.snapshot-mode .zoom-panel,
-            body.snapshot-mode .shipment-history { 
-                display: none !important; 
-            }
-            body.snapshot-mode .container { max-width: 100%; padding: 20px; }
-        }
-
-        .snapshot-hint {
-            display: none; background: rgba(255, 193, 7, 0.15);
-            border: 2px solid var(--warning); color: var(--warning);
-            padding: 16px; border-radius: 12px; text-align: center;
-            font-weight: 700; font-size: 14px; margin-bottom: 14px;
-            cursor: pointer; user-select: none;
-        }
-        .snapshot-hint:hover { background: rgba(255, 193, 7, 0.25); }
-        .snapshot-hint small { display: block; font-weight: 400; font-size: 12px; margin-top: 6px; color: var(--text-dim); }
-
-        @media (max-width: 768px) {
-            h2 { font-size: 17px; margin-bottom: 12px; }
-            .date-time-row { gap: 8px; margin-bottom: 12px; }
-            .date-time-row label { font-size: 12px; }
-            .date-time-row input { padding: 6px 8px; font-size: 12px; }
-            th { font-size: 11px; padding: 6px 3px; }
-            .station-name { font-size: 13px; padding: 8px 10px; white-space: normal; max-width: 100px; }
-            .stepper { gap: 2px; }
-            .stepper .btn-minus, .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; border-radius: 6px; }
-            .stepper input { width: 38px; height: 32px; font-size: 14px; border-radius: 6px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 36px; height: 36px; font-size: 19px; }
-            .brig-cell .stepper input { width: 50px; height: 36px; font-size: 17px; }
-            .grand-total-box { padding: 12px; font-size: 13px; }
-            .grand-total-box span { font-size: 22px; }
-            .reconciliation-box { padding: 12px; }
-            .reconciliation-box h3 { font-size: 14px; }
-            .rec-grid { grid-template-columns: 1fr; gap: 6px; }
-            .rec-item { font-size: 13px; padding: 6px 10px; }
-            .rec-status { font-size: 12px; padding: 10px; }
-            table { min-width: 720px; }
-            .company-chip { font-size: 11px; padding: 4px 8px; }
-            .add-company-btn { font-size: 11px; padding: 6px 10px; }
-            .modal { padding: 20px; }
-            .modal-company-list { gap: 8px; }
-            .modal-company-item { padding: 12px 6px; font-size: 13px; min-height: 48px; }
-            .modal-add-company { flex-direction: column; }
-            .modal-add-company input, .modal-add-company button { width: 100%; }
-            .modal-actions { flex-direction: column; }
-            .modal-actions button { width: 100%; }
-            .shipment-table th { font-size: 11px; padding: 8px 4px; }
-            .shipment-table td { font-size: 13px; padding: 6px 3px; }
-            .shipment-table td.dir-name { font-size: 14px; padding: 10px 12px; }
-            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
-            .ship-stepper input { width: 38px; height: 30px; font-size: 13px; }
-            .action-btn { font-size: 10px; padding: 10px 2px; min-height: 62px; }
-            .action-btn .ico { font-size: 20px; }
-        }
-
-        @media (max-width: 480px) {
-            .stepper .btn-minus, .stepper .btn-plus { width: 30px; height: 30px; font-size: 16px; }
-            .stepper input { width: 34px; height: 30px; font-size: 13px; }
-            .brig-cell .stepper .btn-minus, .brig-cell .stepper .btn-plus { width: 32px; height: 32px; font-size: 17px; }
-            .brig-cell .stepper input { width: 44px; height: 32px; font-size: 15px; }
-            .station-name { max-width: 85px; font-size: 12px; }
-            th { font-size: 10px; }
-            .modal-company-list { grid-template-columns: 1fr; }
-            .shipment-top-item { padding: 8px 10px; font-size: 13px; }
-            .ship-stepper .btn-minus, .ship-stepper .btn-plus { width: 28px; height: 28px; font-size: 15px; }
-            .ship-stepper input { width: 34px; height: 28px; font-size: 12px; }
-            .shipment-table td.dir-name { font-size: 13px; padding: 8px 10px; }
+            .tsd-summary-item { padding: 12px; }
+            .tsd-summary-item .num { font-size: 24px; }
+            .tsd-scan-box { padding: 16px; }
+            .tsd-scan-input { font-size: 18px; padding: 14px; min-height: 56px; }
+            .tsd-filters { gap: 6px; }
+            .tsd-filter-btn { padding: 8px 12px; font-size: 12px; }
+            .tsd-table th { font-size: 10px; padding: 10px 6px; }
+            .tsd-table td { font-size: 12px; padding: 8px 6px; }
+            .tsd-action-btn { padding: 6px 10px; font-size: 11px; min-height: 32px; }
         }
     </style>
 </head>
 <body>
 
-<div class="hamburger" onclick="toggleMenu()">☰</div>
-
-<div class="fullscreen-menu" id="fullscreenMenu">
-    <div class="menu-header">
-        <div class="menu-logo">📦 Отчет по складу</div>
-        <button class="menu-close" onclick="toggleMenu()">✕</button>
-    </div>
-    <div class="menu-items">
-        <button class="menu-item active" id="menuItemReport" onclick="menuGo('report')">
-            <span class="menu-icon">📋</span>
-            <span>Распределение людей</span>
-        </button>
-        <button class="menu-item" id="menuItemShipment" onclick="menuGo('shipment')">
-            <span class="menu-icon">🚚</span>
-            <span>Отгрузка</span>
-        </button>
-        <button class="menu-item" id="menuItemAnalytics" onclick="menuGo('analytics')">
-            <span class="menu-icon">📊</span>
-            <span>Аналитика</span>
-        </button>
-        <button class="menu-item menu-item-tsd" id="menuItemTsd" onclick="menuGo('tsd')">
-            <span class="menu-icon">📟</span>
-            <span>Учёт ТСД</span>
-        </button>
+<div class="header">
+    <h1>📟 Учёт ТСД</h1>
+    <div class="header-status sync-connecting" id="syncStatus" onclick="forceRefresh()">
+        🔄 Подключение...
     </div>
 </div>
 
-<main class="main-content">
-    <div class="container" id="captureArea">
-        <h2 id="pageTitle">📋 Распределение людей</h2>
+<div class="container">
 
-        <div class="sync-status sync-connecting" id="syncStatus" onclick="forceRefreshFromServer()">🔄 Подключение к серверу...</div>
-
-        <div class="tab-content active" id="tabReport">
-            <div class="date-time-row">
-                <label>Дата: <input type="date" id="reportDate"></label>
-                <label>Время: <input type="time" id="reportTime"></label>
-            </div>
-
-            <div class="grand-total-box">
-                Итого человек на смене: <span id="grandTotal">0</span> чел.
-                <div style="font-size: 11px; font-weight: 400; margin-top: 4px; color: var(--text-dim);">(включая админку — для справки)</div>
-            </div>
-
-            <div class="reconciliation-box">
-                <h3>👥 Всего людей на смене (для сверки)</h3>
-                <div class="rec-grid">
-                    <div class="rec-item admin">Админка: <span class="stepper-container" data-target="totalAdmin"></span></div>
-                    <div class="rec-item">Штатные: <span class="stepper-container" data-target="totalStaff"></span></div>
-                    <div class="rec-item">Аутстафф: <span class="stepper-container" data-target="totalOut"></span></div>
-                    <div class="rec-item">Бригадиры АК: <span class="stepper-container" data-target="totalBrig"></span></div>
-                </div>
-                <input type="hidden" id="totalAdmin" value="0">
-                <input type="hidden" id="totalStaff" value="0">
-                <input type="hidden" id="totalOut" value="0">
-                <input type="hidden" id="totalBrig" value="0">
-                <div class="rec-status status-neutral" id="recStatus">Введите данные для сверки...</div>
-            </div>
-
-            <div class="table-wrap" id="tableWrap">
-                <table id="reportTable">
-                    <thead>
-                        <tr>
-                            <th>Рабочая станция</th>
-                            <th>Аутстафф</th>
-                            <th>Бриг. АК</th>
-                            <th>АК Компания</th>
-                            <th>Штат</th>
-                            <th>Бриг. Стаф</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <div class="autosave-indicator" id="autosaveIndicator"></div>
-
-            <div class="zoom-panel" id="zoomPanel">
-                <span class="zoom-label">🔍 Масштаб:</span>
-                <button class="zoom-btn" onclick="changeZoom(-1)">−</button>
-                <span class="zoom-value" id="zoomValue">100%</span>
-                <button class="zoom-btn" onclick="changeZoom(1)">+</button>
-                <button class="zoom-reset" onclick="resetZoom()">Сброс</button>
-            </div>
+    <!-- Сводка -->
+    <div class="tsd-summary">
+        <div class="tsd-summary-item total">
+            <div class="num" id="tsdTotal">0</div>
+            <div class="lbl">Всего</div>
         </div>
-
-        <div class="tab-content" id="tabShipment">
-            <div class="shipment-top" id="shipmentTop">
-                <h3>🔥 Топ-3 направления (больше всего накопилось)</h3>
-                <div class="shipment-top-list" id="shipmentTopList">
-                    <div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>
-                </div>
-            </div>
-
-            <button class="edit-dirs-btn" onclick="openEditDirsModal()">
-                ⚙️ Изменить направления
-            </button>
-
-            <div class="table-wrap">
-                <table class="shipment-table" id="shipmentTable">
-                    <thead>
-                        <tr>
-                            <th>Направление</th>
-                            <th>Габарит</th>
-                            <th>Негабарит</th>
-                            <th>Тотал</th>
-                            <th>Потр. ТС</th>
-                            <th>Есть ТС</th>
-                            <th>X-dok</th>
-                            <th>ВП</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <div class="shipment-history">
-                <h3>
-                    <span>📜 История за сутки</span>
-                    <button onclick="clearShipmentHistory()">Очистить</button>
-                </h3>
-                <div id="shipmentHistoryList">
-                    <div style="color: var(--text-dim); font-size: 12px;">История пуста</div>
-                </div>
-            </div>
+        <div class="tsd-summary-item issued">
+            <div class="num" id="tsdIssued">0</div>
+            <div class="lbl">Выдано</div>
         </div>
-
-        <div class="tab-content" id="tabAnalytics">
-            <div class="analytics-container">
-                <div class="analytics-section">
-                    <h4>📈 История за последние 7 дней</h4>
-                    <div id="historyTableContainer">Нет сохраненных отчетов</div>
-                </div>
-                <div class="analytics-section">
-                    <h4>🔥 Топ-5 зон по загрузке (сегодня)</h4>
-                    <ul class="top-zones-list" id="topZonesList"><li>Нет данных</li></ul>
-                </div>
-                <div class="analytics-section">
-                    <h4>📉 Сравнение с прошлым отчетом</h4>
-                    <div id="compareContainer">Нет данных</div>
-                </div>
-                <div class="analytics-section">
-                    <h4>💾 Архив отчетов (<span id="archiveCount">0</span>)</h4>
-                    <div id="archiveContainer">Архив пуст</div>
-                    <button onclick="clearArchive()" style="margin-top: 10px; padding: 8px 14px; font-size: 13px; background: linear-gradient(135deg,#dc3545,#b02a37); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700;">Очистить архив</button>
-                </div>
-            </div>
+        <div class="tsd-summary-item free">
+            <div class="num" id="tsdFree">0</div>
+            <div class="lbl">Свободно</div>
         </div>
-
-        <!-- === ЭКРАН ТСД === -->
-        <div class="tab-content tab-content-tsd" id="tabTsd">
-            <div class="tsd-summary">
-                <div class="tsd-summary-item total">
-                    <div class="num" id="tsdTotal">0</div>
-                    <div class="lbl">Всего</div>
-                </div>
-                <div class="tsd-summary-item issued">
-                    <div class="num" id="tsdIssued">0</div>
-                    <div class="lbl">Выдано</div>
-                </div>
-                <div class="tsd-summary-item free">
-                    <div class="num" id="tsdFree">0</div>
-                    <div class="lbl">Свободно</div>
-                </div>
-                <div class="tsd-summary-item repair">
-                    <div class="num" id="tsdRepair">0</div>
-                    <div class="lbl">В ремонте</div>
-                </div>
-                <div class="tsd-summary-item written">
-                    <div class="num" id="tsdWritten">0</div>
-                    <div class="lbl">Списано</div>
-                </div>
-            </div>
-
-            <div class="tsd-scan-box">
-                <label>📷 Сканируй MAC ТСД или Логин сотрудника:</label>
-                <input type="text" class="tsd-scan-input" id="tsdScanInput" 
-                       placeholder="B4293DAD4861 или sckaz-khuziev7"
-                       autocomplete="off" autofocus>
-                <div style="font-size: 12px; color: var(--text-dim); margin-top: 8px; text-align: center;">
-                    💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.
-                </div>
-            </div>
-
-            <div class="tsd-filters">
-                <button class="tsd-filter-btn active" data-filter="all" onclick="setTsdFilter('all')">Все</button>
-                <button class="tsd-filter-btn" data-filter="issued" onclick="setTsdFilter('issued')">Выданные</button>
-                <button class="tsd-filter-btn" data-filter="free" onclick="setTsdFilter('free')">Свободные</button>
-                <button class="tsd-filter-btn" data-filter="repair" onclick="setTsdFilter('repair')">В ремонте</button>
-                <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
-            </div>
-
-            <input type="text" class="tsd-search" id="tsdSearch" 
-                   placeholder="🔍 Поиск по номеру, MAC или логину..."
-                   oninput="renderTsdTable()">
-
-            <div style="max-height: 600px; overflow-y: auto; border-radius: 12px;">
-                <table class="tsd-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 60px;">№</th>
-                            <th style="width: 120px;">Номер</th>
-                            <th>MAC</th>
-                            <th style="width: 130px;">Статус</th>
-                            <th>У кого</th>
-                            <th style="width: 100px;">Выдан</th>
-                            <th style="width: 280px;">Действие</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tsdTableBody"></tbody>
-                </table>
-            </div>
-
-            <div class="shipment-history" style="margin-top: 16px;">
-                <h3>
-                    <span>📜 История ТСД за сутки</span>
-                    <button onclick="clearTsdHistory()">Очистить</button>
-                </h3>
-                <div id="tsdHistoryList">
-                    <div style="color: var(--text-dim); font-size: 12px;">История пуста</div>
-                </div>
-            </div>
+        <div class="tsd-summary-item repair">
+            <div class="num" id="tsdRepair">0</div>
+            <div class="lbl">В ремонте</div>
         </div>
-
-        <div class="action-bar">
-            <button class="action-btn act-snapshot" onclick="toggleSnapshot()">
-                <span class="ico">📸</span>
-                <span>Скрин</span>
-            </button>
-            <button class="action-btn act-excel" onclick="exportCSV()">
-                <span class="ico">📥</span>
-                <span>Excel</span>
-            </button>
-            <button class="action-btn act-clear" onclick="clearData()">
-                <span class="ico">🗑️</span>
-                <span>Очистить</span>
-            </button>
-            <button class="action-btn act-confirm saved" id="confirmBtn" onclick="confirmSave()">
-                <span class="ico">✅</span>
-                <span>Подтвердить</span>
-            </button>
-            <button class="action-btn act-refresh" onclick="forceRefreshFromServer()">
-                <span class="ico">🔄</span>
-                <span>Обновить</span>
-            </button>
+        <div class="tsd-summary-item written">
+            <div class="num" id="tsdWritten">0</div>
+            <div class="lbl">Списано</div>
         </div>
     </div>
-</main>
 
-<div class="modal-overlay" id="companyModal" onclick="if(event.target===this) closeCompanyModal()">
-    <div class="modal">
-        <h3>Выберите компанию</h3>
-        <div class="modal-company-list" id="modalCompanyList"></div>
-        <div class="modal-add-company">
-            <input type="text" id="newCompanyInput" placeholder="Новая компания..." maxlength="30">
-            <button onclick="addNewCompany()">+ Добавить</button>
+    <!-- Сканер -->
+    <div class="tsd-scan-box">
+        <label>📷 Сканируй MAC ТСД или Логин сотрудника:</label>
+        <input type="text" class="tsd-scan-input" id="tsdScanInput" 
+               placeholder="B4293DAD4861 или sckaz-khuziev7"
+               autocomplete="off" autofocus>
+        <div class="tsd-scan-hint">
+            💡 Наведи сканер и нажми кнопку. Enter обработается автоматически.
         </div>
-        <div class="modal-actions">
-            <button class="modal-close-btn" onclick="closeCompanyModal()">Закрыть</button>
-            <button class="modal-reset-btn" onclick="resetCompanies()">Сбросить</button>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="tsd-filters">
+        <button class="tsd-filter-btn active" data-filter="all" onclick="setTsdFilter('all')">Все</button>
+        <button class="tsd-filter-btn" data-filter="issued" onclick="setTsdFilter('issued')">Выданные</button>
+        <button class="tsd-filter-btn" data-filter="free" onclick="setTsdFilter('free')">Свободные</button>
+        <button class="tsd-filter-btn" data-filter="repair" onclick="setTsdFilter('repair')">В ремонте</button>
+        <button class="tsd-filter-btn" data-filter="written" onclick="setTsdFilter('written')">Списанные</button>
+    </div>
+
+    <input type="text" class="tsd-search" id="tsdSearch" 
+           placeholder="🔍 Поиск по номеру, MAC или логину..."
+           oninput="renderTsdTable()">
+
+    <!-- Таблица -->
+    <div class="tsd-table-wrap">
+        <table class="tsd-table">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">№</th>
+                    <th style="width: 130px;">Номер</th>
+                    <th>MAC</th>
+                    <th style="width: 140px;">Статус</th>
+                    <th>У кого</th>
+                    <th style="width: 100px;">Выдан</th>
+                    <th style="width: 300px;">Действие</th>
+                </tr>
+            </thead>
+            <tbody id="tsdTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- История -->
+    <div class="tsd-history">
+        <h3>
+            <span>📜 История за сутки</span>
+            <button onclick="clearHistory()">Очистить</button>
+        </h3>
+        <div id="tsdHistoryList">
+            <div style="color: var(--text-dim); font-size: 13px;">История пуста</div>
         </div>
     </div>
 </div>
 
-<div class="modal-overlay" id="dirsModal" onclick="if(event.target===this) closeEditDirsModal()">
-    <div class="modal">
-        <h3>Направления</h3>
-        <div class="dir-list" id="dirList"></div>
-        <button class="dir-add-btn" onclick="addNewDirection()">+ Добавить направление</button>
-        <div class="modal-actions">
-            <button class="modal-close-btn" onclick="closeEditDirsModal()">Отмена</button>
-            <button class="modal-confirm-btn" onclick="saveDirections()">✅ Подтвердить</button>
-        </div>
-    </div>
-</div>
-
-<!-- Модалка выдачи ТСД -->
-<div class="tsd-modal" id="tsdIssueModal">
+<!-- Модалка выдачи -->
+<div class="tsd-modal" id="issueModal">
     <div class="tsd-modal-content">
         <h3>📤 Выдать ТСД</h3>
         <div class="subtitle">Отсканируй логин сотрудника</div>
@@ -1221,17 +539,17 @@
             <div class="tsd-info-row"><span class="label">ТСД:</span><span class="value" id="issueTsdNum">—</span></div>
             <div class="tsd-info-row"><span class="label">MAC:</span><span class="value" id="issueTsdMac">—</span></div>
         </div>
-        <label style="display:block; font-size:13px; color:var(--text-dim); font-weight:600; margin-bottom:6px;">Логин сотрудника:</label>
+        <label class="input-label">Логин сотрудника:</label>
         <input type="text" id="issueLoginInput" placeholder="sckaz-khuziev7" autocomplete="off">
         <div class="tsd-modal-buttons">
-            <button class="tsd-modal-btn-cancel" onclick="closeTsdIssueModal()">Отмена</button>
-            <button class="tsd-modal-btn-ok" onclick="confirmTsdIssue()">Выдать</button>
+            <button class="tsd-modal-btn-cancel" onclick="closeIssueModal()">Отмена</button>
+            <button class="tsd-modal-btn-ok" onclick="confirmIssue()">Выдать</button>
         </div>
     </div>
 </div>
 
-<!-- Модалка приёма ТСД -->
-<div class="tsd-modal" id="tsdAcceptModal">
+<!-- Модалка приёма -->
+<div class="tsd-modal" id="acceptModal">
     <div class="tsd-modal-content">
         <h3>📥 Принять ТСД</h3>
         <div class="subtitle">Подтверди возврат</div>
@@ -1242,8 +560,8 @@
             <div class="tsd-info-row"><span class="label">Выдан:</span><span class="value" id="acceptTsdTime">—</span></div>
         </div>
         <div class="tsd-modal-buttons">
-            <button class="tsd-modal-btn-cancel" onclick="closeTsdAcceptModal()">Отмена</button>
-            <button class="tsd-modal-btn-ok" onclick="confirmTsdAccept()">Принять</button>
+            <button class="tsd-modal-btn-cancel" onclick="closeAcceptModal()">Отмена</button>
+            <button class="tsd-modal-btn-ok" onclick="confirmAccept()">Принять</button>
         </div>
     </div>
 </div>
@@ -1254,763 +572,34 @@
     const BIN_URL = 'https://json.extendsclass.com/bin/8f524bd9e9b0';
     const SYNC_INTERVAL = 30000;
 
-    const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
-    let COMPANIES = JSON.parse(localStorage.getItem('warehouseCompanies')) || [...DEFAULT_COMPANIES];
-
-    const DEFAULT_DIRECTIONS = [
-        "Ижевск", "Чебоксары", "Челны", "Киров", "Екатеринбург",
-        "Самара", "Самара Возврат", "Уфа", "Ростов", "Ульяновск",
-        "Оренбург", "Нижний Новгород", "Пенза", "Саратов", "Дзержинский",
-        "Софьино", "Домодедово", "Казань ВП", "ДМД ЕВСЦ"
-    ];
-    let SHIPMENT_DIRECTIONS = JSON.parse(localStorage.getItem('warehouseDirections')) || [...DEFAULT_DIRECTIONS];
-
-    const SORT_ZONES = [
-        "Веер, Ромашка", "Батч", "КГТ", "Сорт ВП", 
-        "Перебор хранения", "МК", "Отгрузка МК", 
-        "Саппорт СКК", "Наведение порядка", 
-        "Перебор оборотной тары", "Прием мерчей"
-    ];
-    const LOAD_ZONES = ["Отгрузка ЛХ", "Раскатка буфера", "Отгрузка АХ ВП"];
-    const BREAK_ZONES = ["Обед (30 мин)", "Перекур (15 мин)"];
-    const stations = [...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES];
-
-    let SHIPMENT_DATA = JSON.parse(localStorage.getItem('warehouseShipment')) || {};
-    let SHIPMENT_HISTORY = JSON.parse(localStorage.getItem('warehouseShipmentHistory')) || [];
-    let SHIPMENT_SORTED = false;
-
-    // ТСД
     let TSD_DATA = JSON.parse(localStorage.getItem('warehouseTsd')) || {};
     let TSD_HISTORY = JSON.parse(localStorage.getItem('warehouseTsdHistory')) || [];
     let TSD_FILTER = 'all';
-    let currentIssueTsdMac = null;
-    let currentAcceptTsdMac = null;
+    let currentIssueMac = null;
+    let currentAcceptMac = null;
 
-    let saveTimer = null, syncTimer = null, isSaving = false;
+    let isSaving = false;
     let serverLoaded = false;
-    let hasUnsavedChanges = false;
-    let editingDirs = [];
+    let hasUnsaved = false;
+    let saveTimer = null;
+    let syncTimer = null;
 
     // ============ УТИЛИТЫ ============
     function normalizeCode(raw) {
         if (!raw) return '';
         let s = String(raw).trim();
-        // Убираем префиксы
         s = s.replace(/^WIFI\s*MAC\s*[:\-]?\s*/i, '');
-        // Убираем всё, кроме букв и цифр
         return s.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     }
 
     function isMacCode(code) {
-        // MAC = 12 символов, только hex (A-F, 0-9)
         return /^[A-F0-9]{12}$/.test(code);
-    }
-
-    function isLoginCode(code) {
-        // Логин содержит дефис или > 12 символов, или не hex
-        if (!code || code.length < 3) return false;
-        return !isMacCode(code);
-    }
-
-    function formatMacShort(mac) {
-        if (!mac) return '—';
-        if (mac.length <= 8) return mac;
-        return '...' + mac.slice(-6);
     }
 
     function formatTime(ts) {
         if (!ts) return '—';
         const d = new Date(ts);
         return d.toTimeString().slice(0, 5);
-    }
-
-    // ============ МЕНЮ ============
-    function toggleMenu() {
-        document.getElementById('fullscreenMenu').classList.toggle('active');
-    }
-
-    function menuGo(screen) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        if (screen === 'report') {
-            document.getElementById('tabReport').classList.add('active');
-            document.getElementById('pageTitle').textContent = '📋 Распределение людей';
-        } else if (screen === 'shipment') {
-            document.getElementById('tabShipment').classList.add('active');
-            document.getElementById('pageTitle').textContent = '🚚 Отгрузка';
-            renderShipment(SHIPMENT_SORTED);
-        } else if (screen === 'analytics') {
-            document.getElementById('tabAnalytics').classList.add('active');
-            document.getElementById('pageTitle').textContent = '📊 Аналитика';
-            renderAnalytics();
-        } else if (screen === 'tsd') {
-            document.getElementById('tabTsd').classList.add('active');
-            document.getElementById('pageTitle').textContent = '📟 Учёт ТСД';
-            renderTsdSummary();
-            renderTsdTable();
-            renderTsdHistory();
-            setTimeout(() => {
-                const inp = document.getElementById('tsdScanInput');
-                if (inp) inp.focus();
-            }, 100);
-        }
-        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-        const itemId = 'menuItem' + screen.charAt(0).toUpperCase() + screen.slice(1);
-        const item = document.getElementById(itemId);
-        if (item) item.classList.add('active');
-        toggleMenu();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function setSyncStatus(status, text) {
-        const el = document.getElementById('syncStatus');
-        if (!el) return;
-        el.className = 'sync-status sync-' + status;
-        el.textContent = text;
-    }
-
-    function markUnsaved() {
-        hasUnsavedChanges = true;
-        setSyncStatus('unsaved', '⚠️ Есть несохранённые — нажмите ✅');
-        const btn = document.getElementById('confirmBtn');
-        if (btn) { btn.classList.remove('saved'); btn.classList.add('unsaved'); }
-    }
-
-    function markSaved() {
-        hasUnsavedChanges = false;
-        setSyncStatus('online', '✅ Все изменения сохранены');
-        const btn = document.getElementById('confirmBtn');
-        if (btn) { btn.classList.add('saved'); btn.classList.remove('unsaved'); }
-    }
-
-    // ============ СЕРВЕР ============
-    async function forceRefreshFromServer() {
-        if (hasUnsavedChanges) {
-            if (!confirm('Есть несохранённые изменения. Они будут потеряны. Продолжить?')) return;
-        }
-        serverLoaded = false;
-        await loadFromServer();
-    }
-
-    async function loadFromServer() {
-        try {
-            setSyncStatus('connecting', '🔄 Загрузка с сервера...');
-            const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const data = await response.json();
-            if (data?.current) applyDataToUI(data.current);
-            if (data?.companies?.list) {
-                COMPANIES = data.companies.list;
-                localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-            }
-            if (data?.directions?.list) {
-                SHIPMENT_DIRECTIONS = data.directions.list;
-                localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
-            }
-            if (data?.archive?.archive) localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
-            if (data?.shipment?.data) {
-                SHIPMENT_DATA = data.shipment.data;
-                localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-            }
-            if (data?.shipment?.history) {
-                SHIPMENT_HISTORY = data.shipment.history;
-                localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
-            }
-            // ТСД
-            if (data?.tsd?.data) {
-                TSD_DATA = data.tsd.data;
-                localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-            }
-            if (data?.tsd?.history) {
-                TSD_HISTORY = data.tsd.history;
-                localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-            }
-            renderShipment(SHIPMENT_SORTED);
-            renderTsdSummary();
-            renderTsdTable();
-            renderTsdHistory();
-            serverLoaded = true;
-            markSaved();
-            saveDataToLocal();
-        } catch (err) {
-            console.error('Ошибка загрузки:', err);
-            setSyncStatus('offline', '📴 Нет связи, работаем локально');
-            serverLoaded = true;
-            markSaved();
-        }
-    }
-
-    async function saveToServer() {
-        if (isSaving) return;
-        isSaving = true;
-        setSyncStatus('connecting', '📤 Сохранение на сервер...');
-        try {
-            const payload = {
-                current: collectDataFromUI(),
-                companies: { list: COMPANIES },
-                directions: { list: SHIPMENT_DIRECTIONS },
-                archive: { archive: JSON.parse(localStorage.getItem('warehouseArchive')) || [] },
-                shipment: { data: SHIPMENT_DATA, history: SHIPMENT_HISTORY },
-                tsd: { data: TSD_DATA, history: TSD_HISTORY }
-            };
-            payload.current.lastModified = Date.now();
-            payload.shipment.lastModified = Date.now();
-            payload.tsd.lastModified = Date.now();
-            const response = await fetch(BIN_URL, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            markSaved();
-        } catch (err) {
-            console.error('Ошибка сохранения:', err);
-            setSyncStatus('offline', '📴 Ошибка сохранения — попробуйте ещё раз');
-        } finally {
-            isSaving = false;
-        }
-    }
-
-    async function confirmSave() {
-        if (!serverLoaded) { alert('Подождите, идёт подключение к серверу...'); return; }
-        saveDataToLocal();
-        await saveToServer();
-    }
-
-    function saveDebounced() {
-        if (saveTimer) clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => { saveDataToLocal(); markUnsaved(); }, 300);
-    }
-
-    function startSyncLoop() {
-        if (syncTimer) clearInterval(syncTimer);
-        syncTimer = setInterval(async () => {
-            if (isSaving || !serverLoaded || hasUnsavedChanges) return;
-            try {
-                const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
-                if (!response.ok) return;
-                const data = await response.json();
-                const serverTime = Math.max(
-                    data.current?.lastModified || 0, 
-                    data.shipment?.lastModified || 0,
-                    data.tsd?.lastModified || 0
-                );
-                const localTime = Math.max(
-                    JSON.parse(localStorage.getItem('warehouseReport') || '{}').lastModified || 0,
-                    JSON.parse(localStorage.getItem('warehouseShipment') || '{}').lastModified || 0
-                );
-                if (serverTime > localTime && serverTime > 0) {
-                    if (data.current) applyDataToUI(data.current);
-                    if (data.companies?.list) {
-                        COMPANIES = data.companies.list;
-                        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-                    }
-                    if (data.directions?.list) {
-                        SHIPMENT_DIRECTIONS = data.directions.list;
-                        localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
-                    }
-                    if (data.archive?.archive) {
-                        localStorage.setItem('warehouseArchive', JSON.stringify(data.archive.archive));
-                        renderAnalytics();
-                    }
-                    if (data.shipment?.data) {
-                        SHIPMENT_DATA = data.shipment.data;
-                        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-                    }
-                    if (data.shipment?.history) {
-                        SHIPMENT_HISTORY = data.shipment.history;
-                        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
-                    }
-                    if (data.tsd?.data) {
-                        TSD_DATA = data.tsd.data;
-                        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-                    }
-                    if (data.tsd?.history) {
-                        TSD_HISTORY = data.tsd.history;
-                        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-                    }
-                    renderShipment(SHIPMENT_SORTED);
-                    renderTsdSummary();
-                    renderTsdTable();
-                    renderTsdHistory();
-                    markSaved();
-                    saveDataToLocal();
-                }
-            } catch (err) {}
-        }, SYNC_INTERVAL);
-    }
-
-    function saveDataToLocal() {
-        const data = collectDataFromUI();
-        data.lastModified = Date.now();
-        localStorage.setItem('warehouseReport', JSON.stringify(data));
-        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
-        localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
-        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-        const indicator = document.getElementById('autosaveIndicator');
-        if (indicator) {
-            const now = new Date();
-            indicator.textContent = `💾 Локально сохранено в ${now.toTimeString().slice(0,5)}`;
-            setTimeout(() => { indicator.textContent = ''; }, 2000);
-        }
-    }
-
-    function loadFromLocal() {
-        const saved = localStorage.getItem('warehouseReport');
-        if (!saved) return;
-        try { applyDataToUI(JSON.parse(saved)); } catch (e) {}
-    }
-
-    function collectDataFromUI() {
-        const rows = [];
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
-            rows.push({
-                station: tr.querySelector('.station-name').textContent,
-                out: tr.querySelector('.input-out')?.value || '',
-                bak: tr.querySelector('.input-bak')?.value || '',
-                companies: getRowCompanies(idx),
-                sht: tr.querySelector('.input-sht')?.value || ''
-            });
-        });
-        return {
-            date: document.getElementById('reportDate').value,
-            time: document.getElementById('reportTime').value,
-            totals: {
-                admin: document.getElementById('totalAdmin').value,
-                staff: document.getElementById('totalStaff').value,
-                out: document.getElementById('totalOut').value,
-                brig: document.getElementById('totalBrig').value
-            },
-            bstSort: document.getElementById('bstSort')?.value || '',
-            bstLoad: document.getElementById('bstLoad')?.value || '',
-            rows: rows,
-            stations: { sort: SORT_ZONES, load: LOAD_ZONES, break: BREAK_ZONES }
-        };
-    }
-
-    function applyDataToUI(data) {
-        if (!data) return;
-        if (data.date) document.getElementById('reportDate').value = data.date;
-        if (data.time) document.getElementById('reportTime').value = data.time;
-        if (data.totals) {
-            document.getElementById('totalAdmin').value = data.totals.admin || '0';
-            document.getElementById('totalStaff').value = data.totals.staff || '0';
-            document.getElementById('totalOut').value = data.totals.out || '0';
-            document.getElementById('totalBrig').value = data.totals.brig || '0';
-        }
-        if (data.stations) {
-            if (data.stations.sort?.length === SORT_ZONES.length) for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = data.stations.sort[i];
-            if (data.stations.load?.length === LOAD_ZONES.length) for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = data.stations.load[i];
-            if (data.stations.break?.length === BREAK_ZONES.length) for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = data.stations.break[i];
-            recalcStationsArray(); saveStationsToStorage(); renderTable();
-        }
-        const sortBst = document.getElementById('bstSort');
-        const loadBst = document.getElementById('bstLoad');
-        if (sortBst && data.bstSort !== undefined) sortBst.value = data.bstSort || '';
-        if (loadBst && data.bstLoad !== undefined) loadBst.value = data.bstLoad || '';
-        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
-        if (data.rows) {
-            data.rows.forEach((row, index) => {
-                if (rows[index]) {
-                    const o = rows[index].querySelector('.input-out');
-                    const b = rows[index].querySelector('.input-bak');
-                    const s = rows[index].querySelector('.input-sht');
-                    if (o) o.value = row.out || '';
-                    if (b) b.value = row.bak || '';
-                    if (s) s.value = row.sht || '';
-                    if (row.companies) setRowCompanies(index, row.companies);
-                }
-            });
-        }
-        calculateTotals();
-    }
-
-    function createStepperHTML(id, className, defaultValue = '') {
-        return `<div class="stepper">
-            <button type="button" class="btn-minus" onclick="stepperChange('${id}', -1)">−</button>
-            <input type="number" id="${id}" class="${className}" min="0" value="${defaultValue}" placeholder="0" inputmode="none">
-            <button type="button" class="btn-plus" onclick="stepperChange('${id}', 1)">+</button>
-        </div>`;
-    }
-
-    function stepperChange(id, delta) {
-        const input = document.getElementById(id);
-        if (!input) return;
-        let current = parseInt(input.value) || 0;
-        let newVal = Math.max(0, current + delta);
-        input.value = newVal;
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-
-    let currentEditingCompanyRow = null;
-
-    function openCompanyModal(rowIdx) {
-        currentEditingCompanyRow = rowIdx;
-        const current = getRowCompanies(rowIdx);
-        const modalList = document.getElementById('modalCompanyList');
-        modalList.innerHTML = '';
-        COMPANIES.forEach(comp => {
-            const div = document.createElement('div');
-            div.className = 'modal-company-item';
-            div.textContent = comp;
-            if (current.includes(comp)) div.classList.add('selected');
-            div.onclick = () => toggleCompanyInModal(comp, div);
-            modalList.appendChild(div);
-        });
-        document.getElementById('newCompanyInput').value = '';
-        document.getElementById('companyModal').classList.add('active');
-    }
-
-    function addNewCompany() {
-        const input = document.getElementById('newCompanyInput');
-        const name = input.value.trim();
-        if (!name) { alert('Введите название'); return; }
-        if (COMPANIES.includes(name)) { alert('Уже есть'); return; }
-        COMPANIES.push(name);
-        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-        saveDebounced();
-        input.value = '';
-        openCompanyModal(currentEditingCompanyRow);
-    }
-
-    function resetCompanies() {
-        if (!confirm('Сбросить список компаний?')) return;
-        COMPANIES = [...DEFAULT_COMPANIES];
-        localStorage.setItem('warehouseCompanies', JSON.stringify(COMPANIES));
-        saveDebounced();
-        openCompanyModal(currentEditingCompanyRow);
-    }
-
-    function toggleCompanyInModal(comp, el) { el.classList.toggle('selected'); applySelectedCompanies(); }
-
-    function applySelectedCompanies() {
-        if (currentEditingCompanyRow === null) return;
-        const selected = [];
-        document.querySelectorAll('#modalCompanyList .modal-company-item.selected').forEach(el => selected.push(el.textContent));
-        setRowCompanies(currentEditingCompanyRow, selected);
-    }
-
-    function closeCompanyModal() {
-        document.getElementById('companyModal').classList.remove('active');
-        currentEditingCompanyRow = null;
-        saveDebounced();
-    }
-
-    function getRowCompanies(rowIdx) {
-        const row = document.querySelectorAll('#reportTable tbody tr:not(.total-row)')[rowIdx];
-        if (!row) return [];
-        const chips = row.querySelectorAll('.companies-list .company-chip');
-        const result = [];
-        chips.forEach(chip => { const n = chip.getAttribute('data-company'); if (n) result.push(n); });
-        return result;
-    }
-
-    function setRowCompanies(rowIdx, companies) {
-        const row = document.querySelectorAll('#reportTable tbody tr:not(.total-row)')[rowIdx];
-        if (!row) return;
-        const list = row.querySelector('.companies-list');
-        if (!list) return;
-        const addBtn = list.querySelector('.add-company-btn');
-        list.querySelectorAll('.company-chip').forEach(c => c.remove());
-        companies.forEach(comp => {
-            const chip = document.createElement('span');
-            chip.className = 'company-chip';
-            chip.setAttribute('data-company', comp);
-            chip.innerHTML = `${comp}<span class="remove-chip" onclick="removeCompany(${rowIdx}, '${comp.replace(/'/g, "\\'")}')">×</span>`;
-            list.insertBefore(chip, addBtn);
-        });
-    }
-
-    function removeCompany(rowIdx, comp) {
-        const current = getRowCompanies(rowIdx);
-        setRowCompanies(rowIdx, current.filter(c => c !== comp));
-        saveDebounced();
-    }
-
-    let currentZoom = 100;
-    const ZOOM_STEP = 10, ZOOM_MIN = 50, ZOOM_MAX = 130;
-
-    function applyZoom() {
-        const table = document.querySelector('#reportTable');
-        const wrap = document.getElementById('tableWrap');
-        if (!table || !wrap) return;
-        const scale = currentZoom / 100;
-        table.style.transform = `scale(${scale})`;
-        table.style.transformOrigin = 'top left';
-        table.style.width = (100 / scale) + '%';
-        wrap.style.height = '';
-        document.getElementById('zoomValue').textContent = currentZoom + '%';
-        localStorage.setItem('warehouseZoom', currentZoom);
-    }
-
-    function changeZoom(delta) {
-        currentZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, currentZoom + delta * ZOOM_STEP));
-        applyZoom();
-    }
-
-    function resetZoom() { currentZoom = 100; applyZoom(); }
-
-    function recalcStationsArray() {
-        stations.length = 0;
-        stations.push(...SORT_ZONES, ...LOAD_ZONES, ...BREAK_ZONES);
-    }
-
-    function saveStationsToStorage() {
-        localStorage.setItem('warehouseStations', JSON.stringify({ sort: SORT_ZONES, load: LOAD_ZONES, break: BREAK_ZONES }));
-    }
-
-    function loadStationsFromStorage() {
-        try {
-            const saved = JSON.parse(localStorage.getItem('warehouseStations'));
-            if (saved) {
-                if (saved.sort?.length === SORT_ZONES.length) for (let i = 0; i < SORT_ZONES.length; i++) SORT_ZONES[i] = saved.sort[i];
-                if (saved.load?.length === LOAD_ZONES.length) for (let i = 0; i < LOAD_ZONES.length; i++) LOAD_ZONES[i] = saved.load[i];
-                if (saved.break?.length === BREAK_ZONES.length) for (let i = 0; i < BREAK_ZONES.length; i++) BREAK_ZONES[i] = saved.break[i];
-                recalcStationsArray();
-            }
-        } catch (e) {}
-    }
-
-    function editStationName(idx) {
-        const td = document.querySelector(`.station-name[data-station-idx="${idx}"]`);
-        if (!td || td.classList.contains('editing')) return;
-        const oldName = stations[idx];
-        td.classList.add('editing');
-        td.innerHTML = `<input type="text" value="${oldName}" maxlength="40">`;
-        const input = td.querySelector('input');
-        input.focus(); input.select();
-        const finish = (save) => {
-            const newName = input.value.trim();
-            td.classList.remove('editing');
-            if (save && newName && newName !== oldName) {
-                stations[idx] = newName;
-                if (idx < SORT_ZONES.length) SORT_ZONES[idx] = newName;
-                else if (idx < SORT_ZONES.length + LOAD_ZONES.length) LOAD_ZONES[idx - SORT_ZONES.length] = newName;
-                else BREAK_ZONES[idx - SORT_ZONES.length - LOAD_ZONES.length] = newName;
-                saveStationsToStorage(); recalcStationsArray(); saveDebounced();
-            }
-            renderTable();
-            loadFromLocal();
-        };
-        input.addEventListener('blur', () => finish(true));
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
-            if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-        });
-    }
-
-    function renderShipment(sort) {
-        if (typeof sort === 'undefined') sort = SHIPMENT_SORTED;
-        else SHIPMENT_SORTED = sort;
-
-        const directions = SHIPMENT_DIRECTIONS.map(dir => {
-            const d = SHIPMENT_DATA[dir] || { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
-            return {
-                name: dir,
-                gab: Number(d.gab) || 0,
-                negab: Number(d.negab) || 0,
-                ts: Number(d.ts) || 0,
-                needTS: Number(d.needTS) || 0,
-                haveTS: Number(d.haveTS) || 0,
-                xdok: Number(d.xdok) || 0,
-                vp: Number(d.vp) || 0,
-                sum: (Number(d.gab) || 0) + (Number(d.negab) || 0)
-            };
-        });
-
-        if (sort) directions.sort((a, b) => b.sum - a.sum);
-
-        const topList = document.getElementById('shipmentTopList');
-        const sortedForTop = [...directions].sort((a, b) => b.sum - a.sum);
-        const top3 = sortedForTop.filter(d => d.sum > 0).slice(0, 3);
-        if (top3.length === 0) {
-            topList.innerHTML = '<div style="text-align: center; color: var(--text-dim); font-size: 13px;">Нет данных</div>';
-        } else {
-            topList.innerHTML = top3.map((d, i) => `
-                <div class="shipment-top-item rank-${i+1}">
-                    <div class="rank-dir">
-                        ${i+1}. ${d.name}
-                        <div class="rank-details">Габарит: ${d.gab} | Негабарит: ${d.negab} | Тотал: ${d.sum}</div>
-                    </div>
-                    <div class="rank-sum">${d.sum}</div>
-                </div>
-            `).join('');
-        }
-
-        const tbody = document.querySelector('#shipmentTable tbody');
-        tbody.innerHTML = '';
-        directions.forEach((d, i) => {
-            const tr = document.createElement('tr');
-            if (sort) {
-                if (i === 0 && d.sum > 0) tr.className = 'rank-1';
-                else if (i === 1 && d.sum > 0) tr.className = 'rank-2';
-                else if (i === 2 && d.sum > 0) tr.className = 'rank-3';
-            }
-            const safeName = d.name.replace(/'/g, "\\'");
-            tr.innerHTML = `
-                <td class="dir-name">${d.name}</td>
-                <td>${shipStepHTML(safeName, 'gab', d.gab)}</td>
-                <td>${shipStepHTML(safeName, 'negab', d.negab)}</td>
-                <td class="sum-cell">${d.sum}</td>
-                <td class="ts-cell">${shipStepHTML(safeName, 'needTS', d.needTS)}</td>
-                <td>${shipStepHTML(safeName, 'haveTS', d.haveTS)}</td>
-                <td>${shipStepHTML(safeName, 'xdok', d.xdok)}</td>
-                <td>${shipStepHTML(safeName, 'vp', d.vp)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-        renderShipmentHistory();
-    }
-
-    function shipStepHTML(dir, field, value) {
-        return `<div class="stepper ship-stepper">
-            <button type="button" class="btn-minus" onclick="shipStep('${dir}', '${field}', -1)">−</button>
-            <input type="number" value="${value}" min="0" inputmode="none" readonly>
-            <button type="button" class="btn-plus" onclick="shipStep('${dir}', '${field}', 1)">+</button>
-        </div>`;
-    }
-
-    function shipStep(dir, field, delta) {
-        if (!SHIPMENT_DATA[dir]) SHIPMENT_DATA[dir] = { gab: 0, negab: 0, ts: 0, needTS: 0, haveTS: 0, xdok: 0, vp: 0 };
-        const newVal = Math.max(0, (SHIPMENT_DATA[dir][field] || 0) + delta);
-        if (newVal === SHIPMENT_DATA[dir][field]) return;
-        SHIPMENT_DATA[dir][field] = newVal;
-        if (delta > 0 && (field === 'gab' || field === 'negab' || field === 'ts')) {
-            const entry = { time: Date.now(), direction: dir, gab: 0, negab: 0, ts: 0 };
-            entry[field] = delta;
-            SHIPMENT_HISTORY.unshift(entry);
-            if (SHIPMENT_HISTORY.length > 200) SHIPMENT_HISTORY = SHIPMENT_HISTORY.slice(0, 200);
-            localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
-        }
-        localStorage.setItem('warehouseShipment', JSON.stringify(SHIPMENT_DATA));
-        renderShipment(false);
-        saveDebounced();
-    }
-
-    function renderShipmentHistory() {
-        const container = document.getElementById('shipmentHistoryList');
-        const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
-        SHIPMENT_HISTORY = SHIPMENT_HISTORY.filter(h => h.time >= dayAgo);
-        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
-        if (SHIPMENT_HISTORY.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-dim); font-size: 12px;">История пуста</div>';
-            return;
-        }
-        let html = '';
-        SHIPMENT_HISTORY.slice(0, 50).forEach(h => {
-            const t = new Date(h.time).toTimeString().slice(0,5);
-            const parts = [];
-            if (h.gab) parts.push(`+${h.gab} габ`);
-            if (h.negab) parts.push(`+${h.negab} негаб`);
-            if (h.ts) parts.push(`+${h.ts} ТС`);
-            html += `<div class="history-item">
-                <span class="h-time">${t}</span>
-                <span class="h-text">${h.direction}: ${parts.join(', ')}</span>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-
-    function clearShipmentHistory() {
-        if (!confirm('Очистить всю историю?')) return;
-        SHIPMENT_HISTORY = [];
-        localStorage.setItem('warehouseShipmentHistory', JSON.stringify(SHIPMENT_HISTORY));
-        renderShipmentHistory();
-        saveDebounced();
-    }
-
-    function openEditDirsModal() {
-        editingDirs = [...SHIPMENT_DIRECTIONS];
-        renderEditDirsList();
-        document.getElementById('dirsModal').classList.add('active');
-    }
-
-    function closeEditDirsModal() {
-        document.getElementById('dirsModal').classList.remove('active');
-        editingDirs = [];
-    }
-
-    function renderEditDirsList() {
-        const list = document.getElementById('dirList');
-        list.innerHTML = '';
-        editingDirs.forEach((dir, i) => {
-            const div = document.createElement('div');
-            div.className = 'dir-item';
-            div.innerHTML = `
-                <input type="text" value="${dir.replace(/"/g, '&quot;')}" maxlength="40" oninput="updateEditingDir(${i}, this.value)">
-                <button class="dir-del" onclick="removeEditingDir(${i})">🗑</button>
-            `;
-            list.appendChild(div);
-        });
-    }
-
-    function updateEditingDir(idx, value) {
-        editingDirs[idx] = value;
-    }
-
-    function removeEditingDir(idx) {
-        if (editingDirs.length <= 1) { alert('Должно остаться хотя бы одно направление'); return; }
-        editingDirs.splice(idx, 1);
-        renderEditDirsList();
-    }
-
-    function addNewDirection() {
-        editingDirs.push('Новое направление');
-        renderEditDirsList();
-        setTimeout(() => {
-            const inputs = document.querySelectorAll('#dirList input');
-            if (inputs.length > 0) {
-                const last = inputs[inputs.length - 1];
-                last.focus();
-                last.select();
-            }
-        }, 50);
-    }
-
-    function saveDirections() {
-        const cleaned = editingDirs.map(d => d.trim()).filter(d => d.length > 0);
-        if (cleaned.length === 0) { alert('Введите хотя бы одно направление'); return; }
-        const unique = [...new Set(cleaned)];
-        if (unique.length !== cleaned.length) { alert('Есть одинаковые названия — уберите дубли'); return; }
-
-        SHIPMENT_DIRECTIONS = unique;
-        localStorage.setItem('warehouseDirections', JSON.stringify(SHIPMENT_DIRECTIONS));
-        closeEditDirsModal();
-        renderShipment(SHIPMENT_SORTED);
-        saveDebounced();
-    }
-
-    function toggleSnapshot() {
-        const body = document.body;
-        if (body.classList.contains('snapshot-mode')) {
-            body.classList.remove('snapshot-mode');
-            setTimeout(applyZoom, 50);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        } else {
-            if (document.getElementById('tabShipment').classList.contains('active')) {
-                renderShipment(true);
-            }
-            body.classList.add('snapshot-mode');
-            setTimeout(applyZoom, 50);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    // ============ ТСД ============
-    function renderTsdSummary() {
-        const all = Object.keys(TSD_DATA);
-        const total = all.length;
-        const issued = all.filter(m => TSD_DATA[m].status === 'issued').length;
-        const free = all.filter(m => TSD_DATA[m].status === 'free').length;
-        const repair = all.filter(m => TSD_DATA[m].status === 'repair').length;
-        const written = all.filter(m => TSD_DATA[m].status === 'written').length;
-
-        document.getElementById('tsdTotal').textContent = total;
-        document.getElementById('tsdIssued').textContent = issued;
-        document.getElementById('tsdFree').textContent = free;
-        document.getElementById('tsdRepair').textContent = repair;
-        document.getElementById('tsdWritten').textContent = written;
     }
 
     function getNextTsdNumber() {
@@ -2022,27 +611,140 @@
         return 'ТСД-' + String(max + 1).padStart(3, '0');
     }
 
+    // ============ СТАТУС ============
+    function setStatus(cls, text) {
+        const el = document.getElementById('syncStatus');
+        el.className = 'header-status sync-' + cls;
+        el.textContent = text;
+    }
+
+    function markUnsaved() {
+        hasUnsaved = true;
+        setStatus('unsaved', '⚠️ Не сохранено — нажми');
+    }
+
+    function markSaved() {
+        hasUnsaved = false;
+        setStatus('online', '✅ Сохранено');
+    }
+
+    // ============ СЕРВЕР ============
+    async function loadFromServer() {
+        try {
+            setStatus('connecting', '🔄 Загрузка...');
+            const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            const data = await response.json();
+            if (data?.tsd?.data) {
+                TSD_DATA = data.tsd.data;
+                localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+            }
+            if (data?.tsd?.history) {
+                TSD_HISTORY = data.tsd.history;
+                localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
+            }
+            renderAll();
+            serverLoaded = true;
+            markSaved();
+        } catch (err) {
+            console.error('Ошибка загрузки:', err);
+            setStatus('offline', '📴 Нет связи');
+            serverLoaded = true;
+            markSaved();
+        }
+    }
+
+    async function saveToServer() {
+        if (isSaving) return;
+        isSaving = true;
+        setStatus('connecting', '📤 Сохранение...');
+        try {
+            // Сначала получаем текущее состояние сервера, чтобы не сломать другие данные
+            let currentData = {};
+            try {
+                const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (response.ok) {
+                    currentData = await response.json() || {};
+                }
+            } catch (e) {}
+
+            const payload = {
+                current: currentData.current || {},
+                companies: currentData.companies || {},
+                directions: currentData.directions || {},
+                archive: currentData.archive || {},
+                shipment: currentData.shipment || {},
+                tsd: { data: TSD_DATA, history: TSD_HISTORY, lastModified: Date.now() }
+            };
+
+            const response = await fetch(BIN_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            markSaved();
+        } catch (err) {
+            console.error('Ошибка сохранения:', err);
+            setStatus('offline', '📴 Ошибка сохранения');
+        } finally {
+            isSaving = false;
+        }
+    }
+
+    function saveDebounced() {
+        if (saveTimer) clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => {
+            localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+            localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
+            markUnsaved();
+        }, 300);
+    }
+
+    async function forceRefresh() {
+        if (hasUnsaved) {
+            if (!confirm('Есть несохранённые изменения. Сохранить?')) return;
+            await saveToServer();
+        }
+        serverLoaded = false;
+        await loadFromServer();
+    }
+
+    // ============ РЕНДЕР ============
+    function renderAll() {
+        renderSummary();
+        renderTable();
+        renderHistory();
+    }
+
+    function renderSummary() {
+        const all = Object.keys(TSD_DATA);
+        document.getElementById('tsdTotal').textContent = all.length;
+        document.getElementById('tsdIssued').textContent = all.filter(m => TSD_DATA[m].status === 'issued').length;
+        document.getElementById('tsdFree').textContent = all.filter(m => TSD_DATA[m].status === 'free').length;
+        document.getElementById('tsdRepair').textContent = all.filter(m => TSD_DATA[m].status === 'repair').length;
+        document.getElementById('tsdWritten').textContent = all.filter(m => TSD_DATA[m].status === 'written').length;
+    }
+
     function setTsdFilter(f) {
         TSD_FILTER = f;
         document.querySelectorAll('.tsd-filter-btn').forEach(b => {
             b.classList.toggle('active', b.dataset.filter === f);
         });
-        renderTsdTable();
+        renderTable();
     }
 
-    function renderTsdTable() {
+    function renderTable() {
         const tbody = document.getElementById('tsdTableBody');
         if (!tbody) return;
 
         const search = (document.getElementById('tsdSearch')?.value || '').toLowerCase().trim();
         let items = Object.keys(TSD_DATA).map(mac => ({ mac, ...TSD_DATA[mac] }));
 
-        // Фильтр по статусу
         if (TSD_FILTER !== 'all') {
             items = items.filter(it => it.status === TSD_FILTER);
         }
 
-        // Поиск
         if (search) {
             items = items.filter(it => 
                 (it.number || '').toLowerCase().includes(search) ||
@@ -2051,7 +753,6 @@
             );
         }
 
-        // Сортировка: сначала выданные, потом свободные, потом ремонт, потом списанные
         const statusOrder = { issued: 0, free: 1, repair: 2, written: 3 };
         items.sort((a, b) => {
             const s = (statusOrder[a.status] || 9) - (statusOrder[b.status] || 9);
@@ -2060,7 +761,7 @@
         });
 
         if (items.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:20px;">Ничего не найдено</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-dim); padding:30px;">Ничего не найдено</td></tr>';
             return;
         }
 
@@ -2073,43 +774,42 @@
                 written: 'Списан'
             }[it.status] || '—';
 
-            const rowClass = it.status || '';
-
             let actions = '';
             if (it.status === 'free') {
-                actions = `<button class="tsd-action-btn tsd-action-issue" onclick="openTsdIssueModal('${it.mac}')">📤 Выдать</button>`;
-                actions += `<button class="tsd-action-btn tsd-action-repair" onclick="tsdToRepair('${it.mac}')">🔧 В ремонт</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-issue" onclick="openIssueModal('${it.mac}')">📤 Выдать</button>`;
+                actions += `<button class="tsd-action-btn tsd-action-repair" onclick="toRepair('${it.mac}')">🔧 В ремонт</button>`;
             } else if (it.status === 'issued') {
-                actions = `<button class="tsd-action-btn tsd-action-accept" onclick="openTsdAcceptModal('${it.mac}')">📥 Принять</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-accept" onclick="openAcceptModal('${it.mac}')">📥 Принять</button>`;
             } else if (it.status === 'repair') {
-                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="tsdFromRepair('${it.mac}')">✅ Из ремонта</button>`;
-                actions += `<button class="tsd-action-btn tsd-action-writeoff" onclick="tsdWriteOff('${it.mac}')">❌ Списать</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">✅ Из ремонта</button>`;
+                actions += `<button class="tsd-action-btn tsd-action-writeoff" onclick="writeOff('${it.mac}')">❌ Списать</button>`;
             } else if (it.status === 'written') {
-                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="tsdFromRepair('${it.mac}')">↩️ Вернуть</button>`;
+                actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">↩️ Вернуть</button>`;
             }
 
-            html += `<tr class="tsd-row ${rowClass}">
+            html += `<tr class="tsd-row ${it.status || ''}">
                 <td>${i + 1}</td>
                 <td class="num-cell">${it.number || '—'}</td>
                 <td class="mac-cell">${it.mac}</td>
                 <td><span class="tsd-status ${it.status}">${statusText}</span></td>
                 <td class="owner-cell">${it.owner || '—'}</td>
                 <td>${formatTime(it.issuedAt)}</td>
-                <td class="actions-cell">${actions}</td>
+                <td class="tsd-actions-cell">${actions}</td>
             </tr>`;
         });
         tbody.innerHTML = html;
     }
 
-    function renderTsdHistory() {
+    function renderHistory() {
         const container = document.getElementById('tsdHistoryList');
         if (!container) return;
+
         const dayAgo = Date.now() - 24 * 60 * 60 * 1000;
         TSD_HISTORY = TSD_HISTORY.filter(h => h.time >= dayAgo);
         localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
 
         if (TSD_HISTORY.length === 0) {
-            container.innerHTML = '<div style="color: var(--text-dim); font-size: 12px;">История пуста</div>';
+            container.innerHTML = '<div style="color: var(--text-dim); font-size: 13px;">История пуста</div>';
             return;
         }
 
@@ -2117,11 +817,12 @@
         TSD_HISTORY.slice(0, 100).forEach(h => {
             const t = new Date(h.time).toTimeString().slice(0,5);
             let text = '';
-            if (h.action === 'issue') text = `📤 Выдан ${h.number} → ${h.owner}`;
-            else if (h.action === 'accept') text = `📥 Принят ${h.number} от ${h.owner}`;
-            else if (h.action === 'repair') text = `🔧 ${h.number} → В ремонт`;
-            else if (h.action === 'restore') text = `✅ ${h.number} → Из ремонта`;
-            else if (h.action === 'writeoff') text = `❌ ${h.number} → Списан`;
+            if (h.action === 'issue') text = `📤 ${h.number} выдан → ${h.owner}`;
+            else if (h.action === 'accept') text = `📥 ${h.number} принят от ${h.owner}`;
+            else if (h.action === 'repair') text = `🔧 ${h.number} → в ремонт`;
+            else if (h.action === 'restore') text = `✅ ${h.number} → из ремонта`;
+            else if (h.action === 'writeoff') text = `❌ ${h.number} списан`;
+            else if (h.action === 'created') text = `➕ ${h.number} добавлен`;
             html += `<div class="history-item">
                 <span class="h-time">${t}</span>
                 <span class="h-text">${text}</span>
@@ -2130,11 +831,10 @@
         container.innerHTML = html;
     }
 
-    function addTsdHistory(action, number, owner, mac) {
+    function addHistory(action, number, owner, mac) {
         TSD_HISTORY.unshift({
             time: Date.now(),
-            action,
-            number,
+            action, number,
             owner: owner || '',
             mac: mac || ''
         });
@@ -2142,25 +842,26 @@
         localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
     }
 
-    function handleTsdScan(code) {
+    // ============ ОБРАБОТКА СКАНИРОВАНИЯ ============
+    function handleScan(code) {
         if (!code) return;
         const norm = normalizeCode(code);
 
         if (isMacCode(norm)) {
-            // Это MAC - ТСД
-            handleTsdMacScan(norm);
-        } else if (isLoginCode(norm)) {
-            // Это логин - сотрудник
-            handleLoginScan(norm);
+            handleMac(norm);
         } else {
-            alert('Не могу распознать код: ' + code);
+            // Это логин
+            const issueModal = document.getElementById('issueModal');
+            if (issueModal.classList.contains('active')) {
+                document.getElementById('issueLoginInput').value = norm.toLowerCase();
+            } else {
+                alert(`Логин сотрудника: ${norm.toLowerCase()}\n\nСначала отсканируй ТСД.`);
+            }
         }
     }
 
-    function handleTsdMacScan(mac) {
-        // Ищем ТСД
+    function handleMac(mac) {
         if (!TSD_DATA[mac]) {
-            // Новый ТСД - создаём
             TSD_DATA[mac] = {
                 number: getNextTsdNumber(),
                 status: 'free',
@@ -2169,96 +870,83 @@
                 createdAt: Date.now()
             };
             localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-            addTsdHistory('created', TSD_DATA[mac].number, null, mac);
+            addHistory('created', TSD_DATA[mac].number, null, mac);
             saveDebounced();
+            renderAll();
         }
 
         const tsd = TSD_DATA[mac];
-
         if (tsd.status === 'free') {
-            // Открываем окно выдачи
-            openTsdIssueModal(mac);
+            openIssueModal(mac);
         } else if (tsd.status === 'issued') {
-            // Открываем окно приёма
-            openTsdAcceptModal(mac);
+            openAcceptModal(mac);
         } else if (tsd.status === 'repair') {
             if (confirm(`ТСД ${tsd.number} в ремонте. Вернуть в работу?`)) {
-                tsdFromRepair(mac);
+                fromRepair(mac);
             }
         } else if (tsd.status === 'written') {
             alert(`ТСД ${tsd.number} списан.`);
         }
     }
 
-    function handleLoginScan(login) {
-        // Если окно выдачи открыто - заполняем логин
-        const issueModal = document.getElementById('tsdIssueModal');
-        if (issueModal.classList.contains('active')) {
-            document.getElementById('issueLoginInput').value = login;
-            return;
-        }
-        // Иначе - просто сообщение
-        alert(`Логин сотрудника: ${login}\n\nОтсканируй ТСД первым, чтобы выдать или принять.`);
-    }
-
-    function openTsdIssueModal(mac) {
+    // ============ ВЫДАЧА ============
+    function openIssueModal(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
-        currentIssueTsdMac = mac;
+        currentIssueMac = mac;
         document.getElementById('issueTsdNum').textContent = tsd.number;
         document.getElementById('issueTsdMac').textContent = mac;
         document.getElementById('issueLoginInput').value = '';
-        document.getElementById('tsdIssueModal').classList.add('active');
+        document.getElementById('issueModal').classList.add('active');
         setTimeout(() => document.getElementById('issueLoginInput').focus(), 100);
     }
 
-    function closeTsdIssueModal() {
-        document.getElementById('tsdIssueModal').classList.remove('active');
-        currentIssueTsdMac = null;
+    function closeIssueModal() {
+        document.getElementById('issueModal').classList.remove('active');
+        currentIssueMac = null;
         setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 100);
     }
 
-    function confirmTsdIssue() {
-        if (!currentIssueTsdMac) return;
-        const login = document.getElementById('issueLoginInput').value.trim();
+    function confirmIssue() {
+        if (!currentIssueMac) return;
+        const login = document.getElementById('issueLoginInput').value.trim().toLowerCase();
         if (!login) { alert('Отсканируй логин сотрудника'); return; }
 
-        const tsd = TSD_DATA[currentIssueTsdMac];
+        const tsd = TSD_DATA[currentIssueMac];
         if (!tsd) return;
 
         tsd.status = 'issued';
         tsd.owner = login;
         tsd.issuedAt = Date.now();
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        addTsdHistory('issue', tsd.number, login, currentIssueTsdMac);
+        addHistory('issue', tsd.number, login, currentIssueMac);
         saveDebounced();
 
-        closeTsdIssueModal();
-        renderTsdSummary();
-        renderTsdTable();
-        renderTsdHistory();
+        closeIssueModal();
+        renderAll();
     }
 
-    function openTsdAcceptModal(mac) {
+    // ============ ПРИЁМ ============
+    function openAcceptModal(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
-        currentAcceptTsdMac = mac;
+        currentAcceptMac = mac;
         document.getElementById('acceptTsdNum').textContent = tsd.number;
         document.getElementById('acceptTsdMac').textContent = mac;
         document.getElementById('acceptTsdOwner').textContent = tsd.owner || '—';
         document.getElementById('acceptTsdTime').textContent = formatTime(tsd.issuedAt);
-        document.getElementById('tsdAcceptModal').classList.add('active');
+        document.getElementById('acceptModal').classList.add('active');
     }
 
-    function closeTsdAcceptModal() {
-        document.getElementById('tsdAcceptModal').classList.remove('active');
-        currentAcceptTsdMac = null;
+    function closeAcceptModal() {
+        document.getElementById('acceptModal').classList.remove('active');
+        currentAcceptMac = null;
         setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 100);
     }
 
-    function confirmTsdAccept() {
-        if (!currentAcceptTsdMac) return;
-        const tsd = TSD_DATA[currentAcceptTsdMac];
+    function confirmAccept() {
+        if (!currentAcceptMac) return;
+        const tsd = TSD_DATA[currentAcceptMac];
         if (!tsd) return;
 
         const oldOwner = tsd.owner;
@@ -2266,16 +954,15 @@
         tsd.owner = null;
         tsd.issuedAt = null;
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        addTsdHistory('accept', tsd.number, oldOwner, currentAcceptTsdMac);
+        addHistory('accept', tsd.number, oldOwner, currentAcceptMac);
         saveDebounced();
 
-        closeTsdAcceptModal();
-        renderTsdSummary();
-        renderTsdTable();
-        renderTsdHistory();
+        closeAcceptModal();
+        renderAll();
     }
 
-    function tsdToRepair(mac) {
+    // ============ РЕМОНТ ============
+    function toRepair(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         if (!confirm(`Отправить ${tsd.number} в ремонт?`)) return;
@@ -2283,326 +970,41 @@
         tsd.owner = null;
         tsd.issuedAt = null;
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        addTsdHistory('repair', tsd.number, null, mac);
+        addHistory('repair', tsd.number, null, mac);
         saveDebounced();
-        renderTsdSummary();
-        renderTsdTable();
-        renderTsdHistory();
+        renderAll();
     }
 
-    function tsdFromRepair(mac) {
+    function fromRepair(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         tsd.status = 'free';
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        addTsdHistory('restore', tsd.number, null, mac);
+        addHistory('restore', tsd.number, null, mac);
         saveDebounced();
-        renderTsdSummary();
-        renderTsdTable();
-        renderTsdHistory();
+        renderAll();
     }
 
-    function tsdWriteOff(mac) {
+    function writeOff(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
         if (!confirm(`Списать ${tsd.number} навсегда?`)) return;
         tsd.status = 'written';
         localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
-        addTsdHistory('writeoff', tsd.number, null, mac);
+        addHistory('writeoff', tsd.number, null, mac);
         saveDebounced();
-        renderTsdSummary();
-        renderTsdTable();
-        renderTsdHistory();
+        renderAll();
     }
 
-    function clearTsdHistory() {
+    function clearHistory() {
         if (!confirm('Очистить всю историю ТСД?')) return;
         TSD_HISTORY = [];
         localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
-        renderTsdHistory();
+        renderHistory();
         saveDebounced();
     }
 
-    // ============ ЗАГРУЗКА ============
-    window.addEventListener('load', async function() {
-        const now = new Date();
-        document.getElementById('reportDate').value = now.toISOString().split('T')[0];
-        document.getElementById('reportTime').value = now.toTimeString().slice(0,5);
-
-        document.querySelectorAll('.rec-item .stepper-container').forEach(container => {
-            const targetId = container.dataset.target;
-            container.outerHTML = createStepperHTML(targetId, 'rec-input');
-        });
-        loadStationsFromStorage();
-        renderTable();
-        document.querySelectorAll('input[type="number"]').forEach(input => {
-            input.addEventListener('input', () => { calculateTotals(); saveDebounced(); });
-        });
-        document.getElementById('reportDate').addEventListener('change', saveDebounced);
-        document.getElementById('reportTime').addEventListener('change', saveDebounced);
-
-        const savedZoom = parseInt(localStorage.getItem('warehouseZoom'));
-        if (savedZoom && savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) currentZoom = savedZoom;
-
-        loadFromLocal();
-        calculateTotals();
-        renderAnalytics();
-        renderShipment(false);
-        renderTsdSummary();
-        renderTsdTable();
-        renderTsdHistory();
-        setTimeout(applyZoom, 100);
-
-        // Сканер ТСД - поле ввода
-        const scanInput = document.getElementById('tsdScanInput');
-        if (scanInput) {
-            scanInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const code = scanInput.value.trim();
-                    scanInput.value = '';
-                    if (code) handleTsdScan(code);
-                }
-            });
-        }
-
-        await loadFromServer();
-        startSyncLoop();
-    });
-
-    window.addEventListener('resize', () => { applyZoom(); });
-
-    function renderTable() {
-        const tbody = document.querySelector('#reportTable tbody');
-        tbody.innerHTML = '';
-        const loadStart = SORT_ZONES.length;
-        const loadEnd = loadStart + LOAD_ZONES.length - 1;
-        const breakStart = loadEnd + 1;
-
-        stations.forEach((station, idx) => {
-            const tr = document.createElement('tr');
-            let zoneClass = 'zone-sort';
-            if (idx >= loadStart && idx <= loadEnd) zoneClass = 'zone-load';
-            if (idx >= breakStart) zoneClass = 'zone-break';
-            tr.className = zoneClass;
-
-            const outId = `out_${idx}`, bakId = `bak_${idx}`, shtId = `sht_${idx}`;
-            tr.innerHTML = `
-                <td class="station-name" data-station-idx="${idx}" onclick="editStationName(${idx})">${station}</td>
-                <td>${createStepperHTML(outId, 'input-out')}</td>
-                <td>${createStepperHTML(bakId, 'input-bak')}</td>
-                <td class="companies-cell">
-                    <div class="companies-list" data-row="${idx}">
-                        <button type="button" class="add-company-btn" onclick="openCompanyModal(${idx})">+ Добавить</button>
-                    </div>
-                </td>
-                <td>${createStepperHTML(shtId, 'input-sht')}</td>
-            `;
-            if (idx === 0) {
-                const td = document.createElement('td');
-                td.rowSpan = SORT_ZONES.length;
-                td.className = 'brig-cell sort';
-                td.innerHTML = createStepperHTML('bstSort', 'input-bst-sort');
-                tr.appendChild(td);
-            }
-            if (idx === loadStart) {
-                const td = document.createElement('td');
-                td.rowSpan = LOAD_ZONES.length;
-                td.className = 'brig-cell load';
-                td.innerHTML = createStepperHTML('bstLoad', 'input-bst-load');
-                tr.appendChild(td);
-            }
-            if (idx >= breakStart) {
-                const td = document.createElement('td');
-                td.textContent = '—';
-                td.style.background = '#1a1d21';
-                td.style.color = '#6c757d';
-                tr.appendChild(td);
-            }
-            tbody.appendChild(tr);
-        });
-
-        const totalTr = document.createElement('tr');
-        totalTr.className = 'total-row';
-        totalTr.innerHTML = `
-            <td style="text-align: right; padding-right: 10px;">ИТОГ:</td>
-            <td id="total-out">0</td>
-            <td id="total-bak">0</td>
-            <td></td>
-            <td id="total-sht">0</td>
-            <td id="total-bst">0</td>
-        `;
-        tbody.appendChild(totalTr);
-    }
-
-    function calculateTotals() {
-        let out = 0, bak = 0, sht = 0;
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach(tr => {
-            out += Number(tr.querySelector('.input-out')?.value) || 0;
-            bak += Number(tr.querySelector('.input-bak')?.value) || 0;
-            sht += Number(tr.querySelector('.input-sht')?.value) || 0;
-        });
-        const bst = (Number(document.getElementById('bstSort')?.value) || 0) + (Number(document.getElementById('bstLoad')?.value) || 0);
-        document.getElementById('total-out').textContent = out;
-        document.getElementById('total-bak').textContent = bak;
-        document.getElementById('total-sht').textContent = sht;
-        document.getElementById('total-bst').textContent = bst;
-
-        const totalAdmin = Number(document.getElementById('totalAdmin').value) || 0;
-        const totalStaff = Number(document.getElementById('totalStaff').value) || 0;
-        const totalOut = Number(document.getElementById('totalOut').value) || 0;
-        const totalBrig = Number(document.getElementById('totalBrig').value) || 0;
-        document.getElementById('grandTotal').textContent = totalAdmin + totalStaff + totalOut + totalBrig + bst;
-
-        const declaredTotal = totalStaff + totalOut + totalBrig;
-        const actualTotal = out + sht + bak;
-        const diff = declaredTotal - actualTotal;
-        const statusDiv = document.getElementById('recStatus');
-
-        if (declaredTotal === 0 && actualTotal === 0) {
-            statusDiv.innerHTML = "Введите данные для сверки...";
-            statusDiv.className = "rec-status status-neutral";
-        } else if (diff === 0) {
-            statusDiv.innerHTML = `✅ <b>Всё сходится!</b><br><span class="details">На смене: <b>${declaredTotal}</b> | Распределено: <b>${actualTotal}</b></span>`;
-            statusDiv.className = "rec-status status-ok";
-        } else {
-            statusDiv.innerHTML = `⚠️ <b>РАСХОЖДЕНИЕ! Разница: ${diff > 0 ? '+' : ''}${diff}</b><br><span class="details">На смене: <b>${declaredTotal}</b> | Распределено: <b>${actualTotal}</b></span>`;
-            statusDiv.className = "rec-status status-error";
-        }
-        renderAnalytics();
-    }
-
-    function renderAnalytics() {
-        const archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
-        renderHistory(archive);
-        renderTopZones();
-        renderCompare(archive);
-        renderArchive(archive);
-    }
-
-    function renderHistory(archive) {
-        const container = document.getElementById('historyTableContainer');
-        if (!container) return;
-        if (archive.length === 0) { container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Нет отчетов.</p>'; return; }
-        const last7 = archive.slice(0, 7);
-        let html = '<table class="history-table"><thead><tr><th>Дата</th><th>Время</th><th>На смене</th><th>Распр.</th><th>Расх.</th></tr></thead><tbody>';
-        last7.forEach(r => {
-            const diffClass = r.diff === 0 ? 'diff-zero' : (r.diff > 0 ? 'diff-positive' : 'diff-negative');
-            const diffText = r.diff === 0 ? '0' : (r.diff > 0 ? '+' + r.diff : r.diff);
-            html += `<tr><td>${r.date}</td><td>${r.time}</td><td>${r.declaredTotal}</td><td>${r.actualTotal}</td><td class="${diffClass}">${diffText}</td></tr>`;
-        });
-        html += '</tbody></table>';
-        container.innerHTML = html;
-    }
-
-    function renderTopZones() {
-        const container = document.getElementById('topZonesList');
-        if (!container) return;
-        const zones = [];
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr) => {
-            const station = tr.querySelector('.station-name').textContent;
-            const out = Number(tr.querySelector('.input-out')?.value) || 0;
-            const bak = Number(tr.querySelector('.input-bak')?.value) || 0;
-            const sht = Number(tr.querySelector('.input-sht')?.value) || 0;
-            const total = out + bak + sht;
-            if (total > 0) zones.push({ station, total });
-        });
-        if (zones.length === 0) { container.innerHTML = '<li style="color: var(--text-dim); font-size: 12px;">Нет данных.</li>'; return; }
-        zones.sort((a, b) => b.total - a.total);
-        const top5 = zones.slice(0, 5);
-        const maxLoad = top5[0].total;
-        let html = '';
-        top5.forEach((z, i) => {
-            const barWidth = Math.round((z.total / maxLoad) * 100);
-            html += `<li><span class="zone-name">${i + 1}. ${z.station}</span><span><span class="zone-bar" style="width: ${barWidth}px; max-width: 80px;"></span> <b>${z.total}</b></span></li>`;
-        });
-        container.innerHTML = html;
-    }
-
-    function renderCompare(archive) {
-        const container = document.getElementById('compareContainer');
-        if (!container) return;
-        if (archive.length < 2) { container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Нужно минимум 2 отчета.</p>'; return; }
-        const current = archive[0], previous = archive[1];
-        const formatDiff = (d) => d === 0 ? '<span class="diff-zero">0</span>' : (d > 0 ? `<span class="diff-positive">+${d}</span>` : `<span class="diff-negative">${d}</span>`);
-        container.innerHTML = `
-            <div style="font-size: 11px; color: var(--text-dim); margin-bottom: 6px;">Сравнение с <b>${previous.date} ${previous.time}</b></div>
-            <div class="compare-item"><span>На смене:</span> <span>${previous.declaredTotal} → ${current.declaredTotal} ${formatDiff(current.declaredTotal - previous.declaredTotal)}</span></div>
-            <div class="compare-item"><span>Распределено:</span> <span>${previous.actualTotal} → ${current.actualTotal} ${formatDiff(current.actualTotal - previous.actualTotal)}</span></div>
-            <div class="compare-item"><span>Бриг. Стаф:</span> <span>${previous.bst} → ${current.bst} ${formatDiff(current.bst - previous.bst)}</span></div>
-        `;
-    }
-
-    function renderArchive(archive) {
-        const container = document.getElementById('archiveContainer');
-        if (!container) return;
-        document.getElementById('archiveCount').textContent = archive.length;
-        if (archive.length === 0) { container.innerHTML = '<p style="color: var(--text-dim); font-size: 12px;">Архив пуст.</p>'; return; }
-        let html = '';
-        archive.slice(0, 10).forEach(r => {
-            const diffText = r.diff === 0 ? '✅' : (r.diff > 0 ? '⚠️ +' + r.diff : '⚠️ ' + r.diff);
-            html += `<div class="archive-item">
-                <span><b>${r.date} ${r.time}</b> — ${r.declaredTotal} чел. ${diffText}</span>
-                <button onclick="loadFromArchive(${r.id})">Загрузить</button>
-            </div>`;
-        });
-        container.innerHTML = html;
-    }
-
-    function loadFromArchive(id) {
-        const archive = JSON.parse(localStorage.getItem('warehouseArchive')) || [];
-        const report = archive.find(r => r.id === id);
-        if (!report) return;
-        if (!confirm(`Загрузить отчет от ${report.date} ${report.time}?`)) return;
-        document.getElementById('reportDate').value = report.date;
-        document.getElementById('reportTime').value = report.time;
-        document.getElementById('totalAdmin').value = report.admin;
-        document.getElementById('totalStaff').value = report.staff;
-        document.getElementById('totalOut').value = report.out;
-        document.getElementById('totalBrig').value = report.brig;
-        if (document.getElementById('bstSort')) document.getElementById('bstSort').value = report.bst;
-        if (document.getElementById('bstLoad')) document.getElementById('bstLoad').value = 0;
-        const rows = document.querySelectorAll('#reportTable tbody tr:not(.total-row)');
-        report.rows.forEach((row, index) => {
-            if (rows[index]) {
-                const o = rows[index].querySelector('.input-out');
-                const b = rows[index].querySelector('.input-bak');
-                const s = rows[index].querySelector('.input-sht');
-                if (o) o.value = row.out || 0;
-                if (b) b.value = row.bak || 0;
-                if (s) s.value = row.sht || 0;
-                if (row.companies) setRowCompanies(index, row.companies);
-            }
-        });
-        calculateTotals(); saveDebounced();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        alert('✅ Отчет загружен!');
-    }
-
-    function clearArchive() {
-        if (!confirm('Удалить весь архив?')) return;
-        localStorage.removeItem('warehouseArchive');
-        renderAnalytics(); saveDebounced();
-    }
-
-    function clearData() {
-        if(confirm('Очистить все поля? Это удалит все данные из таблицы и сверху.')) {
-            document.querySelectorAll('input[type="number"]').forEach(input => { input.value = ''; });
-            document.getElementById('totalAdmin').value = '0';
-            document.getElementById('totalStaff').value = '0';
-            document.getElementById('totalOut').value = '0';
-            document.getElementById('totalBrig').value = '0';
-            document.querySelectorAll('.companies-list').forEach(list => {
-                list.querySelectorAll('.company-chip').forEach(c => c.remove());
-            });
-            localStorage.removeItem('warehouseReport');
-            calculateTotals();
-            document.getElementById('autosaveIndicator').textContent = '🧹 Очищено';
-            setTimeout(() => { document.getElementById('autosaveIndicator').textContent = ''; }, 2000);
-            saveDebounced();
-        }
-    }
-
+    // ============ PWA ============
     let deferredPrompt = null;
     const installBtn = document.getElementById('installBtn');
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -2616,53 +1018,67 @@
     }
     window.addEventListener('appinstalled', () => { installBtn.style.display = 'none'; });
 
-    function exportCSV() {
-        let csv = 'Рабочая станция;Аутстафф;Бригадир АК;АК Компания;Штат;Бригадир Стаф\n';
-        const sortBst = document.getElementById('bstSort')?.value || '';
-        const loadBst = document.getElementById('bstLoad')?.value || '';
-        document.querySelectorAll('#reportTable tbody tr:not(.total-row)').forEach((tr, idx) => {
-            const station = tr.querySelector('.station-name').textContent;
-            const out = tr.querySelector('.input-out')?.value || '';
-            const bak = tr.querySelector('.input-bak')?.value || '';
-            const companies = getRowCompanies(idx).join(', ');
-            const sht = tr.querySelector('.input-sht')?.value || '';
-            let bst = '';
-            if (idx === 0) bst = sortBst;
-            if (idx === SORT_ZONES.length) bst = loadBst;
-            csv += `${station};${out};${bak};${companies};${sht};${bst}\n`;
-        });
-        csv += '\n--- СВЕРКА ---\n';
-        csv += `Админка;${document.getElementById('totalAdmin').value}\n`;
-        csv += `Штатные;${document.getElementById('totalStaff').value}\n`;
-        csv += `Аутстафф;${document.getElementById('totalOut').value}\n`;
-        csv += `Бригадиры АК;${document.getElementById('totalBrig').value}\n`;
-        csv += `Бриг. Стаф Сорт;${sortBst}\n`;
-        csv += `Бриг. Стаф Отгр;${loadBst}\n`;
-
-        csv += '\n--- ОТГРУЗКА ---\n';
-        csv += 'Направление;Габарит;Негабарит;Тотал;Потр ТС;Есть ТС;X-dok;ВП\n';
-        SHIPMENT_DIRECTIONS.forEach(dir => {
-            const d = SHIPMENT_DATA[dir] || {};
-            const gab = Number(d.gab) || 0;
-            const negab = Number(d.negab) || 0;
-            const sum = gab + negab;
-            csv += `${dir};${gab};${negab};${sum};${d.needTS || 0};${d.haveTS || 0};${d.xdok || 0};${d.vp || 0}\n`;
-        });
-
-        csv += '\n--- ТСД ---\n';
-        csv += 'Номер;MAC;Статус;У кого;Выдан\n';
-        Object.keys(TSD_DATA).forEach(mac => {
-            const t = TSD_DATA[mac];
-            const statusText = { issued: 'Выдан', free: 'Свободен', repair: 'В ремонте', written: 'Списан' }[t.status] || '—';
-            csv += `${t.number || '—'};${mac};${statusText};${t.owner || '—'};${t.issuedAt ? formatTime(t.issuedAt) : '—'}\n`;
-        });
-
-        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.setAttribute('href', URL.createObjectURL(blob));
-        link.setAttribute('download', `Отчет_склад_${document.getElementById('reportDate').value}.csv`);
-        link.click();
+    // ============ СИНХРОНИЗАЦИЯ ============
+    function startSyncLoop() {
+        if (syncTimer) clearInterval(syncTimer);
+        syncTimer = setInterval(async () => {
+            if (isSaving || !serverLoaded || hasUnsaved) return;
+            try {
+                const response = await fetch(BIN_URL + '?t=' + Date.now(), { cache: 'no-store' });
+                if (!response.ok) return;
+                const data = await response.json();
+                const serverTime = data.tsd?.lastModified || 0;
+                const localTime = JSON.parse(localStorage.getItem('warehouseTsd') || '{}').lastModified || 0;
+                if (serverTime > localTime && serverTime > 0) {
+                    if (data.tsd?.data) {
+                        TSD_DATA = data.tsd.data;
+                        localStorage.setItem('warehouseTsd', JSON.stringify(TSD_DATA));
+                    }
+                    if (data.tsd?.history) {
+                        TSD_HISTORY = data.tsd.history;
+                        localStorage.setItem('warehouseTsdHistory', JSON.stringify(TSD_HISTORY));
+                    }
+                    renderAll();
+                    markSaved();
+                }
+            } catch (err) {}
+        }, SYNC_INTERVAL);
     }
+
+    // ============ СТАРТ ============
+    window.addEventListener('load', async () => {
+        renderAll();
+        setTimeout(() => document.getElementById('tsdScanInput')?.focus(), 200);
+
+        const scanInput = document.getElementById('tsdScanInput');
+        scanInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const code = scanInput.value.trim();
+                scanInput.value = '';
+                if (code) handleScan(code);
+            }
+        });
+
+        // Enter в поле логина в модалке выдачи
+        document.getElementById('issueLoginInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                confirmIssue();
+            }
+        });
+
+        // Закрытие модалок по Esc
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('issueModal').classList.contains('active')) closeIssueModal();
+                if (document.getElementById('acceptModal').classList.contains('active')) closeAcceptModal();
+            }
+        });
+
+        await loadFromServer();
+        startSyncLoop();
+    });
 </script>
 
 </body>
