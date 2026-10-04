@@ -169,6 +169,8 @@
         .tsd-table td.owner-cell { font-family: 'Courier New', monospace; color: var(--accent); font-size: 13px; font-weight: 700; }
         .tsd-table td.num-cell { font-weight: 800; color: var(--text); font-size: 15px; }
         .tsd-table td.repair-cell { text-align: center; font-weight: 700; }
+        .tsd-table td.clickable { cursor: pointer; }
+        .tsd-table td.clickable:hover { color: var(--accent); text-decoration: underline; }
 
         .tsd-status {
             display: inline-block; padding: 5px 12px; border-radius: 12px;
@@ -192,6 +194,7 @@
         .tsd-row.issued { background: rgba(184, 134, 11, 0.04); }
         .tsd-row.repair { background: rgba(166, 57, 45, 0.04); }
         .tsd-row.written { background: rgba(154, 141, 115, 0.06); opacity: 0.75; }
+        .tsd-row.overdue { background: rgba(166, 57, 45, 0.12); }
 
         .tsd-action-btn {
             padding: 8px 14px; border: none; border-radius: 6px;
@@ -206,6 +209,7 @@
         .tsd-action-repair { background: linear-gradient(135deg, #FF9800, #E65100); }
         .tsd-action-restore { background: linear-gradient(135deg, #4A6FA5, #2F4A75); }
         .tsd-action-writeoff { background: linear-gradient(135deg, #7A6F58, #5A5040); }
+        .tsd-action-accept-all { background: linear-gradient(135deg, #558B2F, #33691E); padding: 12px 24px; font-size: 14px; min-height: 48px; width: 100%; margin-top: 12px; }
 
         .tsd-actions-cell { text-align: right; white-space: nowrap; }
 
@@ -220,6 +224,9 @@
             border-bottom: 2px solid var(--border);
             padding-bottom: 12px;
         }
+        .summary-block.alert h3 { color: var(--danger); border-bottom-color: rgba(166, 57, 45, 0.3); }
+        .summary-block.alert { border-color: rgba(166, 57, 45, 0.4); }
+
         .cat-summary-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
             margin-bottom: 16px;
@@ -243,8 +250,8 @@
         .cat-summary-item.outstaff .cat-num { color: var(--outstaff); }
         .cat-summary-item.brigout { border-color: rgba(210, 105, 30, 0.4); }
         .cat-summary-item.brigout .cat-num { color: var(--brigout); }
-        .cat-summary-item.brig { border-color: rgba(74, 111, 165, 0.4); }
         .cat-summary-item.brig .cat-num { color: var(--brig); }
+        .cat-summary-item.brig { border-color: rgba(74, 111, 165, 0.4); }
         .cat-summary-item.senior { border-color: rgba(139, 90, 158, 0.4); }
         .cat-summary-item.senior .cat-num { color: var(--senior); }
 
@@ -310,6 +317,39 @@
         .history-item .h-text { flex: 1; color: var(--text); font-weight: 600; }
         .history-item .h-cat { font-size: 12px; font-weight: 700; }
 
+        /* Просроченные карточки */
+        .overdue-card {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 18px;
+            background: rgba(166, 57, 45, 0.08);
+            border: 2px solid rgba(166, 57, 45, 0.35);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .overdue-card:hover {
+            background: rgba(166, 57, 45, 0.15);
+            transform: translateX(4px);
+        }
+        .overdue-card .login {
+            font-family: 'Courier New', monospace;
+            font-weight: 800;
+            color: var(--danger);
+            font-size: 15px;
+        }
+        .overdue-card .info {
+            text-align: right;
+            font-size: 13px;
+        }
+        .overdue-card .hours {
+            font-weight: 800;
+            color: var(--danger);
+        }
+        .overdue-card .count {
+            color: var(--text-dim);
+        }
+
         .export-btn {
             display: inline-flex; align-items: center; gap: 8px;
             padding: 12px 20px;
@@ -321,6 +361,7 @@
             box-shadow: 0 4px 12px rgba(77, 124, 63, 0.3);
         }
         .export-btn:active { transform: scale(0.97); }
+        .export-btn.blue { background: linear-gradient(135deg, #4A6FA5, #2F4A75); box-shadow: 0 4px 12px rgba(74, 111, 165, 0.3); }
 
         .tsd-modal {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -481,6 +522,19 @@
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
+
+        /* Список ТСД сотрудника */
+        .holder-tsd-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 400px; overflow-y: auto; }
+        .holder-tsd-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+        }
+        .holder-tsd-item .num { font-weight: 800; font-size: 15px; }
+        .holder-tsd-item .mac { font-family: 'Courier New', monospace; font-size: 12px; color: var(--text-dim); }
+        .holder-tsd-item .time { font-size: 12px; color: var(--text-dim); }
 
         @media (max-width: 900px) {
             .tsd-summary { grid-template-columns: repeat(3, 1fr); }
@@ -654,6 +708,12 @@
             <div class="companies-breakdown" id="companiesBreakdown"></div>
         </div>
 
+        <!-- НОВЫЙ БЛОК: Кто не сдал -->
+        <div class="summary-block alert" id="overdueBlock" style="display: none;">
+            <h3>⚠️ Кто не сдал ТСД (больше 24 часов)</h3>
+            <div id="overdueList"></div>
+        </div>
+
         <div class="summary-block">
             <h3>👥 Кто держит ТСД</h3>
             <div class="tsd-filters" style="margin-bottom: 14px;">
@@ -684,7 +744,8 @@
 
         <div class="summary-block">
             <h3>📜 История за 48 часов</h3>
-            <button class="export-btn" onclick="exportHistoryCSV()">📥 Экспорт в Excel</button>
+            <button class="export-btn" onclick="exportHistoryCSV()">📥 Экспорт истории</button>
+            <button class="export-btn blue" onclick="exportFullBaseCSV()">📦 Экспорт всей базы ТСД</button>
             <button class="export-btn" style="background:linear-gradient(135deg,#A6392D,#7A281E);" onclick="clearHistory()">🗑️ Очистить историю</button>
             <div id="historyList">
                 <div style="color: var(--text-dim); font-size: 13px; padding: 20px; text-align: center;">
@@ -751,6 +812,23 @@
     </div>
 </div>
 
+<!-- НОВАЯ МОДАЛКА: ТСД сотрудника -->
+<div class="tsd-modal" id="holderModal">
+    <div class="tsd-modal-content">
+        <h3>👤 ТСД сотрудника</h3>
+        <div class="subtitle" id="holderLoginDisplay">—</div>
+        <div class="tsd-info-box">
+            <div class="tsd-info-row"><span class="label">Категория:</span><span class="value" id="holderCategory">—</span></div>
+            <div class="tsd-info-row"><span class="label">Кол-во ТСД:</span><span class="value" id="holderCount">0</span></div>
+        </div>
+        <div class="holder-tsd-list" id="holderTsdList"></div>
+        <button class="tsd-action-btn tsd-action-accept-all" id="acceptAllBtn" onclick="acceptAllFromHolder()">📥 Сдать все ТСД</button>
+        <div class="tsd-modal-buttons">
+            <button class="tsd-modal-btn-cancel" onclick="closeHolderModal()" style="width:100%;">Закрыть</button>
+        </div>
+    </div>
+</div>
+
 <div class="tsd-modal" id="companiesModal">
     <div class="tsd-modal-content">
         <h3>⚙️ Компании аутстаффа</h3>
@@ -771,6 +849,7 @@
     const FETCH_TIMEOUT = 10000;
     const RETRY_DELAY = 5000;
     const HISTORY_HOURS = 48;
+    const OVERDUE_HOURS = 24;
 
     const DEFAULT_COMPANIES = ["Кадры", "Чередниченко", "Армас", "Мирус", "Виро-Стафф", "Скилла", "Юнитворк", "Эг Стафф"];
 
@@ -783,6 +862,7 @@
     let SUMMARY_CAT = 'all';
     let currentIssueMac = null;
     let currentAcceptMac = null;
+    let currentHolderLogin = null;
     let currentTab = 'all';
     let repairMode = 'to';
     let selectedCategory = null;
@@ -820,6 +900,14 @@
         if (days > 0) return days + ' дн.';
         if (hours > 0) return hours + ' ч.';
         return 'только что';
+    }
+    function formatHoldHours(ts) {
+        if (!ts) return '—';
+        const diff = Date.now() - ts;
+        const hours = Math.floor(diff / (60 * 60 * 1000));
+        const days = Math.floor(hours / 24);
+        if (days > 0) return days + ' дн. ' + (hours % 24) + ' ч.';
+        return hours + ' ч.';
     }
     function getNextTsdNumber() {
         let max = 0;
@@ -1054,6 +1142,12 @@
         document.getElementById('tsdWritten').textContent = all.filter(m => TSD_DATA[m].status === 'written').length;
     }
 
+    function isOverdue(tsd) {
+        if (tsd.status !== 'issued' || !tsd.issuedAt) return false;
+        const hours = (Date.now() - tsd.issuedAt) / (60 * 60 * 1000);
+        return hours >= OVERDUE_HOURS;
+    }
+
     function renderTable() {
         const tbody = document.getElementById('tsdTableBody');
         if (!tbody) return;
@@ -1088,6 +1182,7 @@
         let html = '';
         items.forEach((it, i) => {
             const statusText = { issued: 'Выдан', free: 'Свободен', written: 'Списан' }[it.status] || '—';
+            const overdue = isOverdue(it);
 
             let catBadge = '—';
             if (it.status === 'issued' && it.category) {
@@ -1104,12 +1199,12 @@
                 actions = `<button class="tsd-action-btn tsd-action-restore" onclick="fromRepair('${it.mac}')">↩️ Вернуть</button>`;
             }
 
-            html += `<tr class="tsd-row ${it.status || ''}">
+            html += `<tr class="tsd-row ${it.status || ''} ${overdue ? 'overdue' : ''}">
                 <td>${i + 1}</td>
                 <td class="num-cell">${it.number || '—'}</td>
                 <td class="mac-cell">${it.mac}</td>
                 <td><span class="tsd-status ${it.status}">${statusText}</span></td>
-                <td class="owner-cell">${it.owner || '—'}</td>
+                <td class="owner-cell clickable" onclick="openHolderModal('${it.owner || ''}')">${it.owner || '—'}</td>
                 <td>${catBadge}</td>
                 <td>${formatTime(it.issuedAt)}</td>
                 <td class="tsd-actions-cell">${actions}</td>
@@ -1237,8 +1332,53 @@
 
         breakdown.innerHTML = breakdownHtml;
 
+        renderOverdue();
         renderSummaryHolders();
         renderHistory();
+    }
+
+    function renderOverdue() {
+        const block = document.getElementById('overdueBlock');
+        const list = document.getElementById('overdueList');
+        
+        // Группируем просроченные ТСД по сотрудникам
+        const overdueHolders = {};
+        Object.values(TSD_DATA).forEach(t => {
+            if (isOverdue(t) && t.owner) {
+                if (!overdueHolders[t.owner]) {
+                    overdueHolders[t.owner] = { count: 0, oldest: t.issuedAt, category: t.category, company: t.company };
+                }
+                overdueHolders[t.owner].count++;
+                if (t.issuedAt < overdueHolders[t.owner].oldest) overdueHolders[t.owner].oldest = t.issuedAt;
+            }
+        });
+
+        const logins = Object.keys(overdueHolders);
+        if (logins.length === 0) {
+            block.style.display = 'none';
+            return;
+        }
+
+        block.style.display = 'block';
+        logins.sort((a, b) => overdueHolders[b].count - overdueHolders[a].count);
+
+        let html = '';
+        logins.forEach(login => {
+            const d = overdueHolders[login];
+            const catInfo = d.category ? getCategoryLabel(d.category, d.company) : null;
+            const catText = catInfo ? catInfo.text : '—';
+            html += `<div class="overdue-card" onclick="openHolderModal('${login}')">
+                <div>
+                    <div class="login">${login}</div>
+                    <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">${catText}</div>
+                </div>
+                <div class="info">
+                    <div class="hours">${formatHoldHours(d.oldest)}</div>
+                    <div class="count">${d.count} ТСД</div>
+                </div>
+            </div>`;
+        });
+        list.innerHTML = html;
     }
 
     function renderSummaryHolders() {
@@ -1272,17 +1412,18 @@
 
         let html = '';
         items.forEach((it, i) => {
+            const overdue = isOverdue(it);
             let catBadge = '—';
             if (it.category) {
                 const catInfo = getCategoryLabel(it.category, it.company);
                 if (catInfo) catBadge = `<span class="cat-badge ${catInfo.cls}">${catInfo.text}</span>`;
             }
 
-            html += `<tr class="tsd-row issued">
+            html += `<tr class="tsd-row issued ${overdue ? 'overdue' : ''}">
                 <td>${i + 1}</td>
                 <td class="num-cell">${it.number || '—'}</td>
                 <td class="mac-cell">${it.mac}</td>
-                <td class="owner-cell">${it.owner || '—'}</td>
+                <td class="owner-cell clickable" onclick="openHolderModal('${it.owner || ''}')">${it.owner || '—'}</td>
                 <td>${catBadge}</td>
                 <td>${formatTime(it.issuedAt)}</td>
             </tr>`;
@@ -1584,6 +1725,67 @@
         renderAll();
     }
 
+    // ============ МОДАЛКА СТРУДНИКА ============
+    function openHolderModal(login) {
+        if (!login) return;
+        // Проверим, есть ли ТСД у этого сотрудника
+        const tsdList = Object.keys(TSD_DATA)
+            .map(mac => ({ mac, ...TSD_DATA[mac] }))
+            .filter(t => t.owner === login && t.status === 'issued');
+
+        if (tsdList.length === 0) return;
+
+        currentHolderLogin = login;
+        document.getElementById('holderLoginDisplay').textContent = login;
+
+        const first = tsdList[0];
+        const catInfo = first.category ? getCategoryLabel(first.category, first.company) : null;
+        document.getElementById('holderCategory').textContent = catInfo ? catInfo.text : '—';
+        document.getElementById('holderCount').textContent = tsdList.length;
+
+        let html = '';
+        tsdList.sort((a, b) => (a.number || '').localeCompare(b.number || '')).forEach(t => {
+            const overdue = isOverdue(t);
+            html += `<div class="holder-tsd-item" ${overdue ? 'style="border-color:rgba(166,57,45,0.5);background:rgba(166,57,45,0.08);"' : ''}>
+                <div>
+                    <div class="num">${t.number || '—'} ${overdue ? '⚠️' : ''}</div>
+                    <div class="mac">${t.mac}</div>
+                </div>
+                <div class="time">${formatHoldHours(t.issuedAt)}</div>
+            </div>`;
+        });
+        document.getElementById('holderTsdList').innerHTML = html;
+        document.getElementById('holderModal').classList.add('active');
+    }
+
+    function closeHolderModal() {
+        document.getElementById('holderModal').classList.remove('active');
+        currentHolderLogin = null;
+    }
+
+    function acceptAllFromHolder() {
+        if (!currentHolderLogin) return;
+        const login = currentHolderLogin;
+        const tsdList = Object.keys(TSD_DATA).filter(mac => TSD_DATA[mac].owner === login && TSD_DATA[mac].status === 'issued');
+
+        if (tsdList.length === 0) { closeHolderModal(); return; }
+        if (!confirm(`Сдать все ${tsdList.length} ТСД от ${login}?`)) return;
+
+        tsdList.forEach(mac => {
+            const tsd = TSD_DATA[mac];
+            tsd.status = 'free';
+            tsd.owner = null;
+            tsd.category = null;
+            tsd.company = null;
+            tsd.issuedAt = null;
+            addHistory('accept', tsd.number, login, mac);
+        });
+
+        saveDebounced();
+        closeHolderModal();
+        renderAll();
+    }
+
     function fromRepair(mac) {
         const tsd = TSD_DATA[mac];
         if (!tsd) return;
@@ -1613,6 +1815,7 @@
         saveDebounced();
     }
 
+    // ============ ЭКСПОРТ ИСТОРИИ ============
     function exportHistoryCSV() {
         const cutoff = Date.now() - HISTORY_HOURS * 60 * 60 * 1000;
         const history = TSD_HISTORY.filter(h => h.time >= cutoff);
@@ -1638,7 +1841,37 @@
             csv += `${dt};${actionText};${h.number || ''};${h.owner || ''};${catText};${h.company || ''}\n`;
         });
 
-        csv += '\n--- СВОДКА ПО КАТЕГОРИЯМ (выдано сейчас) ---\n';
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const now = new Date();
+        const fname = `ТСД_История_${now.toISOString().split('T')[0]}.csv`;
+        link.setAttribute('href', URL.createObjectURL(blob));
+        link.setAttribute('download', fname);
+        link.click();
+    }
+
+    // ============ ЭКСПОРТ ВСЕЙ БАЗЫ ============
+    function exportFullBaseCSV() {
+        let csv = 'Номер ТСД;MAC;Статус;Сотрудник;Категория;Компания;Выдан;В ремонте с\n';
+
+        Object.keys(TSD_DATA).sort((a, b) => (TSD_DATA[a].number || '').localeCompare(TSD_DATA[b].number || '')).forEach(mac => {
+            const t = TSD_DATA[mac];
+            const statusText = { issued: 'Выдан', free: 'Свободен', repair: 'В ремонте', written: 'Списан' }[t.status] || '—';
+
+            let catText = '';
+            if (t.category) {
+                const info = getCategoryLabel(t.category, t.company);
+                if (info) catText = info.text.replace(/[🟢🟡🟠🔵🟣]/g, '').trim();
+            }
+
+            const issued = t.issuedAt ? formatDateTime(t.issuedAt) : '';
+            const repair = t.repairStartedAt ? formatDateTime(t.repairStartedAt) : '';
+
+            csv += `${t.number || ''};${mac};${statusText};${t.owner || ''};${catText};${t.company || ''};${issued};${repair}\n`;
+        });
+
+        // Сводка по категориям
+        csv += '\n--- СВОДКА ПО КАТЕГОРИЯМ ---\n';
         const issued = Object.values(TSD_DATA).filter(t => t.status === 'issued');
         const counts = { staff: 0, outstaff: 0, brigout: 0, brig: 0, senior: 0 };
         const companyCounts = { outstaff: {}, brigout: {} };
@@ -1661,12 +1894,12 @@
         });
         csv += `Штатные бригадиры;${counts.brig}\n`;
         csv += `Старшие смены;${counts.senior}\n`;
-        csv += `ВСЕГО;${issued.length}\n`;
+        csv += `ВСЕГО ВЫДАНО;${issued.length}\n`;
 
         const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const now = new Date();
-        const fname = `ТСД_Сводка_${now.toISOString().split('T')[0]}.csv`;
+        const fname = `ТСД_База_${now.toISOString().split('T')[0]}.csv`;
         link.setAttribute('href', URL.createObjectURL(blob));
         link.setAttribute('download', fname);
         link.click();
@@ -1759,6 +1992,7 @@
                 if (document.getElementById('issueModal').classList.contains('active')) closeIssueModal();
                 if (document.getElementById('acceptModal').classList.contains('active')) closeAcceptModal();
                 if (document.getElementById('companiesModal').classList.contains('active')) closeCompaniesModal();
+                if (document.getElementById('holderModal').classList.contains('active')) closeHolderModal();
             }
         });
 
