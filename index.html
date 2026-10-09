@@ -11,7 +11,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
         * { box-sizing: border-box; }
         :root {
@@ -24,7 +23,6 @@
         body { font-family: 'Montserrat', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; font-size: 14px; -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; min-height: 100vh; font-weight: 500; }
         svg.icon { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 
-        /* === ЭКРАН БЛОКИРОВКИ === */
         .lock-screen { position: fixed; inset: 0; background: linear-gradient(135deg, var(--bg) 0%, #E5DCC0 100%); z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .lock-screen.hidden { display: none; }
         .lock-box { background: var(--bg-card); border: 2px solid var(--border); border-radius: 20px; padding: 40px 32px; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(61, 53, 32, 0.25); text-align: center; }
@@ -39,7 +37,6 @@
         .lock-btn:active { transform: scale(0.97); }
         .lock-error { color: var(--danger); font-size: 13px; font-weight: 700; margin-top: 12px; min-height: 20px; }
 
-        /* === ОСНОВНОЕ === */
         .app-root { display: none; }
         .app-root.unlocked { display: block; }
 
@@ -264,7 +261,7 @@
         </div>
 
         <div class="tsd-scan-box">
-            <label><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg> Сканируйте Я.номер ТСД или учётную запись сотрудника (начинается на skaz)</label>
+            <label><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg> Сканируйте Я.номер ТСД или учётную запись сотрудника</label>
             <input type="text" class="tsd-scan-input" id="tsdScanInput" placeholder="1742539077210 или skaz-khuziev7" autocomplete="off" autofocus>
             <div class="tsd-scan-hint">Наведи сканер — обработка автоматическая (Enter не нужен).</div>
         </div>
@@ -406,13 +403,13 @@
 <div class="tsd-modal" id="issueModal">
     <div class="tsd-modal-content">
         <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg> Выдать ТСД</h3>
-        <div class="subtitle">Отсканируй учётную запись сотрудника (начинается на skaz)</div>
+        <div class="subtitle">Отсканируй учётную запись сотрудника</div>
         <div class="tsd-info-box">
             <div class="tsd-info-row"><span class="label">ТСД:</span><span class="value" id="issueTsdNum">—</span></div>
             <div class="tsd-info-row"><span class="label">Я.номер:</span><span class="value" id="issueTsdMac">—</span></div>
             <div class="tsd-info-row"><span class="label">Учётка:</span><span class="value" id="issueLoginDisplay">—</span></div>
         </div>
-        <label class="modal-section-label">Учётная запись сотрудника (skaz...)</label>
+        <label class="modal-section-label">Учётная запись сотрудника</label>
         <input type="text" id="issueLoginInput" placeholder="skaz-khuziev7" autocomplete="off">
         <div class="tsd-modal-buttons">
             <button class="tsd-modal-btn-cancel" onclick="closeIssueModal()">Отмена</button>
@@ -485,9 +482,6 @@
     let repairMode = 'to';
     let adminSelection = new Set();
 
-    // ============================================================
-    // ПАРОЛЬ
-    // ============================================================
     function checkPassword() {
         const input = document.getElementById('lockInput');
         const val = input.value.trim();
@@ -593,7 +587,7 @@
             loginTimer = setTimeout(() => {
                 if (currentIssueMac) {
                     const login = loginInput.value.trim();
-                    if (login.length >= 4 && login.toLowerCase().startsWith('skaz')) confirmIssue();
+                    if (login.length >= 2) confirmIssue();
                 }
             }, SCAN_DEBOUNCE_MS);
         });
@@ -623,9 +617,6 @@
         }, 60000);
     }
 
-    // ============================================================
-    // TOAST
-    // ============================================================
     function showToast(text, type = 'success', duration = 3000) {
         let container = document.getElementById('toastContainer');
         if (!container) {
@@ -645,18 +636,16 @@
         }, duration);
     }
 
-    // ============================================================
-    // ВАЛИДАЦИЯ Я.НОМЕРОВ И ЛОГИНОВ
-    // ============================================================
     // Я.номер ТСД — 12 hex (MAC-стиль) ИЛИ 8-16 цифр (числовой ID)
     function isMacCode(code) { return /^[A-F0-9]{12}$/.test(code); }
     function isNumericCode(code) { return /^[0-9]{8,16}$/.test(code); }
     function isValidTsdCode(code) { return isMacCode(code) || isNumericCode(code); }
 
-    // Учётка сотрудника — всегда начинается на skaz (регистр не важен)
+    // Учётка сотрудника — ЛЮБАЯ непустая строка >= 2 символов
     function isStaffLogin(raw) {
         if (!raw) return false;
-        return String(raw).trim().toLowerCase().startsWith('skaz');
+        const s = String(raw).trim();
+        return s.length >= 2;
     }
 
     function normalizeCode(raw) {
@@ -667,15 +656,13 @@
         return s.replace(/[^A-Za-z0-9\-]/g, '').toUpperCase();
     }
 
-    // Нормализация логина — только нижний регистр, без обрезания дефисов
+    // Нормализация логина — сохраняем любые буквы/цифры/дефис/подчёркивание/точку
     function normalizeLogin(raw) {
         if (!raw) return '';
         let s = String(raw).trim().toLowerCase();
-        // Убираем служебные префиксы сканера, если есть
         s = s.replace(/^wifi\s*mac\s*[:\-]?\s*/i, '');
         s = s.replace(/^(sn|s\/n|id|barcode|qr)\s*[:\-]?\s*/i, '');
-        // Оставляем буквы, цифры, дефис
-        return s.replace(/[^a-z0-9\-]/g, '');
+        return s.replace(/[^\w\-\.\u0400-\u04FF]/g, '');
     }
 
     function formatTime(ts) { if (!ts) return '—'; return new Date(Number(ts)).toTimeString().slice(0, 5); }
@@ -1029,7 +1016,6 @@
         else showToast(`Удалено ${deleted}, ошибок: ${errors}`, 'warn');
     }
 
-    // ============================================================
     async function addHistory(action, number, owner, mac) {
         const entry = { time: Date.now(), action, number, owner: owner || '', mac: mac || '' };
         TSD_HISTORY.unshift(entry);
@@ -1043,31 +1029,26 @@
     function handleScan(rawCode) {
         if (!rawCode) return;
         const raw = String(rawCode).trim();
+        const norm = normalizeCode(raw);
+        const issueModalOpen = document.getElementById('issueModal').classList.contains('active');
+        const acceptModalOpen = document.getElementById('acceptModal').classList.contains('active');
 
-        // === 1. Проверяем, не логин ли это (skaz...) ===
-        if (isStaffLogin(raw)) {
-            const login = normalizeLogin(raw);
-            // Логин сканируют ТОЛЬКО когда открыта модалка выдачи
-            const issueModalOpen = document.getElementById('issueModal').classList.contains('active');
+        // Если код НЕ похож на Я.номер ТСД (не 12 hex и не 8-16 цифр) —
+        // считаем его учётной записью. Работает только при открытой модалке выдачи.
+        if (!isValidTsdCode(norm)) {
             if (issueModalOpen) {
+                const login = normalizeLogin(raw);
+                if (!login) { showToast('Не распознана учётка', 'error'); return; }
                 document.getElementById('issueLoginInput').value = login;
                 onLoginChange();
                 confirmIssue();
             } else {
-                showToast('Учётка сотрудника. Сначала отсканируй Я.номер ТСД', 'warn');
+                showToast(`Не распознан код: ${raw}`, 'error');
             }
             return;
         }
 
-        // === 2. Иначе — это Я.номер ТСД ===
-        const norm = normalizeCode(raw);
-        if (!isValidTsdCode(norm)) {
-            showToast(`Не распознан код: ${norm}`, 'error');
-            return;
-        }
-        const issueModalOpen = document.getElementById('issueModal').classList.contains('active');
-        const acceptModalOpen = document.getElementById('acceptModal').classList.contains('active');
-        if (issueModalOpen || acceptModalOpen) return; // уже что-то открыто
+        if (issueModalOpen || acceptModalOpen) return;
         handleMac(norm);
     }
 
@@ -1133,15 +1114,14 @@
         const login = normalizeLogin(raw);
         document.getElementById('issueLoginDisplay').textContent = login || '—';
         const btn = document.getElementById('issueConfirmBtn');
-        // Кнопка активна, только если логин начинается на skaz
-        btn.disabled = !isStaffLogin(login);
+        btn.disabled = !login || login.length < 2;
     }
 
     async function confirmIssue() {
         if (!currentIssueMac) return;
         const raw = document.getElementById('issueLoginInput').value;
         const login = normalizeLogin(raw);
-        if (!isStaffLogin(login)) { showToast('Учётка должна начинаться на skaz', 'error'); return; }
+        if (!login || login.length < 2) { showToast('Введите учётную запись', 'error'); return; }
         const tsd = TSD_DATA[currentIssueMac];
         if (!tsd) return;
 
